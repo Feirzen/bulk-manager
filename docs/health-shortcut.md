@@ -25,7 +25,7 @@ New shortcut, name it **Sync Health**. Add these in order.
 **1. Find Health Samples**
 - Type: `Active Energy`
 - Sort by: `Start Date`, Order: `Latest First`
-- Tap **Add Filter**: `Start Date` `is today` — then change it to **yesterday** by tapping the date option
+- Tap **Add Filter**: `Start Date` `is today`, then change it to **yesterday**
 - Turn **Limit** off
 
 **2. Calculate Statistics**
@@ -48,15 +48,18 @@ New shortcut, name it **Sync Health**. Add these in order.
 - Detail: `Value`
 - Rename to `Weight`
 
-**7. Format Date**
-- Date: `Current Date`
+**7. Adjust Date**
+- Date: `Current Date`, subtract `1` day
+
+**8. Format Date**
+- Date: the Adjusted Date from step 7
 - Format: `Custom`
 - Format string: `yyyy-MM-dd`
-- Rename to `Today`
+- Rename to `Yesterday`
 
-You also need yesterday's date for the payload. Add **Adjust Date** (Current Date, subtract 1 day) followed by another **Format Date** with the same `yyyy-MM-dd`, renamed `Yesterday`. Use `Yesterday` inside the JSON and `Today` in nothing, or use `Yesterday` for both the filename and the field so the file matches the data it holds. Simplest: use `Yesterday` everywhere.
+Use `Yesterday` for both the filename and the date field, so the file always matches the data inside it.
 
-**8. Text**
+**9. Text**
 
 ```
 {"date":"[Yesterday]","active_energy_kcal":[Active],"steps":[Steps],"body_mass_lb":[Weight],"source":"shortcut"}
@@ -64,35 +67,48 @@ You also need yesterday's date for the payload. Add **Adjust Date** (Current Dat
 
 Each bracketed item is the renamed variable, inserted from the variable bar above the keyboard. Do not type the brackets.
 
-**9. Base64 Encode**
-- Input: the Text from step 8
-- Line breaks: **None** (tap the arrow to expand options; this matters, GitHub rejects wrapped base64)
+**10. Base64 Encode**
+- Input: the Text from step 9
+- Line breaks: **None** (tap the arrow to expand options; GitHub rejects wrapped base64)
 
-**10. Text**
+**11. Text**
 
 ```
 {"message":"Health sync [Yesterday]","content":"[Base64 Encoded]"}
 ```
 
-**11. Get Contents of URL**
+**12. Get Contents of URL**
 - URL: `https://api.github.com/repos/Feirzen/bulk-manager/contents/data/health/[Yesterday].json`
+
+  The `[Yesterday]` chip must be the **Format Date output** from step 8, not Current Date. A raw date resolves to something like `August 22, 2026 at 5:26 PM`, and the spaces break the URL.
 - Method: **PUT**
-- Headers:
-  - `Authorization` = `Bearer YOUR_TOKEN_HERE`
-  - `Accept` = `application/vnd.github+json`
-- Request Body: **File**, and select the Text from step 10
+- Request Body: **File**, and select the Text from step 11
+
+Headers. Each is a **Key** and a **Text** value, and the split matters. The word `Bearer` belongs in the value, not the key.
+
+| Key | Text |
+|---|---|
+| `Authorization` | `Bearer github_pat_...` |
+| `Accept` | `application/vnd.github+json` |
+| `User-Agent` | `Shortcuts` |
+
+One space between `Bearer` and the token. GitHub's API rejects requests with no User-Agent and Shortcuts does not reliably send one, so that third header is required rather than optional.
 
 ## Test it
 
-Run the shortcut manually. Then check `data/health/` in the repo for a new file. If nothing appears, add a **Quick Look** action after step 11 and run again. GitHub returns a readable error.
+Run the shortcut manually, then check `data/health/` in the repo for a new file. If nothing appears, add a **Quick Look** action after step 12 and run again. GitHub returns a readable error instead of leaving Shortcuts to guess.
 
 Common causes:
-- `401` the token is wrong or missing `Bearer `
-- `404` the repo path is misspelled, or the token has no access to this repo
-- `422` the base64 has line breaks, or the file already exists for that date
+
+- **"The network connection was lost"** usually is not the network. It is a malformed request: a missing `User-Agent`, or spaces in the URL from an unformatted date variable
+- `401` the header key is `Bearer` instead of `Authorization`, or the value is missing the `Bearer ` prefix
+- `404` the path is misspelled, or the token cannot reach this repo. GitHub returns 404 rather than 403 for unauthorized writes, so a 404 often means an auth problem and not a typo
+- `422` the base64 has line breaks, or a file already exists for that date
+
+A successful response contains the file path and a commit SHA. Remove Quick Look once you see it.
 
 ## Automate it
 
-Shortcuts app, **Automation** tab, **+**, **Time of Day**, 7:00 AM, Daily. Action: **Run Shortcut** and pick `Sync Health`. Turn **Ask Before Running** off.
+Shortcuts app, **Automation** tab, **+**, **Time of Day**, 7:00 AM, Daily. Action: **Run Shortcut**, pick `Sync Health`. Turn **Ask Before Running** off.
 
 Done. It runs itself from then on.
