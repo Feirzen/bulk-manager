@@ -1,0 +1,30 @@
+{
+  "profile": {
+    "height_in": 74,
+    "starting_weight_lb": 170,
+    "start_date": "2026-09-01",
+    "gym": "EOS Fitness, Orem"
+  },
+  "targets": {
+    "calories": 3100,
+    "protein_g": 165,
+    "weight_gain_lb_per_week": 0.35,
+    "provisional": true,
+    "calibrate_on": "2026-09-15",
+    "note": "Provisional. Derived from Mifflin-St Jeor at 170 lb / 74 in with a 1.6 activity multiplier, plus a ~250 kcal surplus. Replace with a trend-derived number after 14 days of logging."
+  },
+  "streak_rules": {
+    "conditions": ["logged_at_least_one_meal", "protein_target_met"],
+    "note": "Calories are deliberately not a streak condition. Photo estimates are too noisy to gate a streak on."
+  },
+  "schedule": {
+    "lift": ["Mon", "Wed", "Fri"],
+    "walk": ["Tue", "Thu"],
+    "flex": ["Sat"],
+    "rest": ["Sun"]
+  },
+  "review_cadence": {
+    "weekly": "Sunday. Set next week's calorie and protein target from weight trend. Generate next week's MWF sessions plus two optional add-ins.",
+    "monthly": "Progress summary email. InBody, tape, lift progression, adherence."
+  }
+}

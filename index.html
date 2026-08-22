@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#E9EAEC">
+<title>Bulk Manager</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/app.css">
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <h1>Bulk Manager</h1>
+    <span class="date" id="today"></span>
+  </header>
+
+  <!-- TODAY -->
+  <section class="panel on" id="p-today">
+    <div class="card">
+      <div class="gauge-head">
+        <div>
+          <div class="eyebrow">Calories remaining</div>
+          <div class="num gauge-big" id="remain">&mdash;</div>
+        </div>
+        <div class="gauge-right">
+          <span id="eaten">0</span> / <span id="goal">0</span><br>
+          <span id="provisional"></span>
+        </div>
+      </div>
+      <div class="gauge"><svg id="gauge" viewBox="0 0 320 44" preserveAspectRatio="none" aria-hidden="true"></svg></div>
+    </div>
+
+    <div class="card">
+      <div class="row">
+        <span class="eyebrow">Protein floor</span>
+        <span><span class="num" id="pnow">0</span> <span style="color:var(--ink-3);font-size:11px">/ <span id="pgoal">0</span> g</span></span>
+      </div>
+      <div class="pbar" id="pbar"><i style="width:0%"></i></div>
+    </div>
+
+    <div class="strip">
+      <div><span class="eyebrow">Streak</span><span class="num" id="streak">0</span></div>
+      <div><span class="eyebrow">Weight trend</span><span class="num" id="wtrend">&mdash;</span></div>
+      <div><span class="eyebrow">Next lift</span><span class="num" id="nextlift">&mdash;</span></div>
+    </div>
+
+    <div class="card">
+      <h2>Logged today</h2>
+      <div id="todaylist"></div>
+    </div>
+  </section>
+
+  <!-- NUTRITION -->
+  <section class="panel" id="p-nutrition">
+    <div id="nutlist"></div>
+  </section>
+
+  <!-- EXERCISE -->
+  <section class="panel" id="p-exercise">
+    <div class="card">
+      <h2>Recent sessions</h2>
+      <div id="sessionlist"></div>
+    </div>
+    <div class="card">
+      <h2>Daily activity</h2>
+      <div id="healthlist"></div>
+    </div>
+  </section>
+</div>
+
+<nav>
+  <button class="on" data-p="today">Today</button>
+  <button data-p="nutrition">Nutrition</button>
+  <button data-p="exercise">Exercise</button>
+  <a href="workout.html">Workout</a>
+</nav>
+
+<script src="assets/data.js"></script>
+<script>
+document.querySelectorAll('nav button').forEach(b => {
+  b.onclick = () => {
+    document.querySelectorAll('nav button').forEach(x => x.classList.remove('on'));
+    document.querySelectorAll('.panel').forEach(x => x.classList.remove('on'));
+    b.classList.add('on');
+    document.getElementById('p-' + b.dataset.p).classList.add('on');
+    window.scrollTo(0, 0);
+  };
+});
+
+// Signature element: a chart-recorder scale. Ticks every 500 kcal, a filled
+// track for what's eaten, and a needle at the current position.
+function drawGauge(eaten, goal) {
+  const W = 320, BASE = 30, H = 12;
+  const max = Math.max(goal * 1.15, eaten * 1.05, 1);
+  const x = v => Math.min(v / max, 1) * W;
+  let s = `<rect x="0" y="${BASE - H}" width="${W}" height="${H}" fill="#E9EAEC"/>`;
+  const over = eaten > goal;
+  s += `<rect x="0" y="${BASE - H}" width="${x(Math.min(eaten, goal))}" height="${H}" fill="#2B50D4"/>`;
+  if (over) s += `<rect x="${x(goal)}" y="${BASE - H}" width="${x(eaten) - x(goal)}" height="${H}" fill="#C4342A"/>`;
+  for (let v = 0; v <= max; v += 500) {
+    const tall = v % 1000 === 0;
+    s += `<line x1="${x(v)}" y1="${BASE}" x2="${x(v)}" y2="${BASE + (tall ? 6 : 3)}" stroke="#C9CDD3" stroke-width="1"/>`;
+    if (tall && v > 0) s += `<text x="${x(v)}" y="${BASE + 15}" font-family="IBM Plex Mono,monospace" font-size="7" fill="#8B939E" text-anchor="middle">${v / 1000}k</text>`;
+  }
+  s += `<line x1="${x(goal)}" y1="${BASE - H - 5}" x2="${x(goal)}" y2="${BASE + 2}" stroke="#141B26" stroke-width="1.5"/>`;
+  s += `<text x="${x(goal)}" y="${BASE - H - 8}" font-family="IBM Plex Mono,monospace" font-size="7" fill="#141B26" text-anchor="middle">GOAL</text>`;
+  document.getElementById('gauge').innerHTML = s;
+}
+
+function entryRow(e) {
+  return `<div class="entry">
+    <div><div class="desc">${e.description}</div>
+    <div class="meta">${e.time || ''}${e.confidence === 'low' ? '<span class="flag">est</span>' : ''}</div></div>
+    <div class="vals"><b>${e.calories}</b><span>${e.protein_g}g</span></div>
+  </div>`;
+}
+
+(async function () {
+  const now = new Date();
+  const todayISO = isoDate(now);
+  document.getElementById('today').textContent = prettyDate(todayISO);
+
+  const [state, nutrition, log] = await Promise.all([
+    load('data/state.json', {}),
+    load(`data/nutrition/${monthKey(now)}.json`, { days: {} }),
+    load(`data/workouts/log-${monthKey(now)}.json`, { sessions: [] })
+  ]);
+
+  const goal = state.calorie_goal || 0;
+  const eaten = state.calories_consumed || 0;
+  const rem = goal - eaten;
+
+  const el = document.getElementById('remain');
+  el.textContent = Math.abs(rem).toLocaleString();
+  el.insertAdjacentHTML('beforeend', `<span class="gauge-unit">${rem < 0 ? 'over' : 'left'}</span>`);
+  if (rem < 0) el.classList.add('over');
+
+  document.getElementById('eaten').textContent = eaten.toLocaleString();
+  document.getElementById('goal').textContent = goal.toLocaleString();
+  if (state.provisional_targets) document.getElementById('provisional').innerHTML = '<span class="flag">provisional</span>';
+  drawGauge(eaten, goal);
+
+  const pg = state.protein_goal_g || 0, pn = state.protein_consumed_g || 0;
+  document.getElementById('pnow').textContent = pn;
+  document.getElementById('pgoal').textContent = pg;
+  const pbar = document.getElementById('pbar');
+  pbar.querySelector('i').style.width = Math.min(pg ? pn / pg * 100 : 0, 100) + '%';
+  if (pn >= pg && pg > 0) pbar.classList.add('met');
+
+  document.getElementById('streak').textContent = state.streak_days ?? 0;
+  document.getElementById('wtrend').textContent = state.weight_trend_lb ? state.weight_trend_lb.toFixed(1) : '—';
+  document.getElementById('nextlift').textContent = state.next_lift_day || '—';
+
+  // Today
+  const today = (nutrition.days || {})[todayISO];
+  document.getElementById('todaylist').innerHTML =
+    today && today.entries.length
+      ? today.entries.map(entryRow).join('')
+      : '<div class="empty"><b>Nothing logged yet</b>Send a photo of your next meal to Claude.</div>';
+
+  // Nutrition history, newest first
+  const days = Object.keys(nutrition.days || {}).sort().reverse();
+  document.getElementById('nutlist').innerHTML = days.length ? days.map(d => {
+    const es = nutrition.days[d].entries;
+    const c = es.reduce((a, e) => a + e.calories, 0);
+    const p = es.reduce((a, e) => a + e.protein_g, 0);
+    return `<div class="card daygroup"><div class="eyebrow"><span>${prettyDate(d)}</span><span>${c.toLocaleString()} kcal · ${p}g</span></div>${es.map(entryRow).join('')}</div>`;
+  }).join('') : '<div class="card"><div class="empty"><b>No history yet</b>Days appear here as you log them.</div></div>';
+
+  // Sessions
+  const ss = (log.sessions || []).slice().reverse();
+  document.getElementById('sessionlist').innerHTML = ss.length ? ss.map(s =>
+    `<div class="entry"><div><div class="desc">${s.title || 'Session'}</div>
+     <div class="meta">${prettyDate(s.date)} · ${s.feel || 'ok'}</div></div>
+     <div class="vals"><b>${(s.exercises || []).length}</b><span>lifts</span></div></div>`).join('')
+    : '<div class="empty"><b>No sessions logged</b>Finish a workout, then paste the results to Claude.</div>';
+
+  // Health, last 7 days
+  const dates = [...Array(7)].map((_, i) => { const d = new Date(now); d.setDate(d.getDate() - i); return isoDate(d); });
+  const health = (await Promise.all(dates.map(d => load(`data/health/${d}.json`)))).filter(Boolean);
+  document.getElementById('healthlist').innerHTML = health.length ? health.map(h =>
+    `<div class="entry"><div><div class="desc">${prettyDate(h.date)}</div>
+     <div class="meta">${h.steps ? h.steps.toLocaleString() + ' steps' : ''}${h.body_mass_lb ? ' · ' + h.body_mass_lb + ' lb' : ''}</div></div>
+     <div class="vals"><b>${h.active_energy_kcal ?? '—'}</b><span>active kcal</span></div></div>`).join('')
+    : '<div class="empty"><b>No activity data</b>Set up the Health shortcut to fill this in automatically.</div>';
+})();
+</script>
+</body>
+</html>
