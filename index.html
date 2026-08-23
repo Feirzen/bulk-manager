@@ -97,6 +97,11 @@ document.querySelectorAll('nav button').forEach(b => b.onclick = () => {
   history.replaceState(null, '', '#' + b.dataset.p);
 });
 
+// Deep links resolve before any fetch runs. Coming back from workout.html to
+// index.html#log lands on the Log tab immediately, and stays there even if the
+// data load is slow or fails outright.
+if (location.hash === '#log') showTab('log');
+
 const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
 
 // Signature element: a chart-recorder scale. Ticks every 500 kcal, a filled
@@ -267,10 +272,10 @@ function healthRow(h) {
   );
   drawCalories(document.getElementById('calchart'), dates, nutrition, goal);
 
-  const t = nutrition[todayISO];
+  const todayEntries = (nutrition[todayISO] || {}).entries || [];
   document.getElementById('todaylist').innerHTML =
-    t && t.entries.length
-      ? t.entries.map(foodRow).join('')
+    todayEntries.length
+      ? todayEntries.map(foodRow).join('')
       : '<div class="empty"><b>Nothing logged yet</b>Send a photo of your next meal to Claude.</div>';
 
   // Merged log: intake and output side by side, newest day first
@@ -293,8 +298,6 @@ function healthRow(h) {
       ${rows}
     </div>`;
   }).join('') : '<div class="card"><div class="empty"><b>No history yet</b>Days appear here as intake and activity come in.</div></div>';
-
-  if (location.hash === '#log') showTab('log');
 })();
 </script>
 </body>
