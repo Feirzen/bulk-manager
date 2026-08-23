@@ -34,6 +34,14 @@
           "protein_g": 5,
           "confidence": "medium",
           "note": "Not whole grain, standard enriched flour recipe despite the name"
+        },
+        {
+          "time": "15:17",
+          "description": "Ithaca Hummus jalapeno lime, 4 tbsp, with 1 baby cucumber",
+          "calories": 125,
+          "protein_g": 4,
+          "confidence": "high",
+          "note": ""
         }
       ]
     }
