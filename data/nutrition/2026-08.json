@@ -25,6 +25,14 @@
         "protein_g": 10,
         "confidence": "high",
         "note": ""
+      },
+      {
+        "time": "14:48",
+        "description": "Dare Breton Original crackers, 10 ct, 2in",
+        "calories": 220,
+        "protein_g": 5,
+        "confidence": "medium",
+        "note": "Not whole grain, standard enriched flour recipe despite the name"
       }
     ]
   }
