@@ -42,6 +42,14 @@
           "protein_g": 4,
           "confidence": "high",
           "note": ""
+        },
+        {
+          "time": "15:26",
+          "description": "Grilled chicken breast, seasoned, small, ~4-5oz cooked",
+          "calories": 185,
+          "protein_g": 35,
+          "confidence": "medium",
+          "note": "Portion estimated from photo, no visible oil"
         }
       ]
     }
