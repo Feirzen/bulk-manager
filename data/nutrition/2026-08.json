@@ -17,6 +17,14 @@
         "protein_g": 15,
         "confidence": "medium",
         "note": "Calories not visible on label, standard value for this product line"
+      },
+      {
+        "time": "11:39",
+        "description": "Totino's Pizza Rolls, 12 rolls",
+        "calories": 400,
+        "protein_g": 10,
+        "confidence": "high",
+        "note": ""
       }
     ]
   }
