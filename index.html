@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="theme-color" content="#E9EAEC">
+<meta name="theme-color" content="#E9EAEC" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#101419" media="(prefers-color-scheme: dark)">
 <title>Bulk Manager</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20,7 +20,6 @@
     <span class="date" id="today"></span>
   </header>
 
-  <!-- TODAY -->
   <section class="panel on" id="p-today">
     <div class="card">
       <div class="gauge-head">
@@ -45,9 +44,28 @@
     </div>
 
     <div class="strip">
-      <div><span class="eyebrow">Streak</span><span class="num" id="streak">0</span></div>
+      <div>
+        <span class="eyebrow">Streak</span>
+        <div class="flamewrap">
+          <svg class="flame" id="flame" viewBox="0 0 24 24" aria-hidden="true">
+            <path class="outer" d="M12 22c3.9 0 7-3 7-6.8 0-2.6-1.3-4.3-2.6-5.9-1.1-1.4-2.2-2.7-2.2-4.6 0-.9.2-1.8.5-2.7-3.2 1.2-5.4 3.6-5.4 6.2 0 1 .3 1.9.7 2.7-1-.4-1.8-1.2-2.2-2.2C6.6 10 5 12.2 5 15.2 5 19 8.1 22 12 22z"/>
+            <path class="inner" d="M12 22c1.9 0 3.5-1.5 3.5-3.4 0-1.3-.7-2.2-1.4-3-.6-.7-1.1-1.4-1.1-2.4 0-.5.1-.9.3-1.4-1.7.6-2.9 1.9-2.9 3.3 0 .5.1 1 .4 1.4-.5-.2-.9-.6-1.2-1.1-.6.8-1.1 1.9-1.1 3.2 0 1.9 1.6 3.4 3.5 3.4z"/>
+          </svg>
+          <span class="num" id="streak">0</span>
+        </div>
+      </div>
       <div><span class="eyebrow">Weight trend</span><span class="num" id="wtrend">&mdash;</span></div>
       <div><span class="eyebrow">Next lift</span><span class="num" id="nextlift">&mdash;</span></div>
+    </div>
+
+    <div class="card">
+      <h2>Weight against target</h2>
+      <div id="weightchart"></div>
+    </div>
+
+    <div class="card">
+      <h2>Intake, last 14 days</h2>
+      <div id="calchart"></div>
     </div>
 
     <div class="card">
@@ -56,68 +74,149 @@
     </div>
   </section>
 
-  <!-- NUTRITION -->
-  <section class="panel" id="p-nutrition">
-    <div id="nutlist"></div>
-  </section>
-
-  <!-- EXERCISE -->
-  <section class="panel" id="p-exercise">
-    <div class="card">
-      <h2>Recent sessions</h2>
-      <div id="sessionlist"></div>
-    </div>
-    <div class="card">
-      <h2>Daily activity</h2>
-      <div id="healthlist"></div>
-    </div>
+  <section class="panel" id="p-log">
+    <div id="loglist"></div>
   </section>
 </div>
 
 <nav>
   <button class="on" data-p="today">Today</button>
-  <button data-p="nutrition">Nutrition</button>
-  <button data-p="exercise">Exercise</button>
+  <button data-p="log">Log</button>
   <a href="workout.html">Workout</a>
 </nav>
 
 <script src="assets/data.js"></script>
 <script>
-document.querySelectorAll('nav button').forEach(b => {
-  b.onclick = () => {
-    document.querySelectorAll('nav button').forEach(x => x.classList.remove('on'));
-    document.querySelectorAll('.panel').forEach(x => x.classList.remove('on'));
-    b.classList.add('on');
-    document.getElementById('p-' + b.dataset.p).classList.add('on');
-    window.scrollTo(0, 0);
-  };
+function showTab(name) {
+  document.querySelectorAll('nav button').forEach(x => x.classList.toggle('on', x.dataset.p === name));
+  document.querySelectorAll('.panel').forEach(x => x.classList.toggle('on', x.id === 'p-' + name));
+  window.scrollTo(0, 0);
+}
+document.querySelectorAll('nav button').forEach(b => b.onclick = () => {
+  showTab(b.dataset.p);
+  history.replaceState(null, '', '#' + b.dataset.p);
 });
 
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+
 // Signature element: a chart-recorder scale. Ticks every 500 kcal, a filled
-// track for what's eaten, and a needle at the current position.
+// track for what's eaten, and a hard marker at the goal.
 function drawGauge(eaten, goal) {
   const W = 320, BASE = 30, H = 12;
   const max = Math.max(goal * 1.15, eaten * 1.05, 1);
   const x = v => Math.min(v / max, 1) * W;
-  let s = `<rect x="0" y="${BASE - H}" width="${W}" height="${H}" fill="#E9EAEC"/>`;
   const over = eaten > goal;
-  s += `<rect x="0" y="${BASE - H}" width="${x(Math.min(eaten, goal))}" height="${H}" fill="#2B50D4"/>`;
-  if (over) s += `<rect x="${x(goal)}" y="${BASE - H}" width="${x(eaten) - x(goal)}" height="${H}" fill="#C4342A"/>`;
+  let s = `<rect x="0" y="${BASE - H}" width="${W}" height="${H}" fill="${css('--track')}"/>`;
+  s += `<rect x="0" y="${BASE - H}" width="${x(Math.min(eaten, goal))}" height="${H}" fill="${css('--signal')}"/>`;
+  if (over) s += `<rect x="${x(goal)}" y="${BASE - H}" width="${x(eaten) - x(goal)}" height="${H}" fill="${css('--over')}"/>`;
   for (let v = 0; v <= max; v += 500) {
     const tall = v % 1000 === 0;
-    s += `<line x1="${x(v)}" y1="${BASE}" x2="${x(v)}" y2="${BASE + (tall ? 6 : 3)}" stroke="#C9CDD3" stroke-width="1"/>`;
-    if (tall && v > 0) s += `<text x="${x(v)}" y="${BASE + 15}" font-family="IBM Plex Mono,monospace" font-size="7" fill="#8B939E" text-anchor="middle">${v / 1000}k</text>`;
+    s += `<line x1="${x(v)}" y1="${BASE}" x2="${x(v)}" y2="${BASE + (tall ? 6 : 3)}" stroke="${css('--rule')}" stroke-width="1"/>`;
+    if (tall && v > 0) s += `<text x="${x(v)}" y="${BASE + 15}" font-family="IBM Plex Mono,monospace" font-size="7" fill="${css('--ink-3')}" text-anchor="middle">${v / 1000}k</text>`;
   }
-  s += `<line x1="${x(goal)}" y1="${BASE - H - 5}" x2="${x(goal)}" y2="${BASE + 2}" stroke="#141B26" stroke-width="1.5"/>`;
-  s += `<text x="${x(goal)}" y="${BASE - H - 8}" font-family="IBM Plex Mono,monospace" font-size="7" fill="#141B26" text-anchor="middle">GOAL</text>`;
+  s += `<line x1="${x(goal)}" y1="${BASE - H - 5}" x2="${x(goal)}" y2="${BASE + 2}" stroke="${css('--ink')}" stroke-width="1.5"/>`;
+  s += `<text x="${x(goal)}" y="${BASE - H - 8}" font-family="IBM Plex Mono,monospace" font-size="7" fill="${css('--ink')}" text-anchor="middle">GOAL</text>`;
   document.getElementById('gauge').innerHTML = s;
 }
 
-function entryRow(e) {
+// Actual 7-day rolling average against the target slope. This is the only
+// signal that sets the calorie number, so it gets its own chart.
+function drawWeight(el, trend, startLb, lbPerWeek) {
+  if (trend.length < 2) {
+    el.innerHTML = '<div class="empty"><b>Collecting readings</b>Two weigh-ins inside a 7-day window and the trend line starts here.</div>';
+    return;
+  }
+  const W = 320, H = 108, P = 26;
+  const t0 = new Date(trend[0].date), t1 = new Date(trend[trend.length - 1].date);
+  const span = Math.max((t1 - t0) / 86400000, 1);
+  const base = startLb || trend[0].lb;
+  const target = d => base + (lbPerWeek / 7) * d;
+
+  const days = trend.map(p => (new Date(p.date) - t0) / 86400000);
+  const all = trend.map(p => p.lb).concat([target(0), target(span)]);
+  const lo = Math.min(...all) - 0.6, hi = Math.max(...all) + 0.6;
+
+  const x = d => P + (d / span) * (W - P - 8);
+  const y = v => H - 20 - ((v - lo) / (hi - lo)) * (H - 34);
+
+  const line = trend.map((p, i) => `${x(days[i])},${y(p.lb)}`).join(' ');
+  const tline = `${x(0)},${y(target(0))} ${x(span)},${y(target(span))}`;
+
+  let s = `<svg class="chart" viewBox="0 0 ${W} ${H}">`;
+  [hi, (hi + lo) / 2, lo].forEach(v => {
+    s += `<line x1="${P}" y1="${y(v)}" x2="${W - 8}" y2="${y(v)}" stroke="${css('--rule')}" stroke-width=".5"/>`;
+    s += `<text x="${P - 5}" y="${y(v) + 3}" font-family="IBM Plex Mono,monospace" font-size="8" fill="${css('--ink-3')}" text-anchor="end">${v.toFixed(1)}</text>`;
+  });
+  s += `<polyline points="${tline}" fill="none" stroke="${css('--ink-3')}" stroke-width="1.5" stroke-dasharray="4 3"/>`;
+  s += `<polyline points="${line}" fill="none" stroke="${css('--signal')}" stroke-width="2" stroke-linejoin="round"/>`;
+  trend.forEach((p, i) => { s += `<circle cx="${x(days[i])}" cy="${y(p.lb)}" r="2.5" fill="${css('--signal')}"/>`; });
+  s += '</svg>';
+
+  const last = trend[trend.length - 1].lb, want = target(span);
+  const gap = last - want;
+  s += `<div class="chart-legend">
+    <span><i style="background:${css('--signal')}"></i>Actual</span>
+    <span><i style="background:${css('--ink-3')}"></i>Target ${lbPerWeek}/wk</span>
+  </div>
+  <div class="delta" style="margin-top:7px">Trend <b>${last.toFixed(1)} lb</b>, ${Math.abs(gap).toFixed(1)} ${gap >= 0 ? 'above' : 'below'} target pace.</div>`;
+  el.innerHTML = s;
+}
+
+function drawCalories(el, dates, nutrition, goal) {
+  const series = dates.slice().reverse().map(d => ({ d, cal: dayTotals((nutrition[d] || {}).entries).cal }));
+  if (!series.some(p => p.cal > 0)) {
+    el.innerHTML = '<div class="empty"><b>Nothing logged yet</b>Bars fill in as you send photos.</div>';
+    return;
+  }
+  const W = 320, H = 96, TOP = 8, BOT = 16;
+  const max = Math.max(goal * 1.2, ...series.map(p => p.cal), 1);
+  const gap = W / series.length, bw = gap * 0.62;
+  const y = v => TOP + (1 - v / max) * (H - TOP - BOT);
+  const floor = y(max * 0.04);
+
+  let s = `<svg class="chart" viewBox="0 0 ${W} ${H}">`;
+  series.forEach((p, i) => {
+    const cx = gap * i + (gap - bw) / 2;
+    s += `<rect x="${cx}" y="${floor}" width="${bw}" height="${Math.max(H - BOT - floor, 0)}" fill="${css('--track')}" rx="1.5"/>`;
+    if (p.cal > 0) s += `<rect x="${cx}" y="${y(p.cal)}" width="${bw}" height="${H - BOT - y(p.cal)}" fill="${css('--signal')}" rx="1.5"/>`;
+    if (i % 3 === 0) s += `<text x="${cx + bw / 2}" y="${H - 4}" font-family="IBM Plex Mono,monospace" font-size="7" fill="${css('--ink-3')}" text-anchor="middle">${p.d.slice(8)}</text>`;
+  });
+  s += `<line x1="0" y1="${y(goal)}" x2="${W}" y2="${y(goal)}" stroke="${css('--ink')}" stroke-width="1" stroke-dasharray="3 3"/>`;
+  s += `<text x="${W - 2}" y="${y(goal) - 4}" font-family="IBM Plex Mono,monospace" font-size="7" fill="${css('--ink')}" text-anchor="end">GOAL</text>`;
+  s += '</svg>';
+
+  const logged = series.filter(p => p.cal > 0);
+  const avg = Math.round(logged.reduce((a, p) => a + p.cal, 0) / logged.length);
+  s += `<div class="delta" style="margin-top:9px">Average <b>${avg.toLocaleString()}</b> across ${logged.length} logged ${logged.length === 1 ? 'day' : 'days'}.</div>`;
+  el.innerHTML = s;
+}
+
+function foodRow(e) {
   return `<div class="entry">
     <div><div class="desc">${e.description}</div>
-    <div class="meta">${e.time || ''}${e.confidence === 'low' ? '<span class="flag">est</span>' : ''}</div></div>
-    <div class="vals"><b>${e.calories}</b><span>${e.protein_g}g</span></div>
+    <div class="meta">${e.time || 'intake'}${e.confidence === 'low' ? '<span class="flag">est</span>' : ''}</div></div>
+    <div class="vals"><b>${e.calories}</b><span>${e.protein_g}g protein</span></div>
+  </div>`;
+}
+
+function workoutRow(s) {
+  const n = (s.exercises || []).length;
+  const sets = (s.exercises || []).reduce((a, e) => a + (e.sets || []).length, 0);
+  return `<div class="entry out">
+    <div><div class="desc">${s.title || 'Session'}</div>
+    <div class="meta">${s.feel === 'skipped' ? 'skipped' : 'felt ' + (s.feel || 'ok')}</div></div>
+    <div class="vals"><b>${n}</b><span>${sets} sets</span></div>
+  </div>`;
+}
+
+function healthRow(h) {
+  const bits = [];
+  if (h.steps) bits.push(h.steps.toLocaleString() + ' steps');
+  if (h.body_mass_lb > 0) bits.push(h.body_mass_lb + ' lb');
+  return `<div class="entry out">
+    <div><div class="desc">Daily activity</div>
+    <div class="meta">${bits.join(' \u00b7 ') || 'watch data'}</div></div>
+    <div class="vals"><b>${Math.round(h.active_energy_kcal || 0)}</b><span>active kcal</span></div>
   </div>`;
 }
 
@@ -126,11 +225,7 @@ function entryRow(e) {
   const todayISO = isoDate(now);
   document.getElementById('today').textContent = prettyDate(todayISO);
 
-  const [state, nutrition, log] = await Promise.all([
-    load('data/state.json', {}),
-    load(`data/nutrition/${monthKey(now)}.json`, { days: {} }),
-    load(`data/workouts/log-${monthKey(now)}.json`, { sessions: [] })
-  ]);
+  const { state, config, nutrition, workouts, health, dates } = await loadWindow();
 
   const goal = state.calorie_goal || 0;
   const eaten = state.calories_consumed || 0;
@@ -149,46 +244,57 @@ function entryRow(e) {
   const pg = state.protein_goal_g || 0, pn = state.protein_consumed_g || 0;
   document.getElementById('pnow').textContent = pn;
   document.getElementById('pgoal').textContent = pg;
-  const pbar = document.getElementById('pbar');
-  pbar.querySelector('i').style.width = Math.min(pg ? pn / pg * 100 : 0, 100) + '%';
-  if (pn >= pg && pg > 0) pbar.classList.add('met');
+  document.getElementById('pbar').querySelector('i').style.width = Math.min(pg ? pn / pg * 100 : 0, 100) + '%';
 
-  document.getElementById('streak').textContent = state.streak_days ?? 0;
-  document.getElementById('wtrend').textContent = state.weight_trend_lb ? state.weight_trend_lb.toFixed(1) : '—';
-  document.getElementById('nextlift').textContent = state.next_lift_day || '—';
+  // Flame heats up as the streak grows. Zero stays cold and gray.
+  const days = state.streak_days || 0;
+  document.getElementById('streak').textContent = days;
+  const flame = document.getElementById('flame');
+  if (days >= 21) flame.classList.add('lit', 'hot', 'blazing');
+  else if (days >= 7) flame.classList.add('lit', 'hot');
+  else if (days >= 1) flame.classList.add('lit');
 
-  // Today
-  const today = (nutrition.days || {})[todayISO];
+  document.getElementById('nextlift').textContent = state.next_lift_day || '\u2014';
+
+  const trend = rollingTrend(weightSeries(health));
+  document.getElementById('wtrend').textContent =
+    trend.length ? trend[trend.length - 1].lb.toFixed(1) : '\u2014';
+  drawWeight(
+    document.getElementById('weightchart'),
+    trend,
+    (config.profile || {}).starting_weight_lb,
+    (config.targets || {}).weight_gain_lb_per_week || 0.35
+  );
+  drawCalories(document.getElementById('calchart'), dates, nutrition, goal);
+
+  const t = nutrition[todayISO];
   document.getElementById('todaylist').innerHTML =
-    today && today.entries.length
-      ? today.entries.map(entryRow).join('')
+    t && t.entries.length
+      ? t.entries.map(foodRow).join('')
       : '<div class="empty"><b>Nothing logged yet</b>Send a photo of your next meal to Claude.</div>';
 
-  // Nutrition history, newest first
-  const days = Object.keys(nutrition.days || {}).sort().reverse();
-  document.getElementById('nutlist').innerHTML = days.length ? days.map(d => {
-    const es = nutrition.days[d].entries;
-    const c = es.reduce((a, e) => a + e.calories, 0);
-    const p = es.reduce((a, e) => a + e.protein_g, 0);
-    return `<div class="card daygroup"><div class="eyebrow"><span>${prettyDate(d)}</span><span>${c.toLocaleString()} kcal · ${p}g</span></div>${es.map(entryRow).join('')}</div>`;
-  }).join('') : '<div class="card"><div class="empty"><b>No history yet</b>Days appear here as you log them.</div></div>';
+  // Merged log: intake and output side by side, newest day first
+  const active = dates.filter(d => nutrition[d] || workouts[d] || health[d]);
+  document.getElementById('loglist').innerHTML = active.length ? active.map(d => {
+    const food = (nutrition[d] || {}).entries || [];
+    const tot = dayTotals(food);
+    const out = Math.round((health[d] || {}).active_energy_kcal || 0);
 
-  // Sessions
-  const ss = (log.sessions || []).slice().reverse();
-  document.getElementById('sessionlist').innerHTML = ss.length ? ss.map(s =>
-    `<div class="entry"><div><div class="desc">${s.title || 'Session'}</div>
-     <div class="meta">${prettyDate(s.date)} · ${s.feel || 'ok'}</div></div>
-     <div class="vals"><b>${(s.exercises || []).length}</b><span>lifts</span></div></div>`).join('')
-    : '<div class="empty"><b>No sessions logged</b>Finish a workout, then paste the results to Claude.</div>';
+    const sums = [];
+    if (tot.cal) sums.push(`<span class="sum-in">IN ${tot.cal.toLocaleString()} \u00b7 ${tot.pro}g</span>`);
+    if (out) sums.push(`<span class="sum-out">OUT ${out.toLocaleString()}</span>`);
 
-  // Health, last 7 days
-  const dates = [...Array(7)].map((_, i) => { const d = new Date(now); d.setDate(d.getDate() - i); return isoDate(d); });
-  const health = (await Promise.all(dates.map(d => load(`data/health/${d}.json`)))).filter(Boolean);
-  document.getElementById('healthlist').innerHTML = health.length ? health.map(h =>
-    `<div class="entry"><div><div class="desc">${prettyDate(h.date)}</div>
-     <div class="meta">${h.steps ? h.steps.toLocaleString() + ' steps' : ''}${h.body_mass_lb ? ' · ' + h.body_mass_lb + ' lb' : ''}</div></div>
-     <div class="vals"><b>${h.active_energy_kcal ?? '—'}</b><span>active kcal</span></div></div>`).join('')
-    : '<div class="empty"><b>No activity data</b>Set up the Health shortcut to fill this in automatically.</div>';
+    const rows = food.map(foodRow).join('')
+      + (workouts[d] || []).map(workoutRow).join('')
+      + (health[d] ? healthRow(health[d]) : '');
+
+    return `<div class="card daygroup">
+      <div class="eyebrow"><span>${prettyDate(d)}</span><span class="sums">${sums.join('')}</span></div>
+      ${rows}
+    </div>`;
+  }).join('') : '<div class="card"><div class="empty"><b>No history yet</b>Days appear here as intake and activity come in.</div></div>';
+
+  if (location.hash === '#log') showTab('log');
 })();
 </script>
 </body>
