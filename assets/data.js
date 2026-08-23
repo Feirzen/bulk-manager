@@ -35,6 +35,15 @@ function recentDates(n = WINDOW_DAYS) {
   return out;
 }
 
+// A day is stored as { entries: [...] }. Older writes stored a bare array.
+// Normalise both to the object form here so no view has to care, and one
+// malformed day can never throw and take the whole page down with it.
+function normaliseDay(v) {
+  if (Array.isArray(v)) return { entries: v };
+  if (v && Array.isArray(v.entries)) return v;
+  return { entries: [] };
+}
+
 // One fetch pass shared by every view: nutrition, workouts, and daily health
 // across the rolling window, keyed by date.
 async function loadWindow() {
@@ -53,7 +62,9 @@ async function loadWindow() {
   ]);
 
   const nutrition = {};
-  nutritionMonths.forEach(m => Object.assign(nutrition, m.days || {}));
+  nutritionMonths.forEach(m => Object.entries(m.days || {}).forEach(([d, v]) => {
+    nutrition[d] = normaliseDay(v);
+  }));
 
   const workouts = {};
   workoutMonths.forEach(m => (m.sessions || []).forEach(s => {
@@ -61,7 +72,7 @@ async function loadWindow() {
   }));
 
   const health = {};
-  healthDays.filter(Boolean).forEach(h => { health[h.date] = h; });
+  healthDays.filter(Boolean).forEach(h => { if (h.date) health[h.date] = h; });
 
   return { state, config, nutrition, workouts, health, dates };
 }

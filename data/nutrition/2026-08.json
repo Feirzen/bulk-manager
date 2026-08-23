@@ -1,39 +1,41 @@
 {
   "month": "2026-08",
   "days": {
-    "2026-08-23": [
-      {
-        "time": "09:07",
-        "description": "Darigold Fit chocolate milk, 8 fl oz",
-        "calories": 170,
-        "protein_g": 14,
-        "confidence": "high",
-        "note": ""
-      },
-      {
-        "time": "09:07",
-        "description": "Oikos Triple Zero vanilla nonfat yogurt, 5.3 oz",
-        "calories": 100,
-        "protein_g": 15,
-        "confidence": "medium",
-        "note": "Calories not visible on label, standard value for this product line"
-      },
-      {
-        "time": "11:39",
-        "description": "Totino's Pizza Rolls, 12 rolls",
-        "calories": 400,
-        "protein_g": 10,
-        "confidence": "high",
-        "note": ""
-      },
-      {
-        "time": "14:48",
-        "description": "Dare Breton Original crackers, 10 ct, 2in",
-        "calories": 220,
-        "protein_g": 5,
-        "confidence": "medium",
-        "note": "Not whole grain, standard enriched flour recipe despite the name"
-      }
-    ]
+    "2026-08-23": {
+      "entries": [
+        {
+          "time": "09:07",
+          "description": "Darigold Fit chocolate milk, 8 fl oz",
+          "calories": 170,
+          "protein_g": 14,
+          "confidence": "high",
+          "note": ""
+        },
+        {
+          "time": "09:07",
+          "description": "Oikos Triple Zero vanilla nonfat yogurt, 5.3 oz",
+          "calories": 100,
+          "protein_g": 15,
+          "confidence": "medium",
+          "note": "Calories not visible on label, standard value for this product line"
+        },
+        {
+          "time": "11:39",
+          "description": "Totino's Pizza Rolls, 12 rolls",
+          "calories": 400,
+          "protein_g": 10,
+          "confidence": "high",
+          "note": ""
+        },
+        {
+          "time": "14:48",
+          "description": "Dare Breton Original crackers, 10 ct, 2in",
+          "calories": 220,
+          "protein_g": 5,
+          "confidence": "medium",
+          "note": "Not whole grain, standard enriched flour recipe despite the name"
+        }
+      ]
+    }
   }
 }
