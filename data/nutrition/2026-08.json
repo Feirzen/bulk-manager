@@ -50,6 +50,14 @@
           "protein_g": 35,
           "confidence": "medium",
           "note": "Portion estimated from photo, no visible oil"
+        },
+        {
+          "time": "16:44",
+          "description": "Kirkland Signature Italian-style dry salame, reduced sodium, 6 slices",
+          "calories": 150,
+          "protein_g": 10,
+          "confidence": "medium",
+          "note": "Slice thickness not visible, estimated from standard 1oz/~5-slice serving"
         }
       ]
     }
