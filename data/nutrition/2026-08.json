@@ -58,6 +58,30 @@
           "protein_g": 10,
           "confidence": "medium",
           "note": "Slice thickness not visible, estimated from standard 1oz/~5-slice serving"
+        },
+        {
+          "time": "18:44",
+          "description": "Blackened chicken breast, ~7oz cooked",
+          "calories": 290,
+          "protein_g": 54,
+          "confidence": "medium",
+          "note": "Seasoning crust suggests oil in cooking, portion estimated from photo"
+        },
+        {
+          "time": "18:44",
+          "description": "Roasted baby potatoes and Brussels sprouts in olive oil, ~2.5 cups",
+          "calories": 320,
+          "protein_g": 7,
+          "confidence": "low",
+          "note": "Oil quantity not visible, portion range given as 2-3 cups"
+        },
+        {
+          "time": "18:44",
+          "description": "Kirkland Mexican-style blend shredded cheese, 1/2 cup",
+          "calories": 220,
+          "protein_g": 14,
+          "confidence": "high",
+          "note": "From label, 110 cal/28g serving"
         }
       ]
     }
