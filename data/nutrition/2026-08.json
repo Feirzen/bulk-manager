@@ -150,6 +150,38 @@
           "protein_g": 20,
           "confidence": "high",
           "note": "From label"
+        },
+        {
+          "time": "12:30",
+          "description": "Black Forest Juicy Burst fruit snacks, mixed fruit, 2 pouches",
+          "calories": 160,
+          "protein_g": 0,
+          "confidence": "high",
+          "note": "From label, standard 0.8oz pouch scaled to 2"
+        },
+        {
+          "time": "12:30",
+          "description": "Diet Coke, 2 cups",
+          "calories": 0,
+          "protein_g": 0,
+          "confidence": "high",
+          "note": ""
+        },
+        {
+          "time": "12:30",
+          "description": "Thick breaded fried chicken sandwich, cheddar, sauce, lettuce",
+          "calories": 720,
+          "protein_g": 30,
+          "confidence": "medium",
+          "note": "Large fried patty and bun, sauce quantity unknown, typical restaurant portion"
+        },
+        {
+          "time": "12:30",
+          "description": "Sweet potato fries, large restaurant portion (~half plate)",
+          "calories": 520,
+          "protein_g": 5,
+          "confidence": "low",
+          "note": "Large described portion, fried, oil/salt not directly visible"
         }
       ]
     }
