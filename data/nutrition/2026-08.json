@@ -90,6 +90,22 @@
           "protein_g": 1,
           "confidence": "high",
           "note": "From label"
+        },
+        {
+          "time": "22:20",
+          "description": "Kirkland Mexican-style blend shredded cheese, 1 cup",
+          "calories": 220,
+          "protein_g": 14,
+          "confidence": "high",
+          "note": "From label, scaled from earlier 1/2 cup entry"
+        },
+        {
+          "time": "22:20",
+          "description": "Kirkland Signature Italian-style dry salame, reduced sodium, 5 slices",
+          "calories": 125,
+          "protein_g": 8,
+          "confidence": "medium",
+          "note": "Scaled from earlier 6-slice entry"
         }
       ]
     }
