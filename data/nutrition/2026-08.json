@@ -182,6 +182,14 @@
           "protein_g": 5,
           "confidence": "low",
           "note": "Large described portion, fried, oil/salt not directly visible"
+        },
+        {
+          "time": "15:14",
+          "description": "Salad: broccoli, greens, shredded white cheese, pinto beans, creamy dressing, ~2 cups",
+          "calories": 400,
+          "protein_g": 16,
+          "confidence": "medium",
+          "note": "Cheese and dressing quantity estimated visually, not weighed"
         }
       ]
     }
