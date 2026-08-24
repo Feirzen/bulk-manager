@@ -108,6 +108,42 @@
           "note": "Scaled from earlier 6-slice entry"
         }
       ]
+    },
+    "2026-08-24": {
+      "entries": [
+        {
+          "time": "08:01",
+          "description": "Oikos Triple Zero vanilla nonfat yogurt, 5.3 oz",
+          "calories": 100,
+          "protein_g": 15,
+          "confidence": "medium",
+          "note": "Same as 8/23"
+        },
+        {
+          "time": "08:01",
+          "description": "Darigold Fit chocolate protein milk, 8 fl oz",
+          "calories": 170,
+          "protein_g": 14,
+          "confidence": "high",
+          "note": "Same as 8/23"
+        },
+        {
+          "time": "08:01",
+          "description": "Kirkland Signature Italian-style dry salame, reduced sodium, 5 slices",
+          "calories": 125,
+          "protein_g": 8,
+          "confidence": "medium",
+          "note": "Scaled from 6-slice reference entry"
+        },
+        {
+          "time": "08:01",
+          "description": "Red Bull Energy Drink, 8.4 fl oz",
+          "calories": 110,
+          "protein_g": 0,
+          "confidence": "high",
+          "note": "From label: 29g carb, 26g sugar, 80mg caffeine"
+        }
+      ]
     }
   }
 }
