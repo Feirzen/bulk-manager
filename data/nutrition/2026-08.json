@@ -190,6 +190,38 @@
           "protein_g": 16,
           "confidence": "medium",
           "note": "Cheese and dressing quantity estimated visually, not weighed"
+        },
+        {
+          "time": "18:30",
+          "description": "Mediterranean salad, half portion with half toppings",
+          "calories": 280,
+          "protein_g": 8,
+          "confidence": "medium",
+          "note": "Assumed Costco-style Mediterranean salad kit (greens, feta, olives, chickpeas, pita, vinaigrette), half of a full kit"
+        },
+        {
+          "time": "18:30",
+          "description": "Stovetop cooked chicken breast, half breast",
+          "calories": 100,
+          "protein_g": 19,
+          "confidence": "medium",
+          "note": "Half of an average 6oz raw breast cooked plain"
+        },
+        {
+          "time": "18:30",
+          "description": "Kirkland Mexican-style blend shredded cheese, 1/2 cup",
+          "calories": 220,
+          "protein_g": 14,
+          "confidence": "high",
+          "note": "Matches prior logged 1/2 cup value from label"
+        },
+        {
+          "time": "22:00",
+          "description": "Oreo cookies, 2 count",
+          "calories": 100,
+          "protein_g": 1,
+          "confidence": "high",
+          "note": "Standard Oreo nutrition, ~53 cal/cookie"
         }
       ]
     }
