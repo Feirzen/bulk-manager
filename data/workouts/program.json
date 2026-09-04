@@ -1,12 +1,12 @@
 {
   "week_of": "2026-08-31",
   "generated_at": "2026-09-04T12:00:00-06:00",
-  "rotation": "A / B / C, fixed to Mon / Wed / Fri. Same three sessions each week so load progression stays readable.",
+  "rotation": "Three distinct sessions fixed to Mon / Wed / Fri. Same three every week so load progression stays readable.",
   "sessions": [
     {
       "day": "Mon",
       "key": "A",
-      "title": "Full Body A",
+      "title": "Quads & Press",
       "supersets": [[0, 1], [2, 3]],
       "exercises": [
         { "name": "Leg press", "scheme": "3 x 8-10", "sets": 3, "cue": "Stop before your hips curl off the pad. That roll is lumbar flexion.", "subs": ["Goblet squat", "Hack squat"] },
@@ -19,7 +19,7 @@
     {
       "day": "Wed",
       "key": "B",
-      "title": "Full Body B",
+      "title": "Hinge & Overhead",
       "supersets": [[0, 1], [2, 3]],
       "exercises": [
         { "name": "Barbell RDL", "scheme": "3 x 8", "sets": 3, "cue": "Hips back, spine neutral. Stand up to tall, never past it.", "subs": ["Hip thrust", "Seated leg curl"] },
@@ -32,7 +32,7 @@
     {
       "day": "Fri",
       "key": "C",
-      "title": "Full Body C",
+      "title": "Single-leg & Back",
       "supersets": [[0, 1], [2, 3]],
       "exercises": [
         { "name": "Walking lunge", "scheme": "3 x 10/leg", "sets": 3, "cue": "Torso upright, front shin near vertical. Do not lean forward.", "subs": ["Bulgarian split squat", "Leg extension"] },
@@ -46,7 +46,7 @@
   "optional_addins": [
     {
       "key": "P",
-      "title": "Add-in: Hips and posture",
+      "title": "Hips & Posture",
       "when": "Any off day. 12 minutes. The one that actually moves the lordosis.",
       "exercises": [
         { "name": "Couch stretch", "scheme": "2 x 45s/side", "sets": 2, "cue": "Squeeze the back glute to tuck the pelvis. That is the stretch.", "subs": [] },
@@ -57,7 +57,7 @@
     },
     {
       "key": "S",
-      "title": "Add-in: Arms and shoulders",
+      "title": "Arms & Shoulders",
       "when": "Saturday flex day. 20 minutes if you have the energy, skip it if you do not.",
       "exercises": [
         { "name": "Cable lateral raise", "scheme": "3 x 12-15", "sets": 3, "cue": "Lead with the elbow, stop at shoulder height.", "subs": ["Dumbbell lateral raise"] },
@@ -67,5 +67,5 @@
       ]
     }
   ],
-  "note": "First real program. Two weeks of technique and honest difficulty logging before the numbers mean anything. Every exercise carries substitutions because equipment at EOS Orem gets occupied."
+  "note": "Two weeks of technique and honest difficulty logging before the numbers mean anything. Every exercise carries substitutions because equipment at EOS Orem gets occupied."
 }

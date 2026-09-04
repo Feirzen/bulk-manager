@@ -5,17 +5,24 @@
     "start_date": "2026-09-01",
     "gym": "EOS Fitness, Orem"
   },
+  "nutrition_logging": {
+    "status": "paused",
+    "paused_on": "2026-09-04",
+    "reason": "Daily photo logging was more friction than it was worth. The goal is to eat more, which does not require tracking to execute.",
+    "estimated_habitual_intake": 2500,
+    "note": "Logged data to date ran slightly above his normal diet, so ~2500 is the honest baseline. Protein is handled by habit and is not tracked. The dashboard and logging pipeline are untouched and work the moment he sends a photo again. Nothing about target-setting breaks: targets were always set by the 7-day weight trend, never by logged intake."
+  },
   "targets": {
     "calories": 3100,
     "protein_g": 165,
     "weight_gain_lb_per_week": 0.35,
     "provisional": true,
     "calibrate_on": "2026-09-15",
-    "note": "Provisional. Derived from Mifflin-St Jeor at 170 lb / 74 in with a 1.6 activity multiplier, plus a ~250 kcal surplus. Replace with a trend-derived number after 14 days of logging."
+    "note": "Provisional. Derived from Mifflin-St Jeor at 170 lb / 74 in with a 1.6 activity multiplier, plus a ~250 kcal surplus. With intake logging paused these function as a directional reference, not something to hit precisely. The weekly review reads the weight trend and gives a direction, eat more or hold, rather than a number to count to."
   },
   "streak_rules": {
     "conditions": ["logged_at_least_one_meal", "protein_target_met"],
-    "note": "Calories are deliberately not a streak condition. Photo estimates are too noisy to gate a streak on."
+    "note": "Calories are deliberately not a streak condition. Photo estimates are too noisy to gate a streak on. Dormant while nutrition logging is paused."
   },
   "schedule": {
     "lift": ["Mon", "Wed", "Fri"],
@@ -24,7 +31,7 @@
     "rest": ["Sun"]
   },
   "review_cadence": {
-    "weekly": "Sunday. Set next week's calorie and protein target from weight trend. Generate next week's MWF sessions plus two optional add-ins.",
-    "monthly": "Progress summary email. InBody, tape, lift progression, adherence."
+    "weekly": "Sunday. Read the weight trend and give a direction on intake. Generate next week's three sessions plus two optional add-ins.",
+    "monthly": "Progress summary. InBody, tape, lift progression, adherence."
   }
 }
