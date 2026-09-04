@@ -4,8 +4,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#E9EAEC" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#101419" media="(prefers-color-scheme: dark)">
 <title>Workout</title>
 <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
 <link rel="icon" href="assets/favicon-32.png" sizes="32x32">
@@ -14,17 +12,18 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/app.css">
+<script src="assets/theme.js"></script>
 <style>
   /* ---- header + view switch ---- */
-  .hrow{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
-  .views{display:flex;gap:0;border:1px solid var(--rule);border-radius:8px;overflow:hidden;margin:10px 0 16px}
+  .hrow{display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .views{display:flex;border:1px solid var(--rule);border-radius:8px;overflow:hidden;margin:10px 0 16px}
   .views button{
     flex:1;background:var(--card);border:0;border-right:1px solid var(--rule);
     padding:9px 4px;font-family:'IBM Plex Mono',monospace;font-size:10px;
     letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);cursor:pointer;
   }
   .views button:last-child{border-right:0}
-  .views button.on{background:var(--ink);color:var(--card)}
+  .views button.on{background:var(--ink);color:var(--paper)}
   .view{display:none}
   .view.on{display:block}
 
@@ -40,13 +39,13 @@
   .caret{
     background:none;border:1px solid var(--rule);border-radius:6px;
     width:30px;height:30px;flex:none;cursor:pointer;color:var(--ink-2);
-    font-size:12px;line-height:1;transition:transform .18s ease;
+    font-size:11px;line-height:1;font-family:inherit;
   }
-  .caret.open{transform:rotate(90deg);color:var(--signal);border-color:var(--signal)}
+  .caret.open{color:var(--signal);border-color:var(--signal)}
   .cue{font-size:12px;color:var(--ink-2);margin:6px 0 0}
 
   .detail{
-    margin-top:10px;padding:12px;border-radius:8px;background:var(--track);
+    margin-top:11px;padding:12px;border-radius:8px;background:var(--track);
     font-size:12.5px;line-height:1.5;
   }
   .detail h4{
@@ -58,8 +57,23 @@
   .detail ul li::marker{color:var(--over)}
   .detail > *:last-child{margin-bottom:0}
 
+  /* Two public-domain stills, cross-faded. Reads as a clean loop without
+     shipping a single GIF or leaning on anyone's licensed footage. */
+  .demo{
+    position:relative;width:100%;aspect-ratio:4/3;margin-bottom:12px;
+    border-radius:7px;overflow:hidden;background:var(--card);
+    border:1px solid var(--rule);
+  }
+  .demo img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block}
+  .demo img.f1{animation:framecycle 3.2s steps(1,end) infinite}
+  @keyframes framecycle{0%,50%{opacity:0}50.01%,100%{opacity:1}}
+  .demo .cred{
+    position:absolute;right:5px;bottom:4px;font-family:'IBM Plex Mono',monospace;
+    font-size:8px;letter-spacing:.06em;color:var(--ink-3);opacity:.7;
+  }
+
   .sugg{
-    margin-top:10px;padding:9px 11px;border-radius:8px;
+    margin-top:11px;padding:9px 11px;border-radius:8px;
     border:1px solid var(--rule);border-left:3px solid var(--signal);
     font-size:12px;color:var(--ink-2);
   }
@@ -82,25 +96,43 @@
   }
   .set input:focus{outline:2px solid var(--signal);outline-offset:-1px;border-color:var(--signal)}
   .set input::placeholder{font-weight:400;font-size:14px;color:var(--ink-3)}
+
   .diff{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-top:8px}
   .diff button{
     padding:8px 2px;border:1px solid var(--rule);border-radius:7px;background:var(--card);
-    font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.02em;
+    font-family:'IBM Plex Mono',monospace;font-size:9.5px;
     color:var(--ink-3);cursor:pointer;
   }
-  .diff button.on{background:var(--signal);border-color:var(--signal);color:#fff}
-  .diff button.on[data-d="4"]{background:var(--over);border-color:var(--over)}
-  .diff button.on[data-d="3"]{background:var(--burn);border-color:var(--burn)}
+  .diff button.on{color:#fff;font-weight:600}
+  .diff button.on[data-d="0"]{background:var(--d0);border-color:var(--d0)}
+  .diff button.on[data-d="1"]{background:var(--d1);border-color:var(--d1)}
+  .diff button.on[data-d="2"]{background:var(--d2);border-color:var(--d2);color:#1A1A24}
+  .diff button.on[data-d="3"]{background:var(--d3);border-color:var(--d3)}
+  .diff button.on[data-d="4"]{background:var(--d4);border-color:var(--d4)}
 
+  /* Both alternatives are always shown, including the original once you have
+     swapped away from it, so a mis-tap is always one tap from undone. */
+  .swaps{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:13px}
   .swap{
-    margin-top:13px;width:100%;padding:10px;border:1px dashed var(--rule);
-    border-radius:8px;background:none;color:var(--signal);cursor:pointer;
-    font-family:inherit;font-size:12px;
+    padding:10px 6px;border:1px dashed var(--rule);border-radius:8px;
+    background:none;color:var(--signal);cursor:pointer;
+    font-family:inherit;font-size:11.5px;line-height:1.3;
   }
   .swap:active{background:var(--track)}
-  .swap span{color:var(--ink-3)}
+  .swaplabel{
+    font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--ink-3);margin-top:13px;display:block;
+  }
 
-  /* ---- overall difficulty ---- */
+  /* ---- notes + overall difficulty ---- */
+  #notes{
+    width:100%;margin-top:9px;padding:11px;border:1px solid var(--rule);
+    border-radius:8px;background:var(--card);color:var(--ink);
+    font-family:inherit;font-size:14px;line-height:1.45;min-height:82px;resize:vertical;
+  }
+  #notes:focus{outline:2px solid var(--signal);outline-offset:-1px;border-color:var(--signal)}
+  #notes::placeholder{color:var(--ink-3)}
+
   .scale input[type=range]{width:100%;accent-color:var(--signal);margin:14px 0 4px}
   .scale-ends{
     display:flex;justify-content:space-between;
@@ -153,6 +185,11 @@
       </div>
     </div>
 
+    <div class="card" id="notecard">
+      <div class="eyebrow">Notes, optional</div>
+      <textarea id="notes" placeholder="Left knee cranky on lunges. Gym was packed, subbed the leg press."></textarea>
+    </div>
+
     <button class="action" id="copy">Copy workout results</button>
     <p class="hint">Paste into Claude in the bulk project. Claude logs it and uses it to set next week.</p>
   </section>
@@ -169,17 +206,18 @@
 
 <script src="assets/data.js"></script>
 <script src="assets/exercises.js"></script>
+<script src="assets/exercise-images.js"></script>
 <script>
 // Difficulty scale. Index 0-4 maps to RPE 6-10 so the stored shape stays
 // compatible with LOGGING-SPEC and with anything already logged.
-const DIFF        = ['Easy', 'Mod', 'Hard', 'V.Hard', 'Max'];
-const DIFF_WORD   = ['easy', 'moderate', 'hard', 'very hard', 'max'];
-const OVERALL     = ['rough', 'tough', 'solid', 'good', 'easy'];
-const diffToRpe   = i => i + 6;
+const DIFF      = ['Easy', 'Mod', 'Hard', 'V.Hard', 'Max'];
+const DIFF_WORD = ['easy', 'moderate', 'hard', 'very hard', 'max'];
+const OVERALL   = ['rough', 'tough', 'solid', 'good', 'easy'];
+const diffToRpe = i => i + 6;
 
 let SESSION = null;      // { title, exercises: [...] }
 let HISTORY = [];        // past logged sessions, any month
-let PICK    = [];        // per-exercise: which option in [main, ...subs] is active
+let PICK    = [];        // per-exercise: active option in [main, ...subs]
 let VALUES  = [];        // per-exercise, per-set: { w, r, d }
 let OPEN    = [];        // per-exercise: detail panel expanded
 let FEEL    = 3;
@@ -254,8 +292,17 @@ function options(i) {
   return [base.name].concat(base.subs || []);
 }
 function currentName(i) {
-  const opts = options(i);
-  return opts[PICK[i] % opts.length];
+  return options(i)[PICK[i]];
+}
+
+function demoHtml(name) {
+  const id = EX_IMG[name];
+  if (!id) return '';
+  return `<div class="demo">
+    <img src="${EX_IMG_BASE}${id}/0.jpg" alt="" loading="lazy">
+    <img class="f1" src="${EX_IMG_BASE}${id}/1.jpg" alt="" loading="lazy">
+    <span class="cred">free-exercise-db</span>
+  </div>`;
 }
 
 function exCard(i) {
@@ -264,19 +311,18 @@ function exCard(i) {
   const ref  = EXERCISES[name] || null;
   const sug  = suggestion(name);
   const opts = options(i);
-  const next = opts[(PICK[i] + 1) % opts.length];
-  const swapped = PICK[i] % opts.length !== 0;
 
   let detail = '';
   if (OPEN[i]) {
     detail = ref
       ? `<div class="detail">
+           ${demoHtml(name)}
            <h4>How to do it</h4>
            <ol>${ref.form.map(f => `<li>${esc(f)}</li>`).join('')}</ol>
            <h4>Common errors</h4>
            <ul>${ref.errors.map(f => `<li>${esc(f)}</li>`).join('')}</ul>
          </div>`
-      : `<div class="detail">No form notes saved for this one yet. Ask Claude to add it.</div>`;
+      : `<div class="detail">${demoHtml(name)}No form notes saved for this one yet. Ask Claude to add it.</div>`;
   }
 
   const sugHtml = sug
@@ -299,19 +345,22 @@ function exCard(i) {
     </div>`;
   }).join('');
 
+  const alts = opts.map((o, k) => k === PICK[i] ? '' :
+    `<button class="swap" data-swap="${i}" data-opt="${k}">&#8646; ${esc(o)}</button>`).join('');
+
   return `<div class="card exwrap" data-card="${i}">
     <div class="exhead">
       <div style="flex:1;min-width:0">
-        <div class="exname">${esc(name)}${swapped ? ' <span class="flag">swapped</span>' : ''}</div>
+        <div class="exname">${esc(name)}${PICK[i] !== 0 ? ' <span class="flag">swapped</span>' : ''}</div>
       </div>
       <div class="scheme">${esc(base.scheme)}</div>
-      <button class="caret${OPEN[i] ? ' open' : ''}" data-caret="${i}" aria-label="Form and common errors">&#9654;</button>
+      <button class="caret${OPEN[i] ? ' open' : ''}" data-caret="${i}" aria-label="Form and common errors">${OPEN[i] ? '&#9650;' : '&#9660;'}</button>
     </div>
     <div class="cue">${esc(base.cue)}</div>
     ${detail}
     ${sugHtml}
     <div class="sets">${setsHtml}</div>
-    ${opts.length > 1 ? `<button class="swap" data-swap="${i}">&#8646; Swap for <b>${esc(next)}</b> <span>(${opts.length} options)</span></button>` : ''}
+    ${alts ? `<span class="swaplabel">Swap for</span><div class="swaps">${alts}</div>` : ''}
   </div>`;
 }
 
@@ -321,15 +370,19 @@ function renderSession() {
   wire();
 }
 
-// Re-render one card only, with a short fade so the swap reads as a swap
-// rather than the text silently changing under your thumb.
-function swapCard(i) {
+// Re-render one card with a short fade so the swap reads as a swap. Sets you
+// have already entered survive it: VALUES is never touched here, and exCard
+// paints straight back out of it. A mis-tap costs nothing.
+function repaint(i, animate) {
   const el = document.querySelector(`[data-card="${i}"]`);
   if (!el) return;
+  if (!animate) {
+    el.outerHTML = exCard(i);
+    wire();
+    return;
+  }
   el.classList.add('swapping');
   setTimeout(() => {
-    PICK[i]++;
-    VALUES[i] = VALUES[i].map(() => ({ w: '', r: '', d: null }));
     el.outerHTML = exCard(i);
     const fresh = document.querySelector(`[data-card="${i}"]`);
     fresh.classList.add('swapping');
@@ -343,12 +396,14 @@ function wire() {
   document.querySelectorAll('[data-caret]').forEach(b => b.onclick = () => {
     const i = +b.dataset.caret;
     OPEN[i] = !OPEN[i];
-    const el = document.querySelector(`[data-card="${i}"]`);
-    el.outerHTML = exCard(i);
-    wire();
+    repaint(i, false);
   });
 
-  document.querySelectorAll('[data-swap]').forEach(b => b.onclick = () => swapCard(+b.dataset.swap));
+  document.querySelectorAll('[data-swap]').forEach(b => b.onclick = () => {
+    const i = +b.dataset.swap;
+    PICK[i] = +b.dataset.opt;
+    repaint(i, true);
+  });
 
   document.querySelectorAll('.set input').forEach(inp => inp.oninput = () => {
     VALUES[+inp.dataset.e][+inp.dataset.s][inp.dataset.k] = inp.value;
@@ -382,6 +437,9 @@ document.getElementById('copy').onclick = async () => {
     }).filter(Boolean);
     if (rows.length) out += `${currentName(i)}\n${rows.join('\n')}\n\n`;
   });
+
+  const notes = document.getElementById('notes').value.trim();
+  if (notes) out += `Notes: ${notes}\n`;
 
   const btn = document.getElementById('copy');
   const text = out.trim();
@@ -454,6 +512,7 @@ function renderPast() {
       <h2 style="margin:5px 0 6px;font-size:15px">${esc(s.title || 'Session')}</h2>
       <div class="delta" style="margin-bottom:6px">${vol} sets \u00b7 felt <b>${esc(s.feel || 'ok')}</b></div>
       ${rows}
+      ${s.notes ? `<div class="sugg" style="margin-top:10px">${esc(s.notes)}</div>` : ''}
     </div>`;
   }).join('');
 }
@@ -494,6 +553,7 @@ function renderPast() {
     document.getElementById('session').innerHTML =
       '<div class="card"><div class="empty"><b>Nothing scheduled</b>Claude writes the week at the Sunday review.</div></div>';
     document.getElementById('feelcard').style.display = 'none';
+    document.getElementById('notecard').style.display = 'none';
     document.getElementById('copy').style.display = 'none';
     renderWeek(prog);
     renderPast();
