@@ -107,6 +107,35 @@ if (location.hash === '#log') showTab('log');
 
 const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
 
+// Streak, computed here rather than read from state.json. state.json is a
+// cache for the widget and goes stale the moment a day passes without a write.
+// The month file is the truth, so the dashboard counts from it directly.
+// dates arrives newest first. Today in progress does not break the streak.
+function computeStreak(nutrition, dates, proteinGoal) {
+  if (!proteinGoal) return 0;
+  let n = 0;
+  for (let i = 0; i < dates.length; i++) {
+    const entries = (nutrition[dates[i]] || {}).entries || [];
+    const met = entries.length > 0 && dayTotals(entries).pro >= proteinGoal;
+    if (met) n++;
+    else if (i === 0) continue;
+    else break;
+  }
+  return n;
+}
+
+function nextLiftDay(config) {
+  const lift = (config.schedule || {}).lift || [];
+  const names = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const now = new Date();
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(now);
+    d.setDate(d.getDate() + i);
+    if (lift.includes(names[d.getDay()])) return i === 0 ? 'Today' : names[d.getDay()];
+  }
+  return '\u2014';
+}
+
 // Signature element: a chart-recorder scale. Ticks every 500 kcal, a filled
 // track for what's eaten, and a hard marker at the goal.
 function drawGauge(eaten, goal) {
@@ -235,9 +264,17 @@ function healthRow(h) {
 
   const { state, config, nutrition, workouts, health, dates } = await loadWindow();
 
-  const goal = state.calorie_goal || 0;
-  const eaten = state.calories_consumed || 0;
-  const rem = goal - eaten;
+  // Today's totals come from the month file, not from state.json. state.json
+  // only refreshes when Claude writes, so on a day with nothing logged yet it
+  // still holds the last logged day and the gauge shows a stale number.
+  const todayEntries = (nutrition[todayISO] || {}).entries || [];
+  const totals = dayTotals(todayEntries);
+
+  const goal  = state.calorie_goal   || (config.targets || {}).calories  || 0;
+  const pg    = state.protein_goal_g || (config.targets || {}).protein_g || 0;
+  const eaten = totals.cal;
+  const pn    = totals.pro;
+  const rem   = goal - eaten;
 
   const el = document.getElementById('remain');
   el.textContent = Math.abs(rem).toLocaleString();
@@ -246,23 +283,24 @@ function healthRow(h) {
 
   document.getElementById('eaten').textContent = eaten.toLocaleString();
   document.getElementById('goal').textContent = goal.toLocaleString();
-  if (state.provisional_targets) document.getElementById('provisional').innerHTML = '<span class="flag">provisional</span>';
+  if (state.provisional_targets || (config.targets || {}).provisional) {
+    document.getElementById('provisional').innerHTML = '<span class="flag">provisional</span>';
+  }
   drawGauge(eaten, goal);
 
-  const pg = state.protein_goal_g || 0, pn = state.protein_consumed_g || 0;
   document.getElementById('pnow').textContent = pn;
   document.getElementById('pgoal').textContent = pg;
   document.getElementById('pbar').querySelector('i').style.width = Math.min(pg ? pn / pg * 100 : 0, 100) + '%';
 
   // Flame heats up as the streak grows. Zero stays cold and gray.
-  const days = state.streak_days || 0;
+  const days = computeStreak(nutrition, dates, pg);
   document.getElementById('streak').textContent = days;
   const flame = document.getElementById('flame');
   if (days >= 21) flame.classList.add('lit', 'hot', 'blazing');
   else if (days >= 7) flame.classList.add('lit', 'hot');
   else if (days >= 1) flame.classList.add('lit');
 
-  document.getElementById('nextlift').textContent = state.next_lift_day || '\u2014';
+  document.getElementById('nextlift').textContent = nextLiftDay(config);
 
   const trend = rollingTrend(weightSeries(health));
   document.getElementById('wtrend').textContent =
@@ -275,7 +313,6 @@ function healthRow(h) {
   );
   drawCalories(document.getElementById('calchart'), dates, nutrition, goal);
 
-  const todayEntries = (nutrition[todayISO] || {}).entries || [];
   document.getElementById('todaylist').innerHTML =
     todayEntries.length
       ? todayEntries.map(foodRow).join('')

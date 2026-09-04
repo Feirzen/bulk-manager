@@ -13,6 +13,7 @@ The contract between Claude and this repo. Read before any write.
 | `data/health/YYYY-MM-DD.json` | iOS Shortcut | One per day. Never edit |
 | `data/workouts/program.json` | Claude, weekly | Current week's sessions |
 | `data/workouts/log-YYYY-MM.json` | Claude | Completed sessions |
+| `assets/exercises.js` | Claude, rarely | Form steps, common errors, load increments |
 
 ## Data conventions
 
@@ -62,9 +63,13 @@ Recomputed in full on every nutrition write. Never patched in place.
 
 When the date rolls over, reset the consumed values to zero and recompute the streak against the completed previous day.
 
+**The dashboard does not trust this file for today's totals.** `index.html` derives calories, protein, streak, and next lift day from the month file and `config.json`, because `state.json` only refreshes when Claude writes and otherwise shows the last logged day forever. `state.json` exists for the Scriptable widget, which cannot do that work itself. Keep writing it, but a stale copy no longer breaks the dashboard.
+
 ## Streak
 
 A day counts when **both** hold: at least one meal was logged, and protein met or exceeded the target. Calories are excluded on purpose. Estimates are too noisy to gate a streak on, and a streak that breaks for reasons outside his control stops meaning anything.
+
+Today in progress never breaks the streak. The count starts at today if today already qualifies, otherwise at yesterday.
 
 ## Weight trend
 
@@ -80,15 +85,76 @@ Parsed from a pasted `WORKOUT LOG` block.
 {
   "date": "2026-09-15",
   "title": "Full Body A",
-  "feel": "strong",
+  "feel": "solid",
   "exercises": [
-    { "name": "Trap bar deadlift",
-      "sets": [{ "weight_lb": 185, "reps": 5, "rpe": 7 }] }
+    { "name": "Leg press",
+      "sets": [{ "weight_lb": 185, "reps": 8, "rpe": 8 }] }
   ]
 }
 ```
 
 Missing RPE is fine, record `null`. A skipped day is a session with an empty `exercises` array and `"feel": "skipped"`, which keeps the calendar honest without punishing the streak.
+
+### Difficulty scale
+
+The workout page never asks for a bare RPE number. It presents a five-point word scale per set and stores the RPE equivalent, so history stays comparable.
+
+| Tapped | Stored `rpe` |
+|---|---|
+| Easy | 6 |
+| Mod | 7 |
+| Hard | 8 |
+| V.Hard | 9 |
+| Max | 10 |
+
+Overall session `feel` is a 1 to 5 slider running rough to easy, stored as one of: `rough`, `tough`, `solid`, `good`, `easy`, or `skipped`.
+
+The pasted block carries both forms so it stays readable and parseable:
+
+```
+WORKOUT LOG
+2026-09-07 · Full Body A · overall: solid
+
+Leg press
+  185 x 9 @ hard (RPE 8)
+  185 x 8 @ very hard (RPE 9)
+```
+
+A weight of `bw` means bodyweight. Store `weight_lb: null`.
+
+## Program
+
+`data/workouts/program.json` drives the workout page. Written at the Sunday review.
+
+```json
+{
+  "week_of": "2026-08-31",
+  "sessions": [
+    { "day": "Mon", "key": "A", "title": "Full Body A",
+      "supersets": [[0, 1], [2, 3]],
+      "exercises": [
+        { "name": "Leg press", "scheme": "3 x 8-10", "sets": 3,
+          "cue": "One line.", "subs": ["Goblet squat", "Hack squat"] }
+      ] }
+  ],
+  "optional_addins": []
+}
+```
+
+`day` must be one of `Mon` `Tue` `Wed` `Thu` `Fri` `Sat` `Sun`. Every exercise carries two or three `subs` because equipment at EOS Orem gets occupied. Every `name`, substitutions included, should have a matching key in `assets/exercises.js` or the form panel falls back to a generic note.
+
+## Progression
+
+The workout page suggests the next load itself, from the last logged session of that exercise. Average RPE across its sets decides:
+
+| Last average RPE | Next session |
+|---|---|
+| 7 or below | Add one `load_step` |
+| 7.1 to 8 | Same weight, one more rep per set |
+| 8.1 to 9 | Repeat |
+| Above 9 | Hold or drop five percent |
+
+`load_step` lives per exercise in `assets/exercises.js`. It is 10 lb for machine and barbell lower body, 5 lb for dumbbell and upper body, and 0 for bodyweight work, which switches the advice to reps instead of load. **With no history the page shows no weight at all.** Inventing a starting number is worse than a blank field.
 
 ## Write rules
 

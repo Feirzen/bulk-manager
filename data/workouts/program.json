@@ -1,7 +1,71 @@
 {
-  "week_of": null,
-  "generated_at": null,
-  "sessions": [],
-  "optional_addins": [],
-  "note": "Empty until the first weekly review. Claude writes this every Sunday from the previous week's logs."
+  "week_of": "2026-08-31",
+  "generated_at": "2026-09-04T12:00:00-06:00",
+  "rotation": "A / B / C, fixed to Mon / Wed / Fri. Same three sessions each week so load progression stays readable.",
+  "sessions": [
+    {
+      "day": "Mon",
+      "key": "A",
+      "title": "Full Body A",
+      "supersets": [[0, 1], [2, 3]],
+      "exercises": [
+        { "name": "Leg press", "scheme": "3 x 8-10", "sets": 3, "cue": "Stop before your hips curl off the pad. That roll is lumbar flexion.", "subs": ["Goblet squat", "Hack squat"] },
+        { "name": "Seated cable row", "scheme": "3 x 10-12", "sets": 3, "cue": "Torso stays still. Pull with the back, not by rocking.", "subs": ["Single-arm dumbbell row", "Machine row"] },
+        { "name": "Dumbbell bench press", "scheme": "3 x 8-10", "sets": 3, "cue": "Stop 1-2 reps short. Dumbbells you can bail on, so push these.", "subs": ["Machine chest press", "Push-up"] },
+        { "name": "Dead bug", "scheme": "3 x 8/side", "sets": 3, "cue": "Low back pinned to the floor the whole set. This is the anti-lordosis work.", "subs": ["Pallof press", "Plank"] },
+        { "name": "Dumbbell curl", "scheme": "3 x 10-12", "sets": 3, "cue": "Elbows stay at your sides. No swinging from the hips.", "subs": ["Cable curl", "Hammer curl"] }
+      ]
+    },
+    {
+      "day": "Wed",
+      "key": "B",
+      "title": "Full Body B",
+      "supersets": [[0, 1], [2, 3]],
+      "exercises": [
+        { "name": "Barbell RDL", "scheme": "3 x 8", "sets": 3, "cue": "Hips back, spine neutral. Stand up to tall, never past it.", "subs": ["Hip thrust", "Seated leg curl"] },
+        { "name": "Overhead dumbbell press", "scheme": "3 x 8-10", "sets": 3, "cue": "Ribs down. If your back arches to finish the rep, the weight is too heavy.", "subs": ["Machine shoulder press", "Landmine press"] },
+        { "name": "Lat pulldown", "scheme": "3 x 10-12", "sets": 3, "cue": "Lean back slightly and hold it. Do not rock through the set.", "subs": ["Assisted pull-up", "Chest-supported row"] },
+        { "name": "Plank", "scheme": "3 x 30-45s", "sets": 3, "cue": "Tuck the pelvis under. A sagging low back defeats the point.", "subs": ["Side plank", "Pallof press"] },
+        { "name": "Triceps pushdown", "scheme": "3 x 12-15", "sets": 3, "cue": "Elbows locked to your ribs. Only the forearm moves.", "subs": ["Overhead dumbbell extension", "Dip machine"] }
+      ]
+    },
+    {
+      "day": "Fri",
+      "key": "C",
+      "title": "Full Body C",
+      "supersets": [[0, 1], [2, 3]],
+      "exercises": [
+        { "name": "Walking lunge", "scheme": "3 x 10/leg", "sets": 3, "cue": "Torso upright, front shin near vertical. Do not lean forward.", "subs": ["Bulgarian split squat", "Leg extension"] },
+        { "name": "Incline dumbbell press", "scheme": "3 x 8-10", "sets": 3, "cue": "Bench at 30 degrees. Higher turns it into a shoulder press.", "subs": ["Machine incline press", "Dumbbell bench press"] },
+        { "name": "Single-arm cable row", "scheme": "3 x 10-12/side", "sets": 3, "cue": "Let the shoulder blade travel. Full stretch at the front.", "subs": ["Machine row", "Chest-supported row"] },
+        { "name": "Face pull", "scheme": "3 x 15", "sets": 3, "cue": "Pull to the eyebrows, elbows high. Light weight, this is postural.", "subs": ["Reverse pec deck", "Rear delt dumbbell fly"] },
+        { "name": "Standing calf raise", "scheme": "3 x 12-15", "sets": 3, "cue": "Full stretch at the bottom, pause at the top. No bouncing.", "subs": ["Seated calf raise", "Leg press calf raise"] }
+      ]
+    }
+  ],
+  "optional_addins": [
+    {
+      "key": "P",
+      "title": "Add-in: Hips and posture",
+      "when": "Any off day. 12 minutes. The one that actually moves the lordosis.",
+      "exercises": [
+        { "name": "Couch stretch", "scheme": "2 x 45s/side", "sets": 2, "cue": "Squeeze the back glute to tuck the pelvis. That is the stretch.", "subs": [] },
+        { "name": "Glute bridge", "scheme": "3 x 15", "sets": 3, "cue": "Stop at a straight line. Do not arch past it.", "subs": ["Hip thrust"] },
+        { "name": "Bird dog", "scheme": "3 x 8/side", "sets": 3, "cue": "Hips stay square. Slow beats far.", "subs": ["Dead bug"] },
+        { "name": "Pallof press", "scheme": "2 x 10/side", "sets": 2, "cue": "Resist the twist. Nothing rotates.", "subs": ["Side plank"] }
+      ]
+    },
+    {
+      "key": "S",
+      "title": "Add-in: Arms and shoulders",
+      "when": "Saturday flex day. 20 minutes if you have the energy, skip it if you do not.",
+      "exercises": [
+        { "name": "Cable lateral raise", "scheme": "3 x 12-15", "sets": 3, "cue": "Lead with the elbow, stop at shoulder height.", "subs": ["Dumbbell lateral raise"] },
+        { "name": "Hammer curl", "scheme": "3 x 10-12", "sets": 3, "cue": "Neutral grip the whole way. Hits the brachialis.", "subs": ["Dumbbell curl", "Cable curl"] },
+        { "name": "Overhead dumbbell extension", "scheme": "3 x 12", "sets": 3, "cue": "Ribs down, elbows in. Do not arch to get under the weight.", "subs": ["Triceps pushdown"] },
+        { "name": "Face pull", "scheme": "3 x 15", "sets": 3, "cue": "Free postural volume. Almost impossible to overdo.", "subs": ["Reverse pec deck"] }
+      ]
+    }
+  ],
+  "note": "First real program. Two weeks of technique and honest difficulty logging before the numbers mean anything. Every exercise carries substitutions because equipment at EOS Orem gets occupied."
 }

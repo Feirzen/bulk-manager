@@ -1,14 +1,14 @@
 {
-  "date": "2026-08-24",
-  "updated_at": "2026-08-24T22:00:00-06:00",
+  "date": "2026-09-04",
+  "updated_at": "2026-09-04T12:00:00-06:00",
   "calorie_goal": 3100,
-  "calories_consumed": 3205,
+  "calories_consumed": 0,
   "protein_goal_g": 165,
-  "protein_consumed_g": 150,
-  "entries_today": 14,
-  "streak_days": 2,
+  "protein_consumed_g": 0,
+  "entries_today": 0,
+  "streak_days": 0,
   "weight_trend_lb": null,
   "weight_trend_change_lb": null,
-  "next_lift_day": "Mon",
+  "next_lift_day": "Fri",
   "provisional_targets": true
 }

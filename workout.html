@@ -15,51 +15,150 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/app.css">
 <style>
-  .ex{border-bottom:1px solid var(--rule);padding:14px 0}
-  .ex:last-of-type{border-bottom:0}
-  .ex h3{font-size:14px;font-weight:600;display:flex;justify-content:space-between;align-items:baseline;gap:10px}
-  .ex h3 em{font-style:normal;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--ink-3);letter-spacing:.08em;white-space:nowrap}
-  .cue{font-size:11px;color:var(--ink-2);margin:3px 0 9px}
-  .sets{display:flex;flex-direction:column;gap:6px}
-  .set{display:grid;grid-template-columns:22px 1fr 1fr 1fr;gap:6px;align-items:center}
-  .set > span{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--ink-3);text-align:center}
+  /* ---- header + view switch ---- */
+  .hrow{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+  .views{display:flex;gap:0;border:1px solid var(--rule);border-radius:8px;overflow:hidden;margin:10px 0 16px}
+  .views button{
+    flex:1;background:var(--card);border:0;border-right:1px solid var(--rule);
+    padding:9px 4px;font-family:'IBM Plex Mono',monospace;font-size:10px;
+    letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);cursor:pointer;
+  }
+  .views button:last-child{border-right:0}
+  .views button.on{background:var(--ink);color:var(--card)}
+  .view{display:none}
+  .view.on{display:block}
+
+  /* ---- exercise card ---- */
+  .exwrap{transition:opacity .18s ease, transform .18s ease}
+  .exwrap.swapping{opacity:0;transform:translateY(8px)}
+  .exhead{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+  .exname{font-size:16px;font-weight:600;line-height:1.25}
+  .scheme{
+    font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;
+    color:var(--signal);white-space:nowrap;letter-spacing:-.01em;
+  }
+  .caret{
+    background:none;border:1px solid var(--rule);border-radius:6px;
+    width:30px;height:30px;flex:none;cursor:pointer;color:var(--ink-2);
+    font-size:12px;line-height:1;transition:transform .18s ease;
+  }
+  .caret.open{transform:rotate(90deg);color:var(--signal);border-color:var(--signal)}
+  .cue{font-size:12px;color:var(--ink-2);margin:6px 0 0}
+
+  .detail{
+    margin-top:10px;padding:12px;border-radius:8px;background:var(--track);
+    font-size:12.5px;line-height:1.5;
+  }
+  .detail h4{
+    font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--ink-3);margin:0 0 5px;font-weight:500;
+  }
+  .detail h4+ol,.detail h4+ul{margin:0 0 11px 17px}
+  .detail li{margin-bottom:3px}
+  .detail ul li::marker{color:var(--over)}
+  .detail > *:last-child{margin-bottom:0}
+
+  .sugg{
+    margin-top:10px;padding:9px 11px;border-radius:8px;
+    border:1px solid var(--rule);border-left:3px solid var(--signal);
+    font-size:12px;color:var(--ink-2);
+  }
+  .sugg b{color:var(--ink)}
+  .sugg.cold{border-left-color:var(--ink-3)}
+
+  /* ---- set logging ---- */
+  .sets{margin-top:13px;display:flex;flex-direction:column;gap:12px}
+  .set{border-top:1px solid var(--rule);padding-top:11px}
+  .setrow{display:grid;grid-template-columns:26px 1fr auto 1fr;gap:8px;align-items:center}
+  .setno{
+    font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;
+    color:var(--ink-3);text-align:center;
+  }
+  .setrow .x{font-family:'IBM Plex Mono',monospace;font-size:14px;color:var(--ink-3)}
   .set input{
-    width:100%;padding:9px 6px;border:1px solid var(--rule);border-radius:7px;
-    font-family:'IBM Plex Mono',monospace;font-size:15px;text-align:center;
+    width:100%;padding:12px 6px;border:1px solid var(--rule);border-radius:8px;
+    font-family:'IBM Plex Mono',monospace;font-size:19px;font-weight:600;text-align:center;
     background:var(--card);color:var(--ink);-webkit-appearance:none;
   }
   .set input:focus{outline:2px solid var(--signal);outline-offset:-1px;border-color:var(--signal)}
-  .hdr{display:grid;grid-template-columns:22px 1fr 1fr 1fr;gap:6px;margin-bottom:5px}
-  .hdr span{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);text-align:center}
-  .swap{font-size:11px;color:var(--signal);background:none;border:0;padding:4px 0;cursor:pointer;font-family:inherit;text-align:left}
-  .feel{display:flex;gap:6px;margin-top:8px}
-  .feel button{flex:1;padding:11px;border:1px solid var(--rule);background:var(--card);border-radius:8px;font-family:inherit;font-size:13px;cursor:pointer;color:var(--ink)}
-  .feel button.on{background:var(--ink);color:var(--card);border-color:var(--ink)}
+  .set input::placeholder{font-weight:400;font-size:14px;color:var(--ink-3)}
+  .diff{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-top:8px}
+  .diff button{
+    padding:8px 2px;border:1px solid var(--rule);border-radius:7px;background:var(--card);
+    font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.02em;
+    color:var(--ink-3);cursor:pointer;
+  }
+  .diff button.on{background:var(--signal);border-color:var(--signal);color:#fff}
+  .diff button.on[data-d="4"]{background:var(--over);border-color:var(--over)}
+  .diff button.on[data-d="3"]{background:var(--burn);border-color:var(--burn)}
+
+  .swap{
+    margin-top:13px;width:100%;padding:10px;border:1px dashed var(--rule);
+    border-radius:8px;background:none;color:var(--signal);cursor:pointer;
+    font-family:inherit;font-size:12px;
+  }
+  .swap:active{background:var(--track)}
+  .swap span{color:var(--ink-3)}
+
+  /* ---- overall difficulty ---- */
+  .scale input[type=range]{width:100%;accent-color:var(--signal);margin:14px 0 4px}
+  .scale-ends{
+    display:flex;justify-content:space-between;
+    font-family:'IBM Plex Mono',monospace;font-size:10px;
+    letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);
+  }
+  .scale-now{text-align:center;font-size:20px;font-weight:600;margin-top:10px}
+
+  /* ---- week + past views ---- */
+  .plain{padding:10px 0;border-bottom:1px solid var(--rule);font-size:13px}
+  .plain:last-child{border-bottom:0;padding-bottom:0}
+  .plain b{font-weight:600}
+  .plain em{
+    font-style:normal;font-family:'IBM Plex Mono',monospace;font-size:13px;
+    color:var(--signal);font-weight:600;float:right;
+  }
+  .plain i{display:block;font-style:normal;font-size:11px;color:var(--ink-2);margin-top:2px}
+  .plain u{
+    display:block;text-decoration:none;font-family:'IBM Plex Mono',monospace;
+    font-size:10px;color:var(--ink-3);margin-top:3px;
+  }
+  .hint{font-size:11px;color:var(--ink-2);text-align:center;margin:10px 0 4px}
+  .addin{border-left:3px solid var(--burn)}
 </style>
 </head>
 <body>
 
 <div class="wrap">
-  <header>
-    <h1 id="title">Workout</h1>
-    <span class="date" id="today"></span>
+  <header style="display:block;margin-bottom:0">
+    <div class="hrow">
+      <h1 id="title">Workout</h1>
+      <span class="date" id="today"></span>
+    </div>
+    <div class="views">
+      <button data-v="today" class="on">Today</button>
+      <button data-v="week">This week</button>
+      <button data-v="past">Past</button>
+    </div>
   </header>
 
-  <div id="session"></div>
+  <section class="view on" id="v-today">
+    <div id="session"></div>
 
-  <div class="card">
-    <div class="eyebrow">How did it feel</div>
-    <div class="feel" id="feel">
-      <button data-f="rough">Rough</button>
-      <button data-f="ok" class="on">OK</button>
-      <button data-f="strong">Strong</button>
+    <div class="card" id="feelcard">
+      <div class="eyebrow">Overall difficulty</div>
+      <div class="scale">
+        <input type="range" id="feel" min="1" max="5" step="1" value="3">
+        <div class="scale-ends"><span>Rough</span><span>Easy</span></div>
+        <div class="scale-now" id="feelnow">Solid</div>
+      </div>
     </div>
-  </div>
 
-  <button class="action" id="copy">Copy workout results</button>
-  <p style="font-size:11px;color:var(--ink-2);text-align:center;margin:10px 0 4px">
-    Paste into Claude in the bulk project. Claude logs it and writes next week's program from it.
-  </p>
+    <button class="action" id="copy">Copy workout results</button>
+    <p class="hint">Paste into Claude in the bulk project. Claude logs it and uses it to set next week.</p>
+  </section>
+
+  <section class="view" id="v-week"><div id="weeklist"></div></section>
+  <section class="view" id="v-past"><div id="pastlist"></div></section>
 </div>
 
 <nav>
@@ -69,71 +168,232 @@
 </nav>
 
 <script src="assets/data.js"></script>
+<script src="assets/exercises.js"></script>
 <script>
-// PLACEHOLDER. Structure and the copy-out format are real and working.
-// Layout and interaction are yours to rebuild in Claude Design.
-let FEEL = 'ok';
-let SESSION = null;
+// Difficulty scale. Index 0-4 maps to RPE 6-10 so the stored shape stays
+// compatible with LOGGING-SPEC and with anything already logged.
+const DIFF        = ['Easy', 'Mod', 'Hard', 'V.Hard', 'Max'];
+const DIFF_WORD   = ['easy', 'moderate', 'hard', 'very hard', 'max'];
+const OVERALL     = ['rough', 'tough', 'solid', 'good', 'easy'];
+const diffToRpe   = i => i + 6;
 
-const SAMPLE = {
-  title: 'Full Body A',
-  exercises: [
-    { name: 'Trap bar deadlift', scheme: '3 x 5', cue: 'Neutral spine, brace before the pull.', subs: ['Romanian deadlift', 'Leg press'], sets: 3 },
-    { name: 'Incline dumbbell press', scheme: '3 x 8-10', cue: 'Stop 1-2 reps short.', subs: ['Machine chest press', 'Flat barbell bench'], sets: 3 },
-    { name: 'Chest-supported row', scheme: '3 x 10', cue: 'Pull to the ribs, not the chest.', subs: ['Cable row', 'Lat pulldown'], sets: 3 },
-    { name: 'Dead bug', scheme: '2 x 10/side', cue: 'Ribs down. Anti-lordosis work, do not rush it.', subs: ['Bird dog'], sets: 2 }
-  ]
-};
+let SESSION = null;      // { title, exercises: [...] }
+let HISTORY = [];        // past logged sessions, any month
+let PICK    = [];        // per-exercise: which option in [main, ...subs] is active
+let VALUES  = [];        // per-exercise, per-set: { w, r, d }
+let OPEN    = [];        // per-exercise: detail panel expanded
+let FEEL    = 3;
 
-function render(s) {
-  SESSION = s;
-  document.getElementById('title').textContent = s.title;
-  document.getElementById('session').innerHTML = s.exercises.map((ex, i) => `
-    <div class="card">
-      <div class="ex">
-        <h3>${ex.name}<em>${ex.scheme}</em></h3>
-        <div class="cue">${ex.cue}</div>
-        <div class="hdr"><span></span><span>Weight</span><span>Reps</span><span>RPE</span></div>
-        <div class="sets">
-          ${[...Array(ex.sets)].map((_, j) => `
-            <div class="set">
-              <span>${j + 1}</span>
-              <input inputmode="decimal" data-e="${i}" data-s="${j}" data-k="weight" placeholder="lb">
-              <input inputmode="numeric" data-e="${i}" data-s="${j}" data-k="reps" placeholder="reps">
-              <input inputmode="decimal" data-e="${i}" data-s="${j}" data-k="rpe" placeholder="rpe">
-            </div>`).join('')}
-        </div>
-        ${ex.subs.length ? `<button class="swap">If taken: ${ex.subs.join(' \u00b7 ')}</button>` : ''}
-      </div>
-    </div>`).join('');
-}
+const esc = s => String(s == null ? '' : s)
+  .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
-document.querySelectorAll('#feel button').forEach(b => b.onclick = () => {
-  document.querySelectorAll('#feel button').forEach(x => x.classList.remove('on'));
-  b.classList.add('on');
-  FEEL = b.dataset.f;
+// ---------- view switching ----------
+document.querySelectorAll('.views button').forEach(b => b.onclick = () => {
+  document.querySelectorAll('.views button').forEach(x => x.classList.toggle('on', x === b));
+  document.querySelectorAll('.view').forEach(x => x.classList.toggle('on', x.id === 'v-' + b.dataset.v));
+  window.scrollTo(0, 0);
 });
 
+// ---------- progression ----------
+// Looks up the last time this exercise was logged and turns the recorded
+// difficulty into a concrete instruction. No history means no number, on
+// purpose. Guessing a starting weight would be worse than leaving it blank.
+function suggestion(name) {
+  const past = HISTORY
+    .filter(s => (s.exercises || []).some(e => e.name === name))
+    .sort((a, b) => String(b.date).localeCompare(String(a.date)));
+
+  if (!past.length) return null;
+
+  const sess = past[0];
+  const ex   = sess.exercises.find(e => e.name === name);
+  const sets = (ex.sets || []).filter(s => s && (s.weight_lb != null || s.reps != null));
+  if (!sets.length) return null;
+
+  const weighted = sets.filter(s => typeof s.weight_lb === 'number' && s.weight_lb > 0);
+  const top  = weighted.length
+    ? weighted.reduce((a, b) => (b.weight_lb > a.weight_lb ? b : a))
+    : sets[0];
+  const rpes = sets.map(s => s.rpe).filter(r => typeof r === 'number');
+  const avg  = rpes.length ? rpes.reduce((a, b) => a + b, 0) / rpes.length : null;
+  const step = (EXERCISES[name] || {}).load_step;
+  const bw   = step === 0;
+
+  const last = sets.map(s =>
+    `${s.weight_lb ? s.weight_lb + ' x ' : ''}${s.reps != null ? s.reps : '?'}`).join(', ');
+
+  let advice, target = null;
+
+  if (avg == null) {
+    advice = 'Repeat it and log the difficulty this time.';
+    target = top.weight_lb || null;
+  } else if (bw) {
+    advice = avg <= 7 ? 'Add reps or slow the tempo down.'
+           : avg <= 9 ? 'Repeat the same reps.'
+           : 'Cut the reps back a little.';
+  } else if (avg <= 7) {
+    target = (top.weight_lb || 0) + (step || 5);
+    advice = `Went easy. Move up to <b>${target} lb</b>.`;
+  } else if (avg <= 8) {
+    target = top.weight_lb;
+    advice = `Same <b>${target} lb</b>, chase one more rep per set.`;
+  } else if (avg <= 9) {
+    target = top.weight_lb;
+    advice = `Repeat <b>${target} lb</b> and clean it up.`;
+  } else {
+    target = top.weight_lb;
+    advice = `Was maxed out. Hold at <b>${target} lb</b> or back off five percent.`;
+  }
+
+  return { date: sess.date, last, advice, target };
+}
+
+// ---------- exercise card ----------
+function options(i) {
+  const base = SESSION.exercises[i];
+  return [base.name].concat(base.subs || []);
+}
+function currentName(i) {
+  const opts = options(i);
+  return opts[PICK[i] % opts.length];
+}
+
+function exCard(i) {
+  const base = SESSION.exercises[i];
+  const name = currentName(i);
+  const ref  = EXERCISES[name] || null;
+  const sug  = suggestion(name);
+  const opts = options(i);
+  const next = opts[(PICK[i] + 1) % opts.length];
+  const swapped = PICK[i] % opts.length !== 0;
+
+  let detail = '';
+  if (OPEN[i]) {
+    detail = ref
+      ? `<div class="detail">
+           <h4>How to do it</h4>
+           <ol>${ref.form.map(f => `<li>${esc(f)}</li>`).join('')}</ol>
+           <h4>Common errors</h4>
+           <ul>${ref.errors.map(f => `<li>${esc(f)}</li>`).join('')}</ul>
+         </div>`
+      : `<div class="detail">No form notes saved for this one yet. Ask Claude to add it.</div>`;
+  }
+
+  const sugHtml = sug
+    ? `<div class="sugg"><b>${prettyDate(sug.date)}:</b> ${esc(sug.last)}<br>${sug.advice}</div>`
+    : `<div class="sugg cold">No history yet. Pick a weight you could stop two reps short of, and log how it felt.</div>`;
+
+  const setsHtml = [...Array(base.sets)].map((_, j) => {
+    const v = VALUES[i][j];
+    const ph = sug && sug.target ? String(sug.target) : 'lb';
+    return `<div class="set">
+      <div class="setrow">
+        <div class="setno">${j + 1}</div>
+        <input inputmode="decimal" placeholder="${ph}" value="${esc(v.w)}" data-e="${i}" data-s="${j}" data-k="w">
+        <div class="x">x</div>
+        <input inputmode="numeric" placeholder="reps" value="${esc(v.r)}" data-e="${i}" data-s="${j}" data-k="r">
+      </div>
+      <div class="diff">
+        ${DIFF.map((d, k) => `<button data-e="${i}" data-s="${j}" data-d="${k}"${v.d === k ? ' class="on"' : ''}>${d}</button>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+
+  return `<div class="card exwrap" data-card="${i}">
+    <div class="exhead">
+      <div style="flex:1;min-width:0">
+        <div class="exname">${esc(name)}${swapped ? ' <span class="flag">swapped</span>' : ''}</div>
+      </div>
+      <div class="scheme">${esc(base.scheme)}</div>
+      <button class="caret${OPEN[i] ? ' open' : ''}" data-caret="${i}" aria-label="Form and common errors">&#9654;</button>
+    </div>
+    <div class="cue">${esc(base.cue)}</div>
+    ${detail}
+    ${sugHtml}
+    <div class="sets">${setsHtml}</div>
+    ${opts.length > 1 ? `<button class="swap" data-swap="${i}">&#8646; Swap for <b>${esc(next)}</b> <span>(${opts.length} options)</span></button>` : ''}
+  </div>`;
+}
+
+function renderSession() {
+  document.getElementById('session').innerHTML =
+    SESSION.exercises.map((_, i) => exCard(i)).join('');
+  wire();
+}
+
+// Re-render one card only, with a short fade so the swap reads as a swap
+// rather than the text silently changing under your thumb.
+function swapCard(i) {
+  const el = document.querySelector(`[data-card="${i}"]`);
+  if (!el) return;
+  el.classList.add('swapping');
+  setTimeout(() => {
+    PICK[i]++;
+    VALUES[i] = VALUES[i].map(() => ({ w: '', r: '', d: null }));
+    el.outerHTML = exCard(i);
+    const fresh = document.querySelector(`[data-card="${i}"]`);
+    fresh.classList.add('swapping');
+    wire();
+    requestAnimationFrame(() => requestAnimationFrame(() =>
+      fresh.classList.remove('swapping')));
+  }, 190);
+}
+
+function wire() {
+  document.querySelectorAll('[data-caret]').forEach(b => b.onclick = () => {
+    const i = +b.dataset.caret;
+    OPEN[i] = !OPEN[i];
+    const el = document.querySelector(`[data-card="${i}"]`);
+    el.outerHTML = exCard(i);
+    wire();
+  });
+
+  document.querySelectorAll('[data-swap]').forEach(b => b.onclick = () => swapCard(+b.dataset.swap));
+
+  document.querySelectorAll('.set input').forEach(inp => inp.oninput = () => {
+    VALUES[+inp.dataset.e][+inp.dataset.s][inp.dataset.k] = inp.value;
+  });
+
+  document.querySelectorAll('.diff button').forEach(b => b.onclick = () => {
+    const i = +b.dataset.e, j = +b.dataset.s, d = +b.dataset.d;
+    VALUES[i][j].d = VALUES[i][j].d === d ? null : d;
+    b.parentElement.querySelectorAll('button').forEach(x =>
+      x.classList.toggle('on', +x.dataset.d === VALUES[i][j].d));
+  });
+}
+
+// ---------- overall difficulty ----------
+const feelEl = document.getElementById('feel');
+feelEl.oninput = () => {
+  FEEL = +feelEl.value;
+  const w = OVERALL[FEEL - 1];
+  document.getElementById('feelnow').textContent = w[0].toUpperCase() + w.slice(1);
+};
+
+// ---------- copy out ----------
 document.getElementById('copy').onclick = async () => {
-  const v = (e, s, k) => (document.querySelector(`[data-e="${e}"][data-s="${s}"][data-k="${k}"]`) || {}).value || '';
-  let out = `WORKOUT LOG\n${isoDate(new Date())} \u00b7 ${SESSION.title} \u00b7 felt ${FEEL}\n\n`;
-  SESSION.exercises.forEach((ex, i) => {
-    const rows = [...Array(ex.sets)].map((_, j) => {
-      const w = v(i, j, 'weight'), r = v(i, j, 'reps'), rpe = v(i, j, 'rpe');
-      return (w || r) ? `  ${w || '?'} x ${r || '?'}${rpe ? ` @ RPE ${rpe}` : ''}` : null;
+  let out = `WORKOUT LOG\n${isoDate(new Date())} \u00b7 ${SESSION.title} \u00b7 overall: ${OVERALL[FEEL - 1]}\n\n`;
+
+  SESSION.exercises.forEach((base, i) => {
+    const rows = VALUES[i].map(v => {
+      if (!v.w && !v.r) return null;
+      const d = v.d != null ? ` @ ${DIFF_WORD[v.d]} (RPE ${diffToRpe(v.d)})` : '';
+      return `  ${v.w || 'bw'} x ${v.r || '?'}${d}`;
     }).filter(Boolean);
-    if (rows.length) out += `${ex.name}\n${rows.join('\n')}\n\n`;
+    if (rows.length) out += `${currentName(i)}\n${rows.join('\n')}\n\n`;
   });
 
   const btn = document.getElementById('copy');
+  const text = out.trim();
   try {
-    await navigator.clipboard.writeText(out.trim());
+    await navigator.clipboard.writeText(text);
     btn.textContent = 'Copied. Paste into Claude.';
     btn.classList.add('done');
   } catch (e) {
-    // Clipboard API needs a secure context and can be refused. Fall back to select-to-copy.
+    // Clipboard API needs a secure context and can be refused. Fall back to
+    // a textarea the OS can copy from.
     const ta = document.createElement('textarea');
-    ta.value = out.trim();
+    ta.value = text;
     ta.style.cssText = 'width:100%;height:220px;margin-top:10px;font-family:IBM Plex Mono,monospace;font-size:12px;padding:10px;border:1px solid var(--rule);border-radius:10px;background:var(--card);color:var(--ink)';
     btn.after(ta);
     ta.select();
@@ -142,13 +402,118 @@ document.getElementById('copy').onclick = async () => {
   setTimeout(() => { btn.textContent = 'Copy workout results'; btn.classList.remove('done'); }, 6000);
 };
 
+// ---------- week + past views ----------
+function plainSession(s, addin) {
+  const rows = (s.exercises || []).map(e => `<div class="plain">
+    <em>${esc(e.scheme)}</em><b>${esc(e.name)}</b>
+    <i>${esc(e.cue)}</i>
+    ${(e.subs || []).length ? `<u>or ${e.subs.map(esc).join(' \u00b7 ')}</u>` : ''}
+  </div>`).join('');
+  return `<div class="card${addin ? ' addin' : ''}">
+    <div class="eyebrow">${esc(addin ? s.when : s.day)}</div>
+    <h2 style="margin:5px 0 6px;font-size:15px">${esc(s.title)}</h2>
+    ${rows}
+  </div>`;
+}
+
+function renderWeek(prog) {
+  const el = document.getElementById('weeklist');
+  const sessions = prog.sessions || [], addins = prog.optional_addins || [];
+  if (!sessions.length) {
+    el.innerHTML = '<div class="card"><div class="empty"><b>No program yet</b>Claude writes this at the Sunday review.</div></div>';
+    return;
+  }
+  el.innerHTML =
+    `<p class="hint" style="text-align:left;margin:0 0 12px">Week of ${prog.week_of ? prettyDate(prog.week_of) : '\u2014'}. Paired exercises alternate so you rest one muscle while working the other.</p>`
+    + sessions.map(s => plainSession(s, false)).join('')
+    + (addins.length ? '<div class="eyebrow" style="margin:18px 0 8px">Optional add-ins</div>' : '')
+    + addins.map(s => plainSession(s, true)).join('');
+}
+
+function renderPast() {
+  const el = document.getElementById('pastlist');
+  if (!HISTORY.length) {
+    el.innerHTML = '<div class="card"><div class="empty"><b>No sessions logged yet</b>Finish a workout, copy the results, and paste them to Claude.</div></div>';
+    return;
+  }
+  const sorted = HISTORY.slice().sort((a, b) => String(b.date).localeCompare(String(a.date)));
+  el.innerHTML = sorted.map(s => {
+    if (s.feel === 'skipped' || !(s.exercises || []).length) {
+      return `<div class="card"><div class="eyebrow">${esc(prettyDate(s.date))}</div>
+        <h2 style="margin:5px 0 0;font-size:15px">${esc(s.title || 'Session')} <span class="flag">skipped</span></h2></div>`;
+    }
+    const rows = s.exercises.map(e => {
+      const sets = (e.sets || []).map(x =>
+        `${x.weight_lb ? x.weight_lb + '\u00d7' : ''}${x.reps != null ? x.reps : '?'}${x.rpe ? ' @' + x.rpe : ''}`
+      ).join('   ');
+      return `<div class="plain"><b>${esc(e.name)}</b><u>${esc(sets)}</u></div>`;
+    }).join('');
+    const vol = s.exercises.reduce((a, e) => a + (e.sets || []).length, 0);
+    return `<div class="card">
+      <div class="eyebrow"><span>${esc(prettyDate(s.date))}</span></div>
+      <h2 style="margin:5px 0 6px;font-size:15px">${esc(s.title || 'Session')}</h2>
+      <div class="delta" style="margin-bottom:6px">${vol} sets \u00b7 felt <b>${esc(s.feel || 'ok')}</b></div>
+      ${rows}
+    </div>`;
+  }).join('');
+}
+
+// ---------- boot ----------
 (async function () {
-  document.getElementById('today').textContent = prettyDate(isoDate(new Date()));
-  const prog = await load('data/workouts/program.json', {});
-  const today = new Date().toLocaleDateString('en-US', { weekday: 'short' });
-  const s = (prog.sessions || []).find(x => x.day === today);
-  render(s || SAMPLE);
-  if (!s) document.getElementById('title').insertAdjacentHTML('beforeend', ' <span class="flag">sample</span>');
+  const now = new Date();
+  document.getElementById('today').textContent = prettyDate(isoDate(now));
+
+  const prevMonth = new Date(now);
+  prevMonth.setMonth(prevMonth.getMonth() - 1);
+
+  const [prog, thisM, lastM] = await Promise.all([
+    load('data/workouts/program.json', {}),
+    load(`data/workouts/log-${monthKey(now)}.json`, { sessions: [] }),
+    load(`data/workouts/log-${monthKey(prevMonth)}.json`, { sessions: [] })
+  ]);
+
+  HISTORY = [].concat(thisM.sessions || [], lastM.sessions || []);
+
+  const dayName  = now.toLocaleDateString('en-US', { weekday: 'short' });
+  const sessions = prog.sessions || [];
+  let s = sessions.find(x => x.day === dayName);
+  let offDay = false;
+
+  // Not a lift day. Show the next one up rather than an empty screen, and say so.
+  if (!s && sessions.length) {
+    const order = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    for (let i = 1; i <= 7 && !s; i++) {
+      const d = order[(now.getDay() + i) % 7];
+      s = sessions.find(x => x.day === d);
+    }
+    offDay = true;
+  }
+
+  if (!s) {
+    document.getElementById('title').textContent = 'No program yet';
+    document.getElementById('session').innerHTML =
+      '<div class="card"><div class="empty"><b>Nothing scheduled</b>Claude writes the week at the Sunday review.</div></div>';
+    document.getElementById('feelcard').style.display = 'none';
+    document.getElementById('copy').style.display = 'none';
+    renderWeek(prog);
+    renderPast();
+    return;
+  }
+
+  SESSION = s;
+  PICK   = s.exercises.map(() => 0);
+  OPEN   = s.exercises.map(() => false);
+  VALUES = s.exercises.map(ex => [...Array(ex.sets)].map(() => ({ w: '', r: '', d: null })));
+
+  document.getElementById('title').textContent = s.title;
+  if (offDay) {
+    document.getElementById('session').insertAdjacentHTML('beforebegin',
+      `<p class="hint" style="text-align:left;margin:0 0 12px">Not a lift day. This is <b>${esc(s.day)}</b>, shown early.</p>`);
+  }
+
+  renderSession();
+  renderWeek(prog);
+  renderPast();
 })();
 </script>
 </body>
