@@ -95,6 +95,20 @@ Parsed from a pasted `WORKOUT LOG` block.
 
 Missing RPE is fine, record `null`. A skipped day is a session with an empty `exercises` array and `"feel": "skipped"`, which keeps the calendar honest without punishing the streak.
 
+An exercise may carry a `note` when it was substituted or run differently than programmed. A session may carry `notes` for the free-text field on the workout page.
+
+### Cardio
+
+Warm-up or cool-down conditioning goes in an optional `cardio` array on the session. It is context, not training volume, and never feeds progression or targets.
+
+```json
+"cardio": [
+  { "name": "Elliptical", "distance_mi": 0.5, "position": "warm-up" }
+]
+```
+
+Use `distance_mi` or `minutes`, whichever he actually reported. `position` is `warm-up`, `cool-down`, or `standalone`.
+
 ### Difficulty scale
 
 The workout page never asks for a bare RPE number. It presents a five-point word scale per set and stores the RPE equivalent, so history stays comparable.
@@ -121,6 +135,26 @@ Leg press
 ```
 
 A weight of `bw` means bodyweight. Store `weight_lb: null`.
+
+### Timed exercises
+
+Holds are logged by duration, not by weight and reps. A timed set stores `duration_s` and omits `weight_lb` and `reps` entirely.
+
+```json
+{ "name": "Plank", "sets": [{ "duration_s": 45, "rpe": 8 }] }
+```
+
+In the pasted block a timed set reads `45s @ hard (RPE 8)`:
+
+```
+Plank
+  45s @ hard (RPE 8)
+  40s @ very hard (RPE 9)
+```
+
+The workout page decides which form to render from the **exercise name**, using the `TIMED` set at the top of `workout.html`. The `scheme` string is only a fallback for a name with no entry in `assets/exercises.js`. Name over scheme is deliberate: swapping Plank for Pallof press leaves the scheme reading `30-45s`, and the seconds field must not follow it.
+
+Add a new hold to `TIMED` in `workout.html` when one enters the program.
 
 ## Program
 
@@ -155,6 +189,8 @@ The workout page suggests the next load itself, from the last logged session of 
 | Above 9 | Hold or drop five percent |
 
 `load_step` lives per exercise in `assets/exercises.js`. It is 10 lb for machine and barbell lower body, 5 lb for dumbbell and upper body, and 0 for bodyweight work, which switches the advice to reps instead of load. **With no history the page shows no weight at all.** Inventing a starting number is worse than a blank field.
+
+Timed exercises use the same RPE bands against time instead of load: 7 or below adds ten seconds, 7.1 to 8 repeats the hold and adds a few seconds if the position stays clean, 8.1 to 9 repeats, above 9 backs off about fifteen percent.
 
 ## Write rules
 
