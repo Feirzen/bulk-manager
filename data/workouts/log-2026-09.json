@@ -1,0 +1,60 @@
+{
+  "month": "2026-09",
+  "sessions": [
+    {
+      "date": "2026-09-09",
+      "title": "Hinge & Overhead",
+      "key": "B",
+      "feel": "tough",
+      "exercises": [
+        {
+          "name": "Seated leg curl",
+          "note": "Substituted for Barbell RDL",
+          "sets": [
+            { "weight_lb": 180, "reps": 10, "rpe": 7 },
+            { "weight_lb": 220, "reps": 10, "rpe": 8 },
+            { "weight_lb": 220, "reps": 10, "rpe": 8 }
+          ]
+        },
+        {
+          "name": "Machine shoulder press",
+          "note": "Substituted for Overhead dumbbell press",
+          "sets": [
+            { "weight_lb": 50, "reps": 6, "rpe": 9 },
+            { "weight_lb": 40, "reps": 5, "rpe": 8 },
+            { "weight_lb": 30, "reps": 10, "rpe": 8 }
+          ]
+        },
+        {
+          "name": "Lat pulldown",
+          "sets": [
+            { "weight_lb": 90, "reps": 10, "rpe": 7 },
+            { "weight_lb": 100, "reps": 10, "rpe": 8 },
+            { "weight_lb": 100, "reps": 10, "rpe": 8 }
+          ]
+        },
+        {
+          "name": "Pallof press",
+          "note": "Substituted for Plank",
+          "sets": [
+            { "weight_lb": 27.5, "reps": 10, "rpe": 8 },
+            { "weight_lb": 27.5, "reps": 10, "rpe": 8 }
+          ]
+        },
+        {
+          "name": "Triceps pushdown",
+          "sets": [
+            { "weight_lb": 35, "reps": 10, "rpe": 8 },
+            { "weight_lb": 35, "reps": 10, "rpe": 8 },
+            { "weight_lb": 35, "reps": 10, "rpe": 8 }
+          ]
+        }
+      ],
+      "cardio": [
+        { "name": "Elliptical", "distance_mi": 0.5, "position": "warm-up" },
+        { "name": "Stationary bike", "distance_mi": 0.5, "position": "cool-down" }
+      ],
+      "notes": "First session back. Back/leg work felt better than arm work, arms sore from long layoff. Tried pairing exercises but felt awkward tying up two machines, so ran straight sets with short rest and light stretching between. Unsure on Pallof press execution."
+    }
+  ]
+}
