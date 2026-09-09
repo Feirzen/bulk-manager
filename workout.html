@@ -84,11 +84,17 @@
   .sets{margin-top:13px;display:flex;flex-direction:column;gap:12px}
   .set{border-top:1px solid var(--rule);padding-top:11px}
   .setrow{display:grid;grid-template-columns:26px 1fr auto 1fr;gap:8px;align-items:center}
+  /* A hold has no weight and no rep count, so it gets one field and a unit. */
+  .setrow.timed{grid-template-columns:26px 1fr auto}
   .setno{
     font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;
     color:var(--ink-3);text-align:center;
   }
   .setrow .x{font-family:'IBM Plex Mono',monospace;font-size:14px;color:var(--ink-3)}
+  .setrow .unit{
+    font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--ink-3);
+    letter-spacing:.06em;padding-right:4px;
+  }
   .set input{
     width:100%;padding:12px 6px;border:1px solid var(--rule);border-radius:8px;
     font-family:'IBM Plex Mono',monospace;font-size:19px;font-weight:600;text-align:center;
@@ -215,10 +221,33 @@ const DIFF_WORD = ['easy', 'moderate', 'hard', 'very hard', 'max'];
 const OVERALL   = ['rough', 'tough', 'solid', 'good', 'easy'];
 const diffToRpe = i => i + 6;
 
+// ---------- timed exercises ----------
+// A plank is measured in seconds. Asking for a weight and a rep count on one
+// is noise, so these get a single seconds field instead.
+const TIMED = new Set([
+  'Plank', 'Side plank', 'Couch stretch', 'Wall sit', 'Dead hang',
+  'Farmer carry', 'Hollow body hold', 'Bear crawl hold'
+]);
+
+// Name decides, not the scheme. Otherwise swapping Plank out for Pallof press
+// would leave the seconds field in place because the scheme still says 30-45s.
+// The scheme is only a fallback for a name with no entry in exercises.js.
+function isTimed(name, scheme) {
+  if (TIMED.has(name)) return true;
+  if (typeof EXERCISES !== 'undefined' && EXERCISES[name]) return false;
+  return !!scheme && /\d\s*(?:s|sec|secs|seconds)\b/i.test(scheme);
+}
+
+// Pulls the target hold out of a scheme like "3 x 30-45s" for the placeholder.
+function schemeSeconds(scheme) {
+  const m = String(scheme || '').match(/(\d+)\s*(?:s|sec|secs|seconds)\b/i);
+  return m ? m[1] : null;
+}
+
 let SESSION = null;      // { title, exercises: [...] }
 let HISTORY = [];        // past logged sessions, any month
 let PICK    = [];        // per-exercise: active option in [main, ...subs]
-let VALUES  = [];        // per-exercise, per-set: { w, r, d }
+let VALUES  = [];        // per-exercise, per-set: { w, r, t, d }
 let OPEN    = [];        // per-exercise: detail panel expanded
 let FEEL    = 3;
 
@@ -236,7 +265,7 @@ document.querySelectorAll('.views button').forEach(b => b.onclick = () => {
 // Looks up the last time this exercise was logged and turns the recorded
 // difficulty into a concrete instruction. No history means no number, on
 // purpose. Guessing a starting weight would be worse than leaving it blank.
-function suggestion(name) {
+function suggestion(name, timed) {
   const past = HISTORY
     .filter(s => (s.exercises || []).some(e => e.name === name))
     .sort((a, b) => String(b.date).localeCompare(String(a.date)));
@@ -245,15 +274,47 @@ function suggestion(name) {
 
   const sess = past[0];
   const ex   = sess.exercises.find(e => e.name === name);
-  const sets = (ex.sets || []).filter(s => s && (s.weight_lb != null || s.reps != null));
+  const all  = ex.sets || [];
+
+  const rpeAvg = list => {
+    const r = list.map(s => s.rpe).filter(x => typeof x === 'number');
+    return r.length ? r.reduce((a, b) => a + b, 0) / r.length : null;
+  };
+
+  // Holds progress on time, not on load. Same RPE bands, different lever.
+  if (timed) {
+    const held = all.filter(s => s && typeof s.duration_s === 'number');
+    if (!held.length) return null;
+
+    const best = held.reduce((a, b) => (b.duration_s > a.duration_s ? b : a)).duration_s;
+    const avg  = rpeAvg(held);
+    const last = held.map(s => s.duration_s + 's').join(', ');
+
+    let advice, target = best;
+    if (avg == null) {
+      advice = 'Repeat it and log the difficulty this time.';
+    } else if (avg <= 7) {
+      target = best + 10;
+      advice = `Held it easily. Go for <b>${target}s</b>.`;
+    } else if (avg <= 8) {
+      advice = `Hold <b>${best}s</b> again, add a few seconds if the position stays clean.`;
+    } else if (avg <= 9) {
+      advice = `Repeat <b>${best}s</b>.`;
+    } else {
+      target = Math.max(10, Math.round((best * 0.85) / 5) * 5);
+      advice = `Was maxed out. Drop to <b>${target}s</b> and keep the position honest.`;
+    }
+    return { date: sess.date, last, advice, target };
+  }
+
+  const sets = all.filter(s => s && (s.weight_lb != null || s.reps != null));
   if (!sets.length) return null;
 
   const weighted = sets.filter(s => typeof s.weight_lb === 'number' && s.weight_lb > 0);
   const top  = weighted.length
     ? weighted.reduce((a, b) => (b.weight_lb > a.weight_lb ? b : a))
     : sets[0];
-  const rpes = sets.map(s => s.rpe).filter(r => typeof r === 'number');
-  const avg  = rpes.length ? rpes.reduce((a, b) => a + b, 0) / rpes.length : null;
+  const avg  = rpeAvg(sets);
   const step = (EXERCISES[name] || {}).load_step;
   const bw   = step === 0;
 
@@ -294,6 +355,9 @@ function options(i) {
 function currentName(i) {
   return options(i)[PICK[i]];
 }
+function currentTimed(i) {
+  return isTimed(currentName(i), SESSION.exercises[i].scheme);
+}
 
 function demoHtml(name) {
   const id = EX_IMG[name];
@@ -306,11 +370,12 @@ function demoHtml(name) {
 }
 
 function exCard(i) {
-  const base = SESSION.exercises[i];
-  const name = currentName(i);
-  const ref  = EXERCISES[name] || null;
-  const sug  = suggestion(name);
-  const opts = options(i);
+  const base  = SESSION.exercises[i];
+  const name  = currentName(i);
+  const timed = isTimed(name, base.scheme);
+  const ref   = EXERCISES[name] || null;
+  const sug   = suggestion(name, timed);
+  const opts  = options(i);
 
   let detail = '';
   if (OPEN[i]) {
@@ -325,12 +390,32 @@ function exCard(i) {
       : `<div class="detail">${demoHtml(name)}No form notes saved for this one yet. Ask Claude to add it.</div>`;
   }
 
+  const coldMsg = timed
+    ? 'No history yet. Hold until the position starts to break, then stop and log how it felt.'
+    : 'No history yet. Pick a weight you could stop two reps short of, and log how it felt.';
+
   const sugHtml = sug
     ? `<div class="sugg"><b>${prettyDate(sug.date)}:</b> ${esc(sug.last)}<br>${sug.advice}</div>`
-    : `<div class="sugg cold">No history yet. Pick a weight you could stop two reps short of, and log how it felt.</div>`;
+    : `<div class="sugg cold">${coldMsg}</div>`;
 
   const setsHtml = [...Array(base.sets)].map((_, j) => {
     const v = VALUES[i][j];
+    const diff = `<div class="diff">
+        ${DIFF.map((d, k) => `<button data-e="${i}" data-s="${j}" data-d="${k}"${v.d === k ? ' class="on"' : ''}>${d}</button>`).join('')}
+      </div>`;
+
+    if (timed) {
+      const ph = (sug && sug.target) || schemeSeconds(base.scheme) || 'sec';
+      return `<div class="set">
+        <div class="setrow timed">
+          <div class="setno">${j + 1}</div>
+          <input inputmode="numeric" placeholder="${esc(ph)}" value="${esc(v.t)}" data-e="${i}" data-s="${j}" data-k="t">
+          <div class="unit">sec</div>
+        </div>
+        ${diff}
+      </div>`;
+    }
+
     const ph = sug && sug.target ? String(sug.target) : 'lb';
     return `<div class="set">
       <div class="setrow">
@@ -339,9 +424,7 @@ function exCard(i) {
         <div class="x">x</div>
         <input inputmode="numeric" placeholder="reps" value="${esc(v.r)}" data-e="${i}" data-s="${j}" data-k="r">
       </div>
-      <div class="diff">
-        ${DIFF.map((d, k) => `<button data-e="${i}" data-s="${j}" data-d="${k}"${v.d === k ? ' class="on"' : ''}>${d}</button>`).join('')}
-      </div>
+      ${diff}
     </div>`;
   }).join('');
 
@@ -426,13 +509,20 @@ feelEl.oninput = () => {
 };
 
 // ---------- copy out ----------
+// A timed set writes "45s @ hard (RPE 8)". A loaded set keeps the existing
+// "185 x 8 @ hard (RPE 8)" shape, so old blocks still parse the same way.
 document.getElementById('copy').onclick = async () => {
   let out = `WORKOUT LOG\n${isoDate(new Date())} \u00b7 ${SESSION.title} \u00b7 overall: ${OVERALL[FEEL - 1]}\n\n`;
 
   SESSION.exercises.forEach((base, i) => {
+    const timed = currentTimed(i);
     const rows = VALUES[i].map(v => {
-      if (!v.w && !v.r) return null;
       const d = v.d != null ? ` @ ${DIFF_WORD[v.d]} (RPE ${diffToRpe(v.d)})` : '';
+      if (timed) {
+        if (!v.t) return null;
+        return `  ${v.t}s${d}`;
+      }
+      if (!v.w && !v.r) return null;
       return `  ${v.w || 'bw'} x ${v.r || '?'}${d}`;
     }).filter(Boolean);
     if (rows.length) out += `${currentName(i)}\n${rows.join('\n')}\n\n`;
@@ -488,6 +578,14 @@ function renderWeek(prog) {
     + addins.map(s => plainSession(s, true)).join('');
 }
 
+// A stored set is either a hold or a load. Render whichever it actually is
+// rather than printing "?" where the reps would have been.
+function setSummary(x) {
+  const rpe = x.rpe ? ' @' + x.rpe : '';
+  if (x.duration_s != null) return `${x.duration_s}s${rpe}`;
+  return `${x.weight_lb ? x.weight_lb + '\u00d7' : ''}${x.reps != null ? x.reps : '?'}${rpe}`;
+}
+
 function renderPast() {
   const el = document.getElementById('pastlist');
   if (!HISTORY.length) {
@@ -501,9 +599,7 @@ function renderPast() {
         <h2 style="margin:5px 0 0;font-size:15px">${esc(s.title || 'Session')} <span class="flag">skipped</span></h2></div>`;
     }
     const rows = s.exercises.map(e => {
-      const sets = (e.sets || []).map(x =>
-        `${x.weight_lb ? x.weight_lb + '\u00d7' : ''}${x.reps != null ? x.reps : '?'}${x.rpe ? ' @' + x.rpe : ''}`
-      ).join('   ');
+      const sets = (e.sets || []).map(setSummary).join('   ');
       return `<div class="plain"><b>${esc(e.name)}</b><u>${esc(sets)}</u></div>`;
     }).join('');
     const vol = s.exercises.reduce((a, e) => a + (e.sets || []).length, 0);
@@ -563,7 +659,7 @@ function renderPast() {
   SESSION = s;
   PICK   = s.exercises.map(() => 0);
   OPEN   = s.exercises.map(() => false);
-  VALUES = s.exercises.map(ex => [...Array(ex.sets)].map(() => ({ w: '', r: '', d: null })));
+  VALUES = s.exercises.map(ex => [...Array(ex.sets)].map(() => ({ w: '', r: '', t: '', d: null })));
 
   document.getElementById('title').textContent = s.title;
   if (offDay) {
