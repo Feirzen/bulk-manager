@@ -5,6 +5,10 @@
     "start_date": "2026-09-01",
     "gym": "EOS Fitness, Orem"
   },
+  "priority": {
+    "current": "training_consistency",
+    "note": "Bulking has taken a back seat. Showing up three times a week is the goal being measured right now. Calorie surplus is secondary and intake is untracked by design. Weekly reviews lead with adherence, not with weight."
+  },
   "nutrition_logging": {
     "status": "paused",
     "paused_on": "2026-09-04",
@@ -17,12 +21,22 @@
     "protein_g": 165,
     "weight_gain_lb_per_week": 0.35,
     "provisional": true,
-    "calibrate_on": "2026-09-15",
-    "note": "Provisional. Derived from Mifflin-St Jeor at 170 lb / 74 in with a 1.6 activity multiplier, plus a ~250 kcal surplus. With intake logging paused these function as a directional reference, not something to hit precisely. The weekly review reads the weight trend and gives a direction, eat more or hold, rather than a number to count to."
+    "calibrate_on": "2026-09-28",
+    "note": "Provisional. Derived from Mifflin-St Jeor at 170 lb / 74 in with a 1.6 activity multiplier, plus a ~250 kcal surplus. With intake logging paused these function as a directional reference, not something to hit precisely. The weekly review reads the weight trend and gives a direction, eat more or hold, rather than a number to count to. First real weight readings landed 2026-09-13, so calibration moved out to allow two weeks of trend."
   },
   "streak_rules": {
-    "conditions": ["logged_at_least_one_meal", "protein_target_met"],
-    "note": "Calories are deliberately not a streak condition. Photo estimates are too noisy to gate a streak on. Dormant while nutrition logging is paused."
+    "training": {
+      "active": true,
+      "unit": "scheduled_lift_day",
+      "condition": "a logged session on a scheduled lift day",
+      "scheduled_days": ["Mon", "Wed", "Fri"],
+      "note": "Counts consecutive scheduled lift days with a logged session. Missing one resets. Optional add-ins and Saturday flex work neither break it nor count toward it, so an extra session is always free. Counting by week was rejected: a week-based streak breaks on one missed Friday and then reads as total failure, which is the opposite of useful."
+    },
+    "nutrition": {
+      "active": false,
+      "conditions": ["logged_at_least_one_meal", "protein_target_met"],
+      "note": "Dormant while nutrition logging is paused, deliberately not deleted. Calories are not a condition because photo estimates are too noisy to gate a streak on. Resumes working the moment a food photo arrives."
+    }
   },
   "schedule": {
     "lift": ["Mon", "Wed", "Fri"],
@@ -31,7 +45,7 @@
     "rest": ["Sun"]
   },
   "review_cadence": {
-    "weekly": "Sunday. Read the weight trend and give a direction on intake. Generate next week's three sessions plus two optional add-ins.",
-    "monthly": "Progress summary. InBody, tape, lift progression, adherence."
+    "weekly": "Sunday, automated. Reads the week, writes next week's program and data/reviews/weekly-YYYY-MM-DD.md, then messages a summary. Leads with adherence.",
+    "monthly": "2nd of the month, automated. Progress summary emailed via Resend and written to data/reviews/monthly-YYYY-MM.md. InBody scans arrive as photos he uploads in chat."
   }
 }
