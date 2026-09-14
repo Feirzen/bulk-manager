@@ -77,14 +77,16 @@ const EX_KNOW = {
     feel: 'Deep in the abs, and your low back pressed flat against the floor. This is the anti-lordosis piece of your program, so the flat back is the whole point.',
     vs: {
       'Pallof press': { v: 'close', n: 'Also anti-extension bracing, but standing and with an anti-rotation demand added. Works the same problem from a more upright position.' },
-      'Plank': { v: 'close', n: 'Same bracing job held statically instead of moving limbs. Easier to cheat by letting the hips sag, which is exactly the position you are trying to avoid.' }
+      'Plank': { v: 'close', n: 'Same bracing job held statically instead of moving limbs. Easier to cheat by letting the hips sag, which is exactly the position you are trying to avoid.' },
+      'Bird dog': { v: 'like', n: 'The same anti-extension job from hands and knees instead of on your back. Adds a rotational component because the hips want to tip when a leg goes out. Swap freely.' }
     }
   },
   'Pallof press': {
     targets: { primary: ['Obliques', 'Transverse abdominis'], secondary: ['Rectus abdominis', 'Gluteus medius'] },
     feel: 'Sides of the abs fighting the cable trying to twist you. If you feel nothing, stand further from the stack.',
     vs: {
-      'Side plank': { v: 'close', n: 'Same obliques, held statically on the floor instead of resisting a cable standing up. No equipment needed, less adjustable.' }
+      'Side plank': { v: 'close', n: 'Same obliques, held statically on the floor instead of resisting a cable standing up. No equipment needed, less adjustable.' },
+      'Dead bug': { v: 'close', n: 'Drops the anti-rotation demand and keeps the anti-extension one, lying down where you can actually feel whether your low back is flat. Use it when the cable station is busy or the Pallof still feels unclear.' }
     }
   },
   'Plank': {
@@ -133,7 +135,12 @@ const EX_KNOW = {
   },
   'Hip thrust': {
     targets: { primary: ['Gluteus maximus'], secondary: ['Hamstrings', 'Quadriceps'] },
-    feel: 'Glutes, hard, at the top. Ribs stay down so it does not turn into a low back arch.'
+    feel: 'Glutes, hard, at the top. Ribs stay down so it does not turn into a low back arch.',
+    vs: {
+      'Glute bridge': { v: 'like', n: 'The same movement off the floor instead of off a bench. Shorter range and a lower ceiling on load, but identical intent. Free swap if the bench is taken.' },
+      'Barbell RDL': { v: 'close', n: 'Also hip extension, but loaded as a stretch through the hamstrings with the spine holding a neutral position under load. More hamstring, more technical, more demand on your low back. Use it when you want the hinge pattern itself.' },
+      'Seated leg curl': { v: 'diff', n: 'Bends the knee instead of extending the hip, so it trains hamstrings with no glute and no hip extension at all. Fine as a hamstring exercise, but it is not a substitute for the pattern this slot exists to train.' }
+    }
   },
   'Seated leg curl': {
     targets: { primary: ['Hamstrings'], secondary: ['Gastrocnemius'] },
@@ -150,7 +157,11 @@ const EX_KNOW = {
   },
   'Machine shoulder press': {
     targets: { primary: ['Anterior deltoid'], secondary: ['Lateral deltoid', 'Triceps'] },
-    feel: 'Front of the shoulders and triceps at lockout, back flat on the pad.'
+    feel: 'Front of the shoulders and triceps at lockout, back flat on the pad.',
+    vs: {
+      'Overhead dumbbell press': { v: 'close', n: 'Same vertical press, but nothing stabilises the weight for you, so each side works independently and the load drops. Better long term, harder to load honestly while your shoulders are still waking up.' },
+      'Landmine press': { v: 'close', n: 'Presses on an arc rather than straight overhead, which keeps the ribs down and asks less of shoulder mobility. The friendliest option on a day your low back wants to arch to finish the rep.' }
+    }
   },
   'Landmine press': {
     targets: { primary: ['Anterior deltoid', 'Upper pectoralis'], secondary: ['Serratus anterior', 'Triceps', 'Core'] },
