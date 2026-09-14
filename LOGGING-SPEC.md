@@ -46,6 +46,14 @@ When computing a trend, merge non-zero `body_mass_lb` values from `data/health/`
 
 Active energy from Apple Watch overreads for resistance training, commonly 20 to 40 percent. Recorded for trend interest, never used to set targets.
 
+### Dumbbell loads are per hand
+
+A two-dumbbell exercise logs the weight of **one** dumbbell. A pair of 30s is `30`, never `60`.
+
+This is not cosmetic. `load_step` in `assets/exercises.js` is 5 for dumbbell work, which is one size up on one bell. That arithmetic is only correct if the stored number is per hand; against a combined figure the suggester would propose 65 lb, which is not a weight that exists on the rack. He reported the 2026-09-11 session combined and those entries were halved, with a note on each.
+
+The workout page tags these exercises on the card so the field is never ambiguous. The list lives in the `PER_HAND` set at the top of `workout.html`. Add a new one there when it enters the program.
+
 ## Nutrition entry
 
 ```json
@@ -124,7 +132,9 @@ Parsed from a pasted `WORKOUT LOG` block.
 
 Missing RPE is fine, record `null`. A skipped day is a session with an empty `exercises` array and `"feel": "skipped"`, which keeps the calendar honest without punishing the streak.
 
-An exercise may carry a `note` when it was substituted or run differently than programmed. A session may carry `notes` for the free-text field on the workout page.
+An exercise may carry a `note` when it was substituted or run differently than programmed. A session may carry `notes` for the free-text field on the workout page, and `"backfilled": true` when it was reconstructed from memory rather than logged live, so nobody later mistakes an approximation for a measurement.
+
+An exercise he performed but recorded no numbers for is stored with an empty `sets` array and a note saying so. Omitting it entirely would read as a skip, and the progression suggester already handles an empty set list by falling back to its no-history message.
 
 ### Cardio
 
@@ -163,7 +173,7 @@ Leg press
   185 x 8 @ very hard (RPE 9)
 ```
 
-A weight of `bw` means bodyweight. Store `weight_lb: null`.
+A weight of `bw` means bodyweight. Store `weight_lb: null`. Note that `bw` also appears when he simply did not record the load on a machine exercise, which is not bodyweight at all: if the movement cannot be done unloaded, store `null` and add a note saying the weight was not recorded, rather than implying he did it with no resistance.
 
 ### Timed exercises
 
@@ -187,13 +197,13 @@ Add a new hold to `TIMED` in `workout.html` when one enters the program.
 
 ### Ratings
 
-The block may carry a `RATINGS` line. It is emitted only for ratings that differ from what `data/preferences/exercises.json` already holds, so a repeated favorite does not resend every session.
+The block may carry a `RATINGS` line.
 
 ```
-RATINGS: +Leg press, +Lat pulldown, -Face pull
+RATINGS: +Leg press, -Face pull, ~Hammer curl
 ```
 
-`+` means favorite, `-` means disliked. On seeing one, update `data/preferences/exercises.json` in the same commit as the session. A name may appear in only one array; moving it from one to the other is a legitimate change of mind, not an error.
+`+` marks a favorite, `-` marks disliked, `~` clears an existing rating. Only ratings that differ from what `data/preferences/exercises.json` already holds are emitted, so something already on file is never resent. On seeing a line, update the preferences file in the same commit as the session. A name may appear in only one array; moving it from one to the other is a legitimate change of mind, not an error.
 
 ```json
 {
@@ -203,7 +213,15 @@ RATINGS: +Leg press, +Lat pulldown, -Face pull
 }
 ```
 
-Programming honors this file. Favorites appear more often. Disliked exercises get replaced by a different movement training the same pattern, and are never quietly reintroduced. If a disliked exercise is the only sensible option for a pattern he needs, program the closest alternative and say why in the weekly review rather than overriding him silently.
+**A rating is permanent until he changes it.** The workout page reads this file on load and shows a filed rating as already selected, so an exercise marked weeks ago is still visibly marked next time it comes up. Never drop an entry for being old, and never clear one without a `~` or an explicit instruction.
+
+An entry in `notes` without membership in either array is context, not a verdict.
+
+What the ratings mean for programming:
+
+**Favorited.** Program it more often. When choosing between equivalent options for a movement pattern, prefer it.
+
+**Disliked.** Never the primary exercise for a slot. It remains a perfectly legitimate *substitution* and should stay in `subs` lists. Lean away from it wherever a reasonable alternative exists, but do not eliminate it: if the weekly review shows he needs work on something that exercise trains, or if cutting it leaves a pattern with too few options, program it as a sub and say why in the review. Disliked means not first choice, not banned.
 
 ## Program
 
@@ -247,13 +265,15 @@ Any newly programmed exercise gets an entry at the weekly review. A missing entr
 
 ## Workout page behavior
 
-Two things the page does on its own that the spec depends on.
+Three things the page does on its own that the spec depends on.
 
 **Autosave.** Everything typed is mirrored to device storage on every keystroke, difficulty tap and swap, and restored on load. iOS evicts background tabs and reloads them, which used to wipe a whole session. Slots are keyed by date and session key, so two sessions in one day never collide, and slots older than three days are swept on boot. A half-logged session also wins over the calendar at boot: reopening the page mid-workout lands back in that workout, not on whatever day it is.
 
 **Any session is openable.** The week view can launch any session including the optional add-ins, not only the one whose day it is. This is what makes an add-in usable on an off day.
 
-Neither writes to the repo. The site is static and public, so there is nothing to post to without shipping a credential.
+**Ratings persist.** A rating in `data/preferences/exercises.json` renders as already selected. A local tap overrides it; tapping a lit button clears it and stores an explicit zero, which is what the `~` in the copied block carries.
+
+None of these writes to the repo. The site is static and public, so there is nothing to post to without shipping a credential.
 
 ## Reviews
 
