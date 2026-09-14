@@ -27,6 +27,20 @@
   .view{display:none}
   .view.on{display:block}
 
+  /* ---- session banner ---- */
+  .focus{font-size:12.5px;color:var(--ink-2);margin:0 0 12px;line-height:1.45}
+  .banner{
+    display:flex;align-items:center;gap:8px;margin:0 0 12px;padding:9px 11px;
+    border-radius:8px;border:1px solid var(--rule);border-left:3px solid var(--signal);
+    font-size:11.5px;color:var(--ink-2);line-height:1.4;
+  }
+  .banner button{
+    margin-left:auto;flex:none;background:none;border:1px solid var(--rule);
+    border-radius:6px;padding:5px 9px;font-family:'IBM Plex Mono',monospace;
+    font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--ink-2);cursor:pointer;
+  }
+
   /* ---- exercise card ---- */
   .exwrap{transition:opacity .18s ease, transform .18s ease}
   .exwrap.swapping{opacity:0;transform:translateY(8px)}
@@ -53,9 +67,31 @@
     text-transform:uppercase;color:var(--ink-3);margin:0 0 5px;font-weight:500;
   }
   .detail h4+ol,.detail h4+ul{margin:0 0 11px 17px}
+  .detail h4+p{margin:0 0 11px}
   .detail li{margin-bottom:3px}
   .detail ul li::marker{color:var(--over)}
   .detail > *:last-child{margin-bottom:0}
+
+  /* muscle chips */
+  .mus{display:flex;flex-wrap:wrap;gap:5px;margin:0 0 11px}
+  .mus span{
+    font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.04em;
+    padding:3px 7px;border-radius:20px;border:1px solid var(--rule);color:var(--ink-2);
+  }
+  .mus span.p{border-color:var(--signal);color:var(--signal);font-weight:600}
+
+  /* substitution comparison */
+  .vsbox{
+    margin:0 0 11px;padding:9px 10px;border-radius:7px;
+    border:1px solid var(--rule);border-left:3px solid var(--ink-3);
+  }
+  .vsbox.like{border-left-color:var(--d0)}
+  .vsbox.close{border-left-color:var(--d2)}
+  .vsbox.diff{border-left-color:var(--d4)}
+  .vstag{
+    font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--ink-3);display:block;margin-bottom:3px;
+  }
 
   /* Two public-domain stills, cross-faded. Reads as a clean loop without
      shipping a single GIF or leaning on anyone's licensed footage. */
@@ -116,15 +152,30 @@
   .diff button.on[data-d="3"]{background:var(--d3);border-color:var(--d3)}
   .diff button.on[data-d="4"]{background:var(--d4);border-color:var(--d4)}
 
+  /* ---- favourite / dislike ---- */
+  .rate{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:13px}
+  .rate button{
+    padding:9px 4px;border:1px solid var(--rule);border-radius:8px;background:var(--card);
+    font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--ink-3);cursor:pointer;
+  }
+  .rate button.on[data-v="1"]{background:var(--d0);border-color:var(--d0);color:#fff;font-weight:600}
+  .rate button.on[data-v="-1"]{background:var(--d4);border-color:var(--d4);color:#fff;font-weight:600}
+  .onfile{
+    font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--ink-3);margin-top:6px;display:block;
+  }
+
   /* Both alternatives are always shown, including the original once you have
      swapped away from it, so a mis-tap is always one tap from undone. */
-  .swaps{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:13px}
+  .swaps{display:grid;grid-template-columns:1fr;gap:8px;margin-top:13px}
   .swap{
-    padding:10px 6px;border:1px dashed var(--rule);border-radius:8px;
-    background:none;color:var(--signal);cursor:pointer;
+    padding:10px 11px;border:1px dashed var(--rule);border-radius:8px;
+    background:none;color:var(--signal);cursor:pointer;text-align:left;
     font-family:inherit;font-size:11.5px;line-height:1.3;
   }
   .swap:active{background:var(--track)}
+  .swap small{display:block;color:var(--ink-3);font-size:10.5px;line-height:1.4;margin-top:4px}
   .swaplabel{
     font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.12em;
     text-transform:uppercase;color:var(--ink-3);margin-top:13px;display:block;
@@ -147,6 +198,12 @@
   }
   .scale-now{text-align:center;font-size:20px;font-weight:600;margin-top:10px}
 
+  .saved{
+    text-align:center;font-family:'IBM Plex Mono',monospace;font-size:9.5px;
+    letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);
+    margin:12px 0 0;min-height:12px;transition:opacity .3s ease;
+  }
+
   /* ---- week + past views ---- */
   .plain{padding:10px 0;border-bottom:1px solid var(--rule);font-size:13px}
   .plain:last-child{border-bottom:0;padding-bottom:0}
@@ -162,6 +219,14 @@
   }
   .hint{font-size:11px;color:var(--ink-2);text-align:center;margin:10px 0 4px}
   .addin{border-left:3px solid var(--burn)}
+  .startbtn{
+    display:block;width:100%;margin-top:13px;padding:11px;cursor:pointer;
+    border:1px solid var(--signal);border-radius:8px;background:none;color:var(--signal);
+    font-family:'IBM Plex Mono',monospace;font-size:10px;
+    letter-spacing:.12em;text-transform:uppercase;
+  }
+  .startbtn:active{background:var(--track)}
+  .startbtn.wip{border-style:dashed}
 </style>
 </head>
 <body>
@@ -180,6 +245,8 @@
   </header>
 
   <section class="view on" id="v-today">
+    <div id="banner"></div>
+    <p class="focus" id="focus" style="display:none"></p>
     <div id="session"></div>
 
     <div class="card" id="feelcard">
@@ -197,6 +264,7 @@
     </div>
 
     <button class="action" id="copy">Copy workout results</button>
+    <p class="saved" id="savedmsg"></p>
     <p class="hint">Paste into Claude in the bulk project. Claude logs it and uses it to set next week.</p>
   </section>
 
@@ -213,6 +281,7 @@
 <script src="assets/data.js"></script>
 <script src="assets/exercises.js"></script>
 <script src="assets/exercise-images.js"></script>
+<script src="assets/exercise-knowledge.js"></script>
 <script>
 // Difficulty scale. Index 0-4 maps to RPE 6-10 so the stored shape stays
 // compatible with LOGGING-SPEC and with anything already logged.
@@ -220,6 +289,8 @@ const DIFF      = ['Easy', 'Mod', 'Hard', 'V.Hard', 'Max'];
 const DIFF_WORD = ['easy', 'moderate', 'hard', 'very hard', 'max'];
 const OVERALL   = ['rough', 'tough', 'solid', 'good', 'easy'];
 const diffToRpe = i => i + 6;
+
+const KNOW = (typeof EX_KNOW !== 'undefined') ? EX_KNOW : {};
 
 // ---------- timed exercises ----------
 // A plank is measured in seconds. Asking for a weight and a rep count on one
@@ -244,12 +315,16 @@ function schemeSeconds(scheme) {
   return m ? m[1] : null;
 }
 
-let SESSION = null;      // { title, exercises: [...] }
-let HISTORY = [];        // past logged sessions, any month
-let PICK    = [];        // per-exercise: active option in [main, ...subs]
-let VALUES  = [];        // per-exercise, per-set: { w, r, t, d }
-let OPEN    = [];        // per-exercise: detail panel expanded
-let FEEL    = 3;
+let PROG        = {};      // the whole program file
+let SESSION     = null;    // { title, exercises: [...] }
+let SESSION_KEY = null;    // A / B / C / P / S. Keys the autosave slot
+let HISTORY     = [];      // past logged sessions, any month
+let PICK        = [];      // per-exercise: active option in [main, ...subs]
+let VALUES      = [];      // per-exercise, per-set: { w, r, t, d }
+let OPEN        = [];      // per-exercise: detail panel expanded
+let FEEL        = 3;
+let RATINGS     = {};      // name -> 1 | -1, this device, not yet sent
+let ON_FILE     = {};      // name -> 'favorite' | 'disliked', from the repo
 
 const esc = s => String(s == null ? '' : s)
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -260,6 +335,106 @@ document.querySelectorAll('.views button').forEach(b => b.onclick = () => {
   document.querySelectorAll('.view').forEach(x => x.classList.toggle('on', x.id === 'v-' + b.dataset.v));
   window.scrollTo(0, 0);
 });
+const showToday = () => document.querySelector('.views button[data-v="today"]').click();
+
+/* ============================================================
+   AUTOSAVE
+   The whole reason this exists: iOS evicts a background tab and
+   reloads it on return, which used to wipe everything typed. Now
+   every keystroke, difficulty tap and swap is mirrored to device
+   storage and restored on load. Slot is keyed by date and session,
+   so two sessions on one day never overwrite each other. Slots
+   older than three days are swept on boot.
+   ============================================================ */
+const WIP_PREFIX = 'bm.wip.';
+const RATE_KEY   = 'bm.ratings';
+const DAY_MS     = 86400000;
+
+function wipKey() { return WIP_PREFIX + isoDate(new Date()) + '.' + (SESSION_KEY || 'x'); }
+
+let saveTimer = null;
+function flashSaved() {
+  const el = document.getElementById('savedmsg');
+  if (!el) return;
+  el.textContent = 'Saved on this device';
+  el.style.opacity = '1';
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => { el.style.opacity = '0'; }, 1400);
+}
+
+function saveWip(quiet) {
+  if (!SESSION) return;
+  try {
+    const notesEl = document.getElementById('notes');
+    localStorage.setItem(wipKey(), JSON.stringify({
+      v: VALUES, p: PICK, f: FEEL,
+      n: notesEl ? notesEl.value : '',
+      t: Date.now()
+    }));
+    if (!quiet) flashSaved();
+  } catch (e) { /* private mode or storage full. Logging still works. */ }
+}
+
+function loadWip() {
+  try {
+    const raw = localStorage.getItem(wipKey());
+    if (!raw) return false;
+    const d = JSON.parse(raw);
+    if (!d || !Array.isArray(d.v) || d.v.length !== VALUES.length) return false;
+    // Only restore if something was actually entered. An empty slot is noise.
+    const touched = d.v.some(sets => (sets || []).some(s =>
+      s && (s.w || s.r || s.t || s.d != null)));
+    VALUES = d.v;
+    if (Array.isArray(d.p) && d.p.length === PICK.length) PICK = d.p;
+    if (typeof d.f === 'number') FEEL = d.f;
+    const notesEl = document.getElementById('notes');
+    if (notesEl && d.n) notesEl.value = d.n;
+    return touched;
+  } catch (e) { return false; }
+}
+
+function clearWip() {
+  try { localStorage.removeItem(wipKey()); } catch (e) {}
+}
+
+function sweepWip() {
+  try {
+    const cutoff = Date.now() - 3 * DAY_MS;
+    for (let i = localStorage.length - 1; i >= 0; i--) {
+      const k = localStorage.key(i);
+      if (!k || k.indexOf(WIP_PREFIX) !== 0) continue;
+      let t = 0;
+      try { t = (JSON.parse(localStorage.getItem(k)) || {}).t || 0; } catch (e) {}
+      if (t < cutoff) localStorage.removeItem(k);
+    }
+  } catch (e) {}
+}
+
+// Does a given session key have unsent work saved for today?
+function wipExists(key) {
+  try {
+    const raw = localStorage.getItem(WIP_PREFIX + isoDate(new Date()) + '.' + key);
+    if (!raw) return false;
+    const d = JSON.parse(raw);
+    return !!(d && Array.isArray(d.v) && d.v.some(sets => (sets || []).some(s =>
+      s && (s.w || s.r || s.t || s.d != null))));
+  } catch (e) { return false; }
+}
+
+// Belt and braces. iOS kills tabs without warning, so mirror on the way out too.
+window.addEventListener('pagehide', () => saveWip(true));
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') saveWip(true);
+});
+
+// ---------- ratings ----------
+function loadRatings() {
+  try { RATINGS = JSON.parse(localStorage.getItem(RATE_KEY) || '{}') || {}; }
+  catch (e) { RATINGS = {}; }
+}
+function saveRatings() {
+  try { localStorage.setItem(RATE_KEY, JSON.stringify(RATINGS)); } catch (e) {}
+}
 
 // ---------- progression ----------
 // Looks up the last time this exercise was logged and turns the recorded
@@ -369,6 +544,44 @@ function demoHtml(name) {
   </div>`;
 }
 
+// What it trains, and where you should feel it. Skipped silently when the
+// exercise has no entry yet rather than printing an empty heading.
+function knowHtml(name) {
+  const k = KNOW[name];
+  if (!k) return '';
+  let out = '';
+  if (k.targets) {
+    const prim = (k.targets.primary || []).map(m => `<span class="p">${esc(m)}</span>`);
+    const sec  = (k.targets.secondary || []).map(m => `<span>${esc(m)}</span>`);
+    if (prim.length || sec.length) {
+      out += `<h4>What it trains</h4><div class="mus">${prim.concat(sec).join('')}</div>`;
+    }
+  }
+  if (k.feel) out += `<h4>Where you should feel it</h4><p>${esc(k.feel)}</p>`;
+  return out;
+}
+
+const VS_LABEL = { like: 'Straight swap', close: 'Close, with a difference', diff: 'Trains something else' };
+
+// Pulls the comparison between the programmed exercise and whatever is
+// currently selected in its place.
+function vsEntry(i, name) {
+  const base = SESSION.exercises[i];
+  if (name === base.name) return null;
+  const k = KNOW[base.name];
+  if (!k || !k.vs || !k.vs[name]) return null;
+  return k.vs[name];
+}
+
+function vsHtml(i, name) {
+  const e = vsEntry(i, name);
+  if (!e) return '';
+  return `<div class="vsbox ${esc(e.v)}">
+    <span class="vstag">vs ${esc(SESSION.exercises[i].name)} &middot; ${esc(VS_LABEL[e.v] || '')}</span>
+    ${esc(e.n)}
+  </div>`;
+}
+
 function exCard(i) {
   const base  = SESSION.exercises[i];
   const name  = currentName(i);
@@ -379,15 +592,18 @@ function exCard(i) {
 
   let detail = '';
   if (OPEN[i]) {
-    detail = ref
-      ? `<div class="detail">
-           ${demoHtml(name)}
-           <h4>How to do it</h4>
-           <ol>${ref.form.map(f => `<li>${esc(f)}</li>`).join('')}</ol>
-           <h4>Common errors</h4>
-           <ul>${ref.errors.map(f => `<li>${esc(f)}</li>`).join('')}</ul>
-         </div>`
-      : `<div class="detail">${demoHtml(name)}No form notes saved for this one yet. Ask Claude to add it.</div>`;
+    const body = ref
+      ? `<h4>How to do it</h4>
+         <ol>${ref.form.map(f => `<li>${esc(f)}</li>`).join('')}</ol>
+         <h4>Common errors</h4>
+         <ul>${ref.errors.map(f => `<li>${esc(f)}</li>`).join('')}</ul>`
+      : 'No form notes saved for this one yet. Ask Claude to add it.';
+    detail = `<div class="detail">
+      ${demoHtml(name)}
+      ${vsHtml(i, name)}
+      ${knowHtml(name)}
+      ${body}
+    </div>`;
   }
 
   const coldMsg = timed
@@ -428,8 +644,21 @@ function exCard(i) {
     </div>`;
   }).join('');
 
-  const alts = opts.map((o, k) => k === PICK[i] ? '' :
-    `<button class="swap" data-swap="${i}" data-opt="${k}">&#8646; ${esc(o)}</button>`).join('');
+  // Ratings ride along in the copied block rather than posting anywhere. The
+  // site is static, so there is nothing to post to without shipping a token.
+  const r = RATINGS[name];
+  const filed = ON_FILE[name];
+  const rateHtml = `<div class="rate">
+      <button data-rate="${i}" data-v="1"${r === 1 ? ' class="on"' : ''}>&#9829; More of this</button>
+      <button data-rate="${i}" data-v="-1"${r === -1 ? ' class="on"' : ''}>&#10005; Less of this</button>
+    </div>${filed && r == null ? `<span class="onfile">On file: ${esc(filed)}</span>` : ''}`;
+
+  const alts = opts.map((o, k) => {
+    if (k === PICK[i]) return '';
+    const e = k === 0 ? null : (KNOW[base.name] || {}).vs && (KNOW[base.name] || {}).vs[o];
+    const note = k === 0 ? 'Back to what was programmed.' : (e ? e.n : '');
+    return `<button class="swap" data-swap="${i}" data-opt="${k}">&#8646; ${esc(o)}${note ? `<small>${esc(note)}</small>` : ''}</button>`;
+  }).join('');
 
   return `<div class="card exwrap" data-card="${i}">
     <div class="exhead">
@@ -437,12 +666,13 @@ function exCard(i) {
         <div class="exname">${esc(name)}${PICK[i] !== 0 ? ' <span class="flag">swapped</span>' : ''}</div>
       </div>
       <div class="scheme">${esc(base.scheme)}</div>
-      <button class="caret${OPEN[i] ? ' open' : ''}" data-caret="${i}" aria-label="Form and common errors">${OPEN[i] ? '&#9650;' : '&#9660;'}</button>
+      <button class="caret${OPEN[i] ? ' open' : ''}" data-caret="${i}" aria-label="Form, targets and common errors">${OPEN[i] ? '&#9650;' : '&#9660;'}</button>
     </div>
     <div class="cue">${esc(base.cue)}</div>
     ${detail}
     ${sugHtml}
     <div class="sets">${setsHtml}</div>
+    ${rateHtml}
     ${alts ? `<span class="swaplabel">Swap for</span><div class="swaps">${alts}</div>` : ''}
   </div>`;
 }
@@ -485,11 +715,13 @@ function wire() {
   document.querySelectorAll('[data-swap]').forEach(b => b.onclick = () => {
     const i = +b.dataset.swap;
     PICK[i] = +b.dataset.opt;
+    saveWip(true);
     repaint(i, true);
   });
 
   document.querySelectorAll('.set input').forEach(inp => inp.oninput = () => {
     VALUES[+inp.dataset.e][+inp.dataset.s][inp.dataset.k] = inp.value;
+    saveWip();
   });
 
   document.querySelectorAll('.diff button').forEach(b => b.onclick = () => {
@@ -497,6 +729,15 @@ function wire() {
     VALUES[i][j].d = VALUES[i][j].d === d ? null : d;
     b.parentElement.querySelectorAll('button').forEach(x =>
       x.classList.toggle('on', +x.dataset.d === VALUES[i][j].d));
+    saveWip();
+  });
+
+  document.querySelectorAll('[data-rate]').forEach(b => b.onclick = () => {
+    const i = +b.dataset.rate, v = +b.dataset.v;
+    const name = currentName(i);
+    if (RATINGS[name] === v) delete RATINGS[name]; else RATINGS[name] = v;
+    saveRatings();
+    repaint(i, false);
   });
 }
 
@@ -506,13 +747,21 @@ feelEl.oninput = () => {
   FEEL = +feelEl.value;
   const w = OVERALL[FEEL - 1];
   document.getElementById('feelnow').textContent = w[0].toUpperCase() + w.slice(1);
+  saveWip();
 };
+document.getElementById('notes').oninput = () => saveWip();
+
+function paintFeel() {
+  feelEl.value = FEEL;
+  const w = OVERALL[FEEL - 1];
+  document.getElementById('feelnow').textContent = w[0].toUpperCase() + w.slice(1);
+}
 
 // ---------- copy out ----------
 // A timed set writes "45s @ hard (RPE 8)". A loaded set keeps the existing
 // "185 x 8 @ hard (RPE 8)" shape, so old blocks still parse the same way.
 document.getElementById('copy').onclick = async () => {
-  let out = `WORKOUT LOG\n${isoDate(new Date())} \u00b7 ${SESSION.title} \u00b7 overall: ${OVERALL[FEEL - 1]}\n\n`;
+  let out = `WORKOUT LOG\n${isoDate(new Date())} · ${SESSION.title} · overall: ${OVERALL[FEEL - 1]}\n\n`;
 
   SESSION.exercises.forEach((base, i) => {
     const timed = currentTimed(i);
@@ -527,6 +776,16 @@ document.getElementById('copy').onclick = async () => {
     }).filter(Boolean);
     if (rows.length) out += `${currentName(i)}\n${rows.join('\n')}\n\n`;
   });
+
+  // Only ratings that differ from what the repo already knows. Re-sending
+  // "favorite" every session would be noise.
+  const sending = Object.keys(RATINGS).filter(n => {
+    const want = RATINGS[n] === 1 ? 'favorite' : 'disliked';
+    return ON_FILE[n] !== want;
+  });
+  if (sending.length) {
+    out += `RATINGS: ${sending.map(n => (RATINGS[n] === 1 ? '+' : '-') + n).join(', ')}\n\n`;
+  }
 
   const notes = document.getElementById('notes').value.trim();
   if (notes) out += `Notes: ${notes}\n`;
@@ -550,17 +809,68 @@ document.getElementById('copy').onclick = async () => {
   setTimeout(() => { btn.textContent = 'Copy workout results'; btn.classList.remove('done'); }, 6000);
 };
 
+/* ============================================================
+   STARTING A SESSION
+   Any session can be opened and logged, not just the one whose
+   day it happens to be. Optional add-ins included, which is the
+   whole point on an off day.
+   ============================================================ */
+function startSession(s, offDay) {
+  SESSION     = s;
+  SESSION_KEY = s.key || s.day || 'x';
+  PICK   = s.exercises.map(() => 0);
+  OPEN   = s.exercises.map(() => false);
+  VALUES = s.exercises.map(ex => [...Array(ex.sets)].map(() => ({ w: '', r: '', t: '', d: null })));
+  FEEL   = 3;
+  document.getElementById('notes').value = '';
+
+  const restored = loadWip();
+  paintFeel();
+
+  document.getElementById('title').textContent = s.title;
+  document.getElementById('feelcard').style.display = '';
+  document.getElementById('notecard').style.display = '';
+  document.getElementById('copy').style.display = '';
+
+  const focusEl = document.getElementById('focus');
+  if (s.focus) { focusEl.textContent = s.focus; focusEl.style.display = ''; }
+  else focusEl.style.display = 'none';
+
+  const bits = [];
+  if (restored) bits.push('Picked up where you left off. Everything you typed is still here.');
+  else if (offDay) bits.push(`Not a lift day. This is <b>${esc(s.day || 'an add-in')}</b>, opened early.`);
+  else if (s.when) bits.push(esc(s.when));
+
+  document.getElementById('banner').innerHTML = bits.length
+    ? `<div class="banner">${bits.join(' ')}${restored ? '<button id="clearwip">Start over</button>' : ''}</div>`
+    : '';
+
+  const clr = document.getElementById('clearwip');
+  if (clr) clr.onclick = () => { clearWip(); startSession(s, offDay); };
+
+  renderSession();
+  renderWeek(PROG);
+  window.scrollTo(0, 0);
+}
+
 // ---------- week + past views ----------
 function plainSession(s, addin) {
   const rows = (s.exercises || []).map(e => `<div class="plain">
     <em>${esc(e.scheme)}</em><b>${esc(e.name)}</b>
     <i>${esc(e.cue)}</i>
-    ${(e.subs || []).length ? `<u>or ${e.subs.map(esc).join(' \u00b7 ')}</u>` : ''}
+    ${(e.subs || []).length ? `<u>or ${e.subs.map(esc).join(' · ')}</u>` : ''}
   </div>`).join('');
+  const key  = s.key || s.day;
+  const wip  = key && wipExists(key);
+  const live = SESSION_KEY && key === SESSION_KEY;
   return `<div class="card${addin ? ' addin' : ''}">
     <div class="eyebrow">${esc(addin ? s.when : s.day)}</div>
     <h2 style="margin:5px 0 6px;font-size:15px">${esc(s.title)}</h2>
+    ${s.focus ? `<p class="focus" style="margin:0 0 8px">${esc(s.focus)}</p>` : ''}
     ${rows}
+    ${key ? `<button class="startbtn${wip ? ' wip' : ''}" data-start="${esc(key)}">${
+      live ? 'Open again' : wip ? 'Resume this session' : 'Do this session'
+    }</button>` : ''}
   </div>`;
 }
 
@@ -572,10 +882,19 @@ function renderWeek(prog) {
     return;
   }
   el.innerHTML =
-    `<p class="hint" style="text-align:left;margin:0 0 12px">Week of ${prog.week_of ? prettyDate(prog.week_of) : '\u2014'}. Paired exercises alternate so you rest one muscle while working the other.</p>`
+    `<p class="hint" style="text-align:left;margin:0 0 12px">Week of ${prog.week_of ? prettyDate(prog.week_of) : '—'}. Tap any session to open and log it, including the add-ins on an off day.</p>`
     + sessions.map(s => plainSession(s, false)).join('')
     + (addins.length ? '<div class="eyebrow" style="margin:18px 0 8px">Optional add-ins</div>' : '')
     + addins.map(s => plainSession(s, true)).join('');
+
+  el.querySelectorAll('[data-start]').forEach(b => b.onclick = () => {
+    const key = b.dataset.start;
+    const all = (PROG.sessions || []).concat(PROG.optional_addins || []);
+    const s = all.find(x => (x.key || x.day) === key);
+    if (!s) return;
+    startSession(s, false);
+    showToday();
+  });
 }
 
 // A stored set is either a hold or a load. Render whichever it actually is
@@ -583,7 +902,7 @@ function renderWeek(prog) {
 function setSummary(x) {
   const rpe = x.rpe ? ' @' + x.rpe : '';
   if (x.duration_s != null) return `${x.duration_s}s${rpe}`;
-  return `${x.weight_lb ? x.weight_lb + '\u00d7' : ''}${x.reps != null ? x.reps : '?'}${rpe}`;
+  return `${x.weight_lb ? x.weight_lb + '×' : ''}${x.reps != null ? x.reps : '?'}${rpe}`;
 }
 
 function renderPast() {
@@ -606,7 +925,7 @@ function renderPast() {
     return `<div class="card">
       <div class="eyebrow"><span>${esc(prettyDate(s.date))}</span></div>
       <h2 style="margin:5px 0 6px;font-size:15px">${esc(s.title || 'Session')}</h2>
-      <div class="delta" style="margin-bottom:6px">${vol} sets \u00b7 felt <b>${esc(s.feel || 'ok')}</b></div>
+      <div class="delta" style="margin-bottom:6px">${vol} sets · felt <b>${esc(s.feel || 'ok')}</b></div>
       ${rows}
       ${s.notes ? `<div class="sugg" style="margin-top:10px">${esc(s.notes)}</div>` : ''}
     </div>`;
@@ -617,22 +936,34 @@ function renderPast() {
 (async function () {
   const now = new Date();
   document.getElementById('today').textContent = prettyDate(isoDate(now));
+  sweepWip();
+  loadRatings();
 
   const prevMonth = new Date(now);
   prevMonth.setMonth(prevMonth.getMonth() - 1);
 
-  const [prog, thisM, lastM] = await Promise.all([
+  const [prog, thisM, lastM, prefs] = await Promise.all([
     load('data/workouts/program.json', {}),
     load(`data/workouts/log-${monthKey(now)}.json`, { sessions: [] }),
-    load(`data/workouts/log-${monthKey(prevMonth)}.json`, { sessions: [] })
+    load(`data/workouts/log-${monthKey(prevMonth)}.json`, { sessions: [] }),
+    load('data/preferences/exercises.json', { favorites: [], disliked: [] })
   ]);
 
+  PROG    = prog;
   HISTORY = [].concat(thisM.sessions || [], lastM.sessions || []);
+  (prefs.favorites || []).forEach(n => ON_FILE[n] = 'favorite');
+  (prefs.disliked  || []).forEach(n => ON_FILE[n] = 'disliked');
 
   const dayName  = now.toLocaleDateString('en-US', { weekday: 'short' });
   const sessions = prog.sessions || [];
   let s = sessions.find(x => x.day === dayName);
   let offDay = false;
+
+  // Something half-logged today wins over whatever the calendar says. Coming
+  // back to the page mid-workout should land you back in that workout.
+  const all = sessions.concat(prog.optional_addins || []);
+  const pending = all.find(x => wipExists(x.key || x.day));
+  if (pending) { s = pending; offDay = false; }
 
   // Not a lift day. Show the next one up rather than an empty screen, and say so.
   if (!s && sessions.length) {
@@ -644,6 +975,8 @@ function renderPast() {
     offDay = true;
   }
 
+  renderPast();
+
   if (!s) {
     document.getElementById('title').textContent = 'No program yet';
     document.getElementById('session').innerHTML =
@@ -652,24 +985,10 @@ function renderPast() {
     document.getElementById('notecard').style.display = 'none';
     document.getElementById('copy').style.display = 'none';
     renderWeek(prog);
-    renderPast();
     return;
   }
 
-  SESSION = s;
-  PICK   = s.exercises.map(() => 0);
-  OPEN   = s.exercises.map(() => false);
-  VALUES = s.exercises.map(ex => [...Array(ex.sets)].map(() => ({ w: '', r: '', t: '', d: null })));
-
-  document.getElementById('title').textContent = s.title;
-  if (offDay) {
-    document.getElementById('session').insertAdjacentHTML('beforebegin',
-      `<p class="hint" style="text-align:left;margin:0 0 12px">Not a lift day. This is <b>${esc(s.day)}</b>, shown early.</p>`);
-  }
-
-  renderSession();
-  renderWeek(prog);
-  renderPast();
+  startSession(s, offDay);
 })();
 </script>
 </body>
