@@ -65,18 +65,20 @@
       "exercises": [
         {
           "name": "Walking lunge",
+          "note": "Logged per dumbbell. He reported the combined figure (two 30s as 60) and it was halved.",
           "sets": [
-            { "weight_lb": 40, "reps": 10, "rpe": 6 },
-            { "weight_lb": 60, "reps": 10, "rpe": 8 },
-            { "weight_lb": 60, "reps": 10, "rpe": 8 }
+            { "weight_lb": 20, "reps": 10, "rpe": 6 },
+            { "weight_lb": 30, "reps": 10, "rpe": 8 },
+            { "weight_lb": 30, "reps": 10, "rpe": 8 }
           ]
         },
         {
           "name": "Incline dumbbell press",
+          "note": "Logged per dumbbell. He reported the combined figure (two 30s as 60) and it was halved.",
           "sets": [
-            { "weight_lb": 60, "reps": 10, "rpe": 8 },
-            { "weight_lb": 60, "reps": 10, "rpe": 8 },
-            { "weight_lb": 60, "reps": 10, "rpe": 8 }
+            { "weight_lb": 30, "reps": 10, "rpe": 8 },
+            { "weight_lb": 30, "reps": 10, "rpe": 8 },
+            { "weight_lb": 30, "reps": 10, "rpe": 8 }
           ]
         },
         {
@@ -103,7 +105,7 @@
           ]
         }
       ],
-      "notes": "Backfilled on 2026-09-14 from memory. First half is reliable, second half is approximate and loads for the cable row and calf raise were not recorded. Was unsure whether the cable row was meant to be one arm at a time and chose two hands. Face pull feels awkward: had to lean back and pull mostly with the arms because the weight was too heavy, but lighter felt like nothing was happening."
+      "notes": "Backfilled on 2026-09-14 from memory. First half is reliable, second half is approximate and loads for the cable row and calf raise were not recorded. Was unsure whether the cable row was meant to be one arm at a time and chose two hands. Dumbbell loads were reported combined and have been halved to per-dumbbell, which is the convention going forward. Incline press was confirmed as two 30s; walking lunge was assumed to follow the same pattern and should be corrected if it did not. Face pull feels awkward: had to lean back and pull mostly with the arms because the weight was too heavy, but lighter felt like nothing was happening."
     }
   ]
 }
