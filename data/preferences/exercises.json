@@ -1,8 +1,10 @@
 {
   "favorites": [],
-  "disliked": [],
+  "disliked": [
+    "Face pull"
+  ],
   "notes": {
-    "Face pull": "Feels awkward and unproductive. Undecided rather than disliked: willing to keep it if it genuinely earns its place. Program it light and high-rep, cable at eye height, and revisit if it still feels pointless."
+    "Face pull": "Feels awkward and unproductive. Kept out of the primary slot, still fine as a substitute. Was going too heavy and leaning back to counterbalance; if it returns, program it light and high-rep with the cable at eye height."
   },
-  "about": "Written by Claude from the RATINGS line in a pasted WORKOUT LOG block, or from anything he says in chat. Programming honors this file: favorites appear more often, disliked exercises are replaced by a different movement training the same pattern and are never quietly reintroduced. An entry in notes without membership in favorites or disliked is context, not a verdict. See LOGGING-SPEC.md."
+  "about": "Written by Claude from the RATINGS line in a pasted WORKOUT LOG block, or from anything he says in chat. A rating is permanent until he changes it, and the workout page shows it as already selected whenever that exercise comes up again. See LOGGING-SPEC.md for what favorited and disliked actually mean for programming."
 }
