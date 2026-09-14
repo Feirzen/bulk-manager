@@ -55,6 +55,55 @@
         { "name": "Stationary bike", "distance_mi": 0.5, "position": "cool-down" }
       ],
       "notes": "First session back. Back/leg work felt better than arm work, arms sore from long layoff. Tried pairing exercises but felt awkward tying up two machines, so ran straight sets with short rest and light stretching between. Unsure on Pallof press execution."
+    },
+    {
+      "date": "2026-09-11",
+      "title": "Single-leg & Back",
+      "key": "C",
+      "feel": "solid",
+      "backfilled": true,
+      "exercises": [
+        {
+          "name": "Walking lunge",
+          "sets": [
+            { "weight_lb": 40, "reps": 10, "rpe": 6 },
+            { "weight_lb": 60, "reps": 10, "rpe": 8 },
+            { "weight_lb": 60, "reps": 10, "rpe": 8 }
+          ]
+        },
+        {
+          "name": "Incline dumbbell press",
+          "sets": [
+            { "weight_lb": 60, "reps": 10, "rpe": 8 },
+            { "weight_lb": 60, "reps": 10, "rpe": 8 },
+            { "weight_lb": 60, "reps": 10, "rpe": 8 }
+          ]
+        },
+        {
+          "name": "Single-arm cable row",
+          "note": "Ran it two-handed rather than one arm at a time. Load not recorded, recalled from memory.",
+          "sets": [
+            { "weight_lb": null, "reps": 10, "rpe": null },
+            { "weight_lb": null, "reps": 10, "rpe": null },
+            { "weight_lb": null, "reps": 10, "rpe": null }
+          ]
+        },
+        {
+          "name": "Face pull",
+          "note": "Performed, numbers not recorded. Went too heavy and had to lean back and pull with the arms to move it.",
+          "sets": []
+        },
+        {
+          "name": "Standing calf raise",
+          "note": "Load not recorded, recalled from memory.",
+          "sets": [
+            { "weight_lb": null, "reps": 10, "rpe": null },
+            { "weight_lb": null, "reps": 10, "rpe": null },
+            { "weight_lb": null, "reps": 10, "rpe": null }
+          ]
+        }
+      ],
+      "notes": "Backfilled on 2026-09-14 from memory. First half is reliable, second half is approximate and loads for the cable row and calf raise were not recorded. Was unsure whether the cable row was meant to be one arm at a time and chose two hands. Face pull feels awkward: had to lean back and pull mostly with the arms because the weight was too heavy, but lighter felt like nothing was happening."
     }
   ]
 }
