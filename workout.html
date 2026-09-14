@@ -57,6 +57,11 @@
   }
   .caret.open{color:var(--signal);border-color:var(--signal)}
   .cue{font-size:12px;color:var(--ink-2);margin:6px 0 0}
+  .perhand{
+    display:inline-block;margin-top:7px;padding:3px 8px;border-radius:20px;
+    background:var(--track);font-family:'IBM Plex Mono',monospace;font-size:9px;
+    letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);
+  }
 
   .detail{
     margin-top:11px;padding:12px;border-radius:8px;background:var(--track);
@@ -292,6 +297,15 @@ const diffToRpe = i => i + 6;
 
 const KNOW = (typeof EX_KNOW !== 'undefined') ? EX_KNOW : {};
 
+// Held one in each hand, so the logged number is per hand, not the pair.
+// A lunge logged as 30 means two 30s. Keeps load_step honest: the next jump
+// up is one 5 lb dumbbell, not a 5 lb change spread across both.
+const PER_HAND = new Set([
+  'Dumbbell bench press', 'Incline dumbbell press', 'Overhead dumbbell press',
+  'Dumbbell curl', 'Hammer curl', 'Walking lunge', 'Bulgarian split squat',
+  'Rear delt dumbbell fly', 'Dumbbell lateral raise', 'Farmer carry'
+]);
+
 // ---------- timed exercises ----------
 // A plank is measured in seconds. Asking for a weight and a rep count on one
 // is noise, so these get a single seconds field instead.
@@ -323,7 +337,7 @@ let PICK        = [];      // per-exercise: active option in [main, ...subs]
 let VALUES      = [];      // per-exercise, per-set: { w, r, t, d }
 let OPEN        = [];      // per-exercise: detail panel expanded
 let FEEL        = 3;
-let RATINGS     = {};      // name -> 1 | -1, this device, not yet sent
+let RATINGS     = {};      // name -> 1 | -1 | 0, this device
 let ON_FILE     = {};      // name -> 'favorite' | 'disliked', from the repo
 
 const esc = s => String(s == null ? '' : s)
@@ -428,6 +442,17 @@ document.addEventListener('visibilitychange', () => {
 });
 
 // ---------- ratings ----------
+// A rating already saved in the repo shows as selected, so a favourite marked
+// weeks ago is still visibly marked next time that exercise comes up. A local
+// tap overrides it, including tapping the lit button again to clear it, which
+// stores an explicit 0 rather than deleting the key. Deleting would just let
+// the filed value reappear and make the clear look broken.
+const hasLocal = name => Object.prototype.hasOwnProperty.call(RATINGS, name);
+function effRating(name) {
+  if (hasLocal(name)) return RATINGS[name];
+  return ON_FILE[name] === 'favorite' ? 1 : ON_FILE[name] === 'disliked' ? -1 : 0;
+}
+
 function loadRatings() {
   try { RATINGS = JSON.parse(localStorage.getItem(RATE_KEY) || '{}') || {}; }
   catch (e) { RATINGS = {}; }
@@ -646,12 +671,12 @@ function exCard(i) {
 
   // Ratings ride along in the copied block rather than posting anywhere. The
   // site is static, so there is nothing to post to without shipping a token.
-  const r = RATINGS[name];
-  const filed = ON_FILE[name];
+  const r = effRating(name);
+  const filed = !hasLocal(name) && ON_FILE[name];
   const rateHtml = `<div class="rate">
       <button data-rate="${i}" data-v="1"${r === 1 ? ' class="on"' : ''}>&#9829; More of this</button>
       <button data-rate="${i}" data-v="-1"${r === -1 ? ' class="on"' : ''}>&#10005; Less of this</button>
-    </div>${filed && r == null ? `<span class="onfile">On file: ${esc(filed)}</span>` : ''}`;
+    </div>${filed ? `<span class="onfile">Already marked ${esc(filed)}</span>` : ''}`;
 
   const alts = opts.map((o, k) => {
     if (k === PICK[i]) return '';
@@ -669,6 +694,7 @@ function exCard(i) {
       <button class="caret${OPEN[i] ? ' open' : ''}" data-caret="${i}" aria-label="Form, targets and common errors">${OPEN[i] ? '&#9650;' : '&#9660;'}</button>
     </div>
     <div class="cue">${esc(base.cue)}</div>
+    ${PER_HAND.has(name) ? '<span class="perhand">Log the weight of one dumbbell, not the pair</span>' : ''}
     ${detail}
     ${sugHtml}
     <div class="sets">${setsHtml}</div>
@@ -735,7 +761,7 @@ function wire() {
   document.querySelectorAll('[data-rate]').forEach(b => b.onclick = () => {
     const i = +b.dataset.rate, v = +b.dataset.v;
     const name = currentName(i);
-    if (RATINGS[name] === v) delete RATINGS[name]; else RATINGS[name] = v;
+    RATINGS[name] = (effRating(name) === v) ? 0 : v;
     saveRatings();
     repaint(i, false);
   });
@@ -778,13 +804,12 @@ document.getElementById('copy').onclick = async () => {
   });
 
   // Only ratings that differ from what the repo already knows. Re-sending
-  // "favorite" every session would be noise.
-  const sending = Object.keys(RATINGS).filter(n => {
-    const want = RATINGS[n] === 1 ? 'favorite' : 'disliked';
-    return ON_FILE[n] !== want;
-  });
+  // "favorite" every session would be noise. A tilde clears one.
+  const mark = { 1: 'favorite', '-1': 'disliked', 0: null };
+  const sending = Object.keys(RATINGS).filter(n => (ON_FILE[n] || null) !== mark[RATINGS[n]]);
   if (sending.length) {
-    out += `RATINGS: ${sending.map(n => (RATINGS[n] === 1 ? '+' : '-') + n).join(', ')}\n\n`;
+    const sign = v => (v === 1 ? '+' : v === -1 ? '-' : '~');
+    out += `RATINGS: ${sending.map(n => sign(RATINGS[n]) + n).join(', ')}\n\n`;
   }
 
   const notes = document.getElementById('notes').value.trim();
