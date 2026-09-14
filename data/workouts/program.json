@@ -7,6 +7,7 @@
       "day": "Mon",
       "key": "A",
       "title": "Quads & Press",
+      "focus": "Knee-dominant lower body plus horizontal pushing and pulling. The dead bug is the anti-lordosis work, not filler.",
       "supersets": [[0, 1], [2, 3]],
       "exercises": [
         { "name": "Leg press", "scheme": "3 x 8-10", "sets": 3, "cue": "Stop before your hips curl off the pad. That roll is lumbar flexion.", "subs": ["Goblet squat", "Hack squat"] },
@@ -20,6 +21,7 @@
       "day": "Wed",
       "key": "B",
       "title": "Hinge & Overhead",
+      "focus": "Hip-dominant lower body plus vertical pressing and pulling. The heaviest posterior chain day of the week.",
       "supersets": [[0, 1], [2, 3]],
       "exercises": [
         { "name": "Barbell RDL", "scheme": "3 x 8", "sets": 3, "cue": "Hips back, spine neutral. Stand up to tall, never past it.", "subs": ["Hip thrust", "Seated leg curl"] },
@@ -33,6 +35,7 @@
       "day": "Fri",
       "key": "C",
       "title": "Single-leg & Back",
+      "focus": "One leg at a time for hip stability, plus upper chest and rear shoulder. Balances the pressing volume from Monday.",
       "supersets": [[0, 1], [2, 3]],
       "exercises": [
         { "name": "Walking lunge", "scheme": "3 x 10/leg", "sets": 3, "cue": "Torso upright, front shin near vertical. Do not lean forward.", "subs": ["Bulgarian split squat", "Leg extension"] },
@@ -47,6 +50,7 @@
     {
       "key": "P",
       "title": "Hips & Posture",
+      "focus": "Direct work on the lordosis: lengthen the hip flexors, get the glutes doing their job, brace without arching.",
       "when": "Any off day. 12 minutes. The one that actually moves the lordosis.",
       "exercises": [
         { "name": "Couch stretch", "scheme": "2 x 45s/side", "sets": 2, "cue": "Squeeze the back glute to tuck the pelvis. That is the stretch.", "subs": [] },
@@ -58,6 +62,7 @@
     {
       "key": "S",
       "title": "Arms & Shoulders",
+      "focus": "Low-stakes volume for arms and side delts. Nothing here taxes recovery, so skip it guilt-free.",
       "when": "Saturday flex day. 20 minutes if you have the energy, skip it if you do not.",
       "exercises": [
         { "name": "Cable lateral raise", "scheme": "3 x 12-15", "sets": 3, "cue": "Lead with the elbow, stop at shoulder height.", "subs": ["Dumbbell lateral raise"] },
