@@ -106,6 +106,56 @@
         }
       ],
       "notes": "Backfilled on 2026-09-14 from memory. First half is reliable, second half is approximate and loads for the cable row and calf raise were not recorded. Was unsure whether the cable row was meant to be one arm at a time and chose two hands. Dumbbell loads were reported combined and have been halved to per-dumbbell, which is the convention going forward. Incline press was confirmed as two 30s; walking lunge was assumed to follow the same pattern and should be corrected if it did not. Face pull feels awkward: had to lean back and pull mostly with the arms because the weight was too heavy, but lighter felt like nothing was happening."
+    },
+    {
+      "date": "2026-09-16",
+      "title": "Hinge & Overhead",
+      "feel": "tough",
+      "exercises": [
+        {
+          "name": "Barbell RDL",
+          "note": "Stopped early, felt it loading into the lower back.",
+          "sets": [
+            { "weight_lb": 90, "reps": 10, "rpe": 7 },
+            { "weight_lb": 90, "reps": 6, "rpe": 7 }
+          ]
+        },
+        {
+          "name": "Overhead dumbbell press",
+          "sets": [
+            { "weight_lb": 30, "reps": 10, "rpe": 8 },
+            { "weight_lb": 30, "reps": 10, "rpe": 9 },
+            { "weight_lb": 25, "reps": 8, "rpe": 9 }
+          ]
+        },
+        {
+          "name": "Lat pulldown",
+          "note": "Regular lat pulldown was occupied; used a different machine with top handles that rotate. Felt it more in triceps than lats, won't repeat this machine.",
+          "sets": [
+            { "weight_lb": 80, "reps": 10, "rpe": 8 },
+            { "weight_lb": 80, "reps": 10, "rpe": 9 },
+            { "weight_lb": 70, "reps": 10, "rpe": 9 }
+          ]
+        },
+        {
+          "name": "Dead bug",
+          "note": "Kept losing the anti-lordosis brace, back wanted to lift off the floor.",
+          "sets": [
+            { "weight_lb": null, "reps": 10, "rpe": 8 },
+            { "weight_lb": null, "reps": 10, "rpe": 8 },
+            { "weight_lb": null, "reps": 6, "rpe": 8 }
+          ]
+        },
+        {
+          "name": "Triceps pushdown",
+          "sets": [
+            { "weight_lb": 35, "reps": 10, "rpe": 8 },
+            { "weight_lb": 35, "reps": 10, "rpe": 8 },
+            { "weight_lb": 35, "reps": 11, "rpe": 8 }
+          ]
+        }
+      ],
+      "notes": "Still learning RDL form; stopped at set 2 when lower back started taking load. Ran out of energy on overhead press, hence the drop set. Lat pulldown sub machine had rotating top handles, felt more triceps than lats, won't use again. Dead bug hard to keep back from lifting; needs more hip flexor / anti-lordosis stretching to execute cleanly."
     }
   ]
 }
