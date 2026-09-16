@@ -1,10 +1,14 @@
 {
-  "favorites": [],
+  "favorites": [
+    "Lat pulldown"
+  ],
   "disliked": [
-    "Face pull"
+    "Face pull",
+    "Pallof press"
   ],
   "notes": {
-    "Face pull": "Feels awkward and unproductive. Kept out of the primary slot, still fine as a substitute. Was going too heavy and leaning back to counterbalance; if it returns, program it light and high-rep with the cable at eye height."
+    "Face pull": "Feels awkward and unproductive. Kept out of the primary slot, still fine as a substitute. Was going too heavy and leaning back to counterbalance; if it returns, program it light and high-rep with the cable at eye height.",
+    "Pallof press": "Unsure on execution when tried 2026-09-09; disliked as of 2026-09-16."
   },
   "about": "Written by Claude from the RATINGS line in a pasted WORKOUT LOG block, or from anything he says in chat. A rating is permanent until he changes it, and the workout page shows it as already selected whenever that exercise comes up again. See LOGGING-SPEC.md for what favorited and disliked actually mean for programming."
 }
