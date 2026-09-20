@@ -43,7 +43,8 @@ const EX_KNOW = {
     feel: 'Between the shoulder blades as you finish the pull. Biceps should be a supporting cast, not the star.',
     vs: {
       'Single-arm dumbbell row': { v: 'close', n: 'Same horizontal pull, one side at a time, so you catch left-right differences. Requires you to brace against rotation, which is useful but means less load.' },
-      'Machine row': { v: 'like', n: 'Chest pad takes your low back out of it entirely. Given your lordosis this is arguably the better default, not a downgrade.' }
+      'Machine row': { v: 'like', n: 'Chest pad takes your low back out of it entirely. Given your lordosis this is arguably the better default, not a downgrade.' },
+      'Chest-supported row': { v: 'like', n: 'Same horizontal pull with the torso braced against a pad, so there is nothing for your low back to do. The safest version of this slot for you.' }
     }
   },
   'Single-arm dumbbell row': {
@@ -60,7 +61,8 @@ const EX_KNOW = {
     feel: 'Across the chest, with a stretch at the bottom. Front of the shoulders will share the load.',
     vs: {
       'Machine chest press': { v: 'close', n: 'Fixed path removes the stabilizing demand, so you can push closer to failure safely. Less carryover to free-weight pressing, but no spotter needed.' },
-      'Push-up': { v: 'diff', n: 'Same muscles, but load is capped at your bodyweight and the serratus does real work holding the shoulder blades. Fine as a finisher, not a replacement for a loaded press.' }
+      'Push-up': { v: 'diff', n: 'Same muscles, but load is capped at your bodyweight and the serratus does real work holding the shoulder blades. Fine as a finisher, not a replacement for a loaded press.' },
+      'Incline dumbbell press': { v: 'close', n: 'Same press with the bench tilted, which moves the work to the upper chest and drops the load you can handle. A fine swap, just know you are training a different region of the same muscle.' }
     }
   },
   'Machine chest press': {
@@ -256,7 +258,11 @@ const EX_KNOW = {
   },
   'Reverse pec deck': {
     targets: { primary: ['Rear deltoid'], secondary: ['Mid-trapezius', 'Rhomboids'] },
-    feel: 'Back of the shoulders. Keep the elbows soft so the arms do not take over.'
+    feel: 'Back of the shoulders. Keep the elbows soft so the arms do not take over.',
+    vs: {
+      'Rear delt dumbbell fly': { v: 'like', n: 'Same rear delt, free weights instead of a machine. Needs stricter form to stop it becoming a shrug, and the pad makes the machine easier to load honestly.' },
+      'Face pull': { v: 'close', n: 'Adds external rotation, which is the part that actually helps posture, so it trains slightly more than this does. It stays available for exactly that reason: light, rope at eye height, elbows high.' }
+    }
   },
   'Rear delt dumbbell fly': {
     targets: { primary: ['Rear deltoid'], secondary: ['Mid-trapezius'] },
@@ -297,7 +303,8 @@ const EX_KNOW = {
     targets: { primary: ['Spinal erectors', 'Transverse abdominis'], secondary: ['Gluteus maximus', 'Rear deltoid'] },
     feel: 'Deep trunk bracing, plus the glute of the extended leg. Hips stay square. Slow beats far.',
     vs: {
-      'Dead bug': { v: 'close', n: 'Same anti-extension bracing on your back instead of hands and knees. Easier to keep the low back flat, so a good regression.' }
+      'Dead bug': { v: 'close', n: 'Same anti-extension bracing on your back instead of hands and knees. Easier to keep the low back flat, so a good regression.' },
+      'Pallof press': { v: 'close', n: 'Standing anti-rotation instead of quadruped anti-extension. Trains the same bracing problem higher up the chain, which is why it stays on the list even though you do not like it.' }
     }
   },
 
