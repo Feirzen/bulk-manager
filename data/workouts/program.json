@@ -1,76 +1,83 @@
 {
-  "week_of": "2026-09-15",
-  "generated_at": "2026-09-14T09:00:00-06:00",
+  "week_of": "2026-09-21",
+  "generated_at": "2026-09-20T09:00:00-06:00",
   "rotation": "Same three sessions fixed to Mon / Wed / Fri so load progression stays readable week to week.",
-  "note": "Week of 09-08 went 2 of 3, and the miss was Monday. So Monday is the shortest day in the program now: four exercises, roughly 30 minutes. Supersets are gone this week because pairing meant holding two machines and felt awkward. Straight sets, short rest.",
+  "note": "Week of 09-14 went 1 of 3. Wednesday is 2 for 2. Monday has never been logged once in two weeks and Friday is 1 of 2, so Monday drops to three lifts, roughly twenty minutes, and that is a floor rather than a target. Trunk and anti-lordosis work moved to Wednesday and add-in P so Monday has nothing left to negotiate with. Barbell RDL is demoted to a substitution after 09-16 put the load into the low back. Straight sets again, no supersets.",
+  "progression": {
+    "rule": "Double progression driven by the average RPE of the logged sets, matching the suggester already running in workout.html.",
+    "table": [
+      "avg RPE 7.0 or below: add one load_step from assets/exercises.js.",
+      "avg RPE 7.1 to 8.0: hold the load and add a rep, unless every set was already at the same load and at the top of the prescribed rep range, which earns the load step instead.",
+      "avg RPE 8.1 to 9.0: repeat the same load and clean up execution.",
+      "avg RPE above 9.0: hold, or back off five percent.",
+      "Bodyweight and timed work progresses on reps or seconds, never load.",
+      "Dumbbell loads are per hand, so one load_step of 5 is one size up on one bell.",
+      "Any of the above is overridden when the session note reports pain or a form breakdown. Load does not advance on a pattern he cannot yet brace."
+    ],
+    "note": "workout.html does not know the rep-range ceiling, so its on-page suggestion can read 'chase a rep' where the program names a heavier load. The program's named load wins. LOGGING-SPEC.md still has no progression section; this field is the working record until it does."
+  },
   "sessions": [
     {
       "day": "Mon",
       "key": "A",
       "title": "Quads & Press",
-      "focus": "Knee-dominant lower body, one horizontal press, one horizontal pull. Deliberately the shortest day of the week, because Monday is the one that keeps slipping.",
+      "focus": "Knee-dominant lower body, one horizontal press, one vertical pull. Three lifts, about twenty minutes. Monday has not been logged once in two weeks, so length is the only variable left to cut.",
       "supersets": [],
       "exercises": [
         { "name": "Leg press", "scheme": "3 x 8-10", "sets": 3,
-          "cue": "Stop before your hips curl off the pad. That roll is lumbar flexion, the one thing to avoid.",
-          "subs": ["Goblet squat", "Hack squat"] },
+          "cue": "No history on this one yet, so pick a load you can finish ten clean reps with and write the number down. Stop before your hips curl off the pad.",
+          "subs": ["Hack squat", "Goblet squat"] },
         { "name": "Dumbbell bench press", "scheme": "3 x 8-10", "sets": 3,
-          "cue": "Stop one or two reps short. Dumbbells you can bail on, so push these honestly.",
-          "subs": ["Machine chest press", "Push-up"] },
-        { "name": "Seated cable row", "scheme": "3 x 10-12", "sets": 3,
-          "cue": "Torso stays still. Pull with the back, not by rocking the whole body.",
-          "subs": ["Single-arm dumbbell row", "Machine row"] },
-        { "name": "Dead bug", "scheme": "3 x 8/side", "sets": 3,
-          "cue": "Low back pinned to the floor the whole set. This is the anti-lordosis work, not filler.",
-          "subs": ["Pallof press", "Bird dog"] }
+          "cue": "Start at 30 per hand, which is where your incline press sits. Per hand, not the pair.",
+          "subs": ["Machine chest press", "Incline dumbbell press", "Push-up"] },
+        { "name": "Lat pulldown", "scheme": "3 x 10-12", "sets": 3,
+          "cue": "Standard wide bar, not the rotating-handle machine. 100 for 10 across on 09-09, so hold 100 and chase 12 before the load moves.",
+          "subs": ["Assisted pull-up", "Chest-supported row"] }
       ]
     },
     {
       "day": "Wed",
       "key": "B",
       "title": "Hinge & Overhead",
-      "focus": "Loaded hip extension plus vertical pressing and pulling. The only day with real posterior-chain work, and the hip thrust doubles as lordosis work.",
+      "focus": "Loaded hip extension, vertical pressing, horizontal pulling, and the anti-lordosis brace. The day that actually happens, so it carries the most work.",
       "supersets": [],
       "exercises": [
         { "name": "Hip thrust", "scheme": "3 x 10", "sets": 3,
-          "cue": "Stop at a straight line from knee to shoulder. Ribs down, do not arch past it.",
-          "subs": ["Glute bridge", "Barbell RDL", "Seated leg curl"] },
-        { "name": "Machine shoulder press", "scheme": "3 x 8-10", "sets": 3,
-          "cue": "Pick one load you can finish all three sets with. Last week opened at 50 and fell to 30. Start near 35.",
-          "subs": ["Overhead dumbbell press", "Landmine press"] },
-        { "name": "Lat pulldown", "scheme": "3 x 10-12", "sets": 3,
-          "cue": "100 for 10 at Hard last week. Same weight, chase 12 before the load moves.",
-          "subs": ["Assisted pull-up", "Chest-supported row"] },
-        { "name": "Pallof press", "scheme": "3 x 10/side", "sets": 3,
-          "cue": "Handle at the sternum, press straight out, nothing rotates. Stand far enough from the stack that it genuinely pulls you sideways.",
-          "subs": ["Dead bug", "Side plank"] },
+          "cue": "Hinge slot goes back to this after the RDL loaded your low back. Stop at a straight line from knee to shoulder, ribs down.",
+          "subs": ["Glute bridge", "Seated leg curl", "Barbell RDL"] },
+        { "name": "Overhead dumbbell press", "scheme": "3 x 8-10", "sets": 3,
+          "cue": "30 per hand again. Last week was 10, 10, then a drop to 25. Three clean sets at 30 is the whole job this week.",
+          "subs": ["Machine shoulder press", "Landmine press"] },
+        { "name": "Seated cable row", "scheme": "3 x 10-12", "sets": 3,
+          "cue": "Never logged yet. Torso stays still, pull with the back, and record the load.",
+          "subs": ["Machine row", "Chest-supported row", "Single-arm dumbbell row"] },
         { "name": "Triceps pushdown", "scheme": "3 x 12-15", "sets": 3,
-          "cue": "Elbows locked to your ribs. 35 sat right at 10 reps, so add reps this week, not weight.",
-          "subs": ["Overhead dumbbell extension", "Dip machine"] }
+          "cue": "Two sessions parked at 35 for 10. Stay at 35 and get 12 on all three sets, then it moves to 40.",
+          "subs": ["Overhead dumbbell extension", "Dip machine"] },
+        { "name": "Bird dog", "scheme": "3 x 8/side", "sets": 3,
+          "cue": "Easier to keep a flat back than the dead bug was. Hips square, slow beats far.",
+          "subs": ["Dead bug", "Pallof press"] }
       ]
     },
     {
       "day": "Fri",
       "key": "C",
       "title": "Single-leg & Back",
-      "focus": "One leg at a time for hip stability, incline pressing, and rear-shoulder work to balance Monday's pressing volume.",
+      "focus": "One leg at a time for hip stability, incline pressing, and rear-shoulder work to balance the week's pressing volume.",
       "supersets": [],
       "exercises": [
         { "name": "Walking lunge", "scheme": "3 x 10/leg", "sets": 3,
-          "cue": "Torso upright, front shin near vertical. Hold 60 and make all three sets clean before adding.",
+          "cue": "30 per hand on all three sets this time. Last time set one was 20, so the load step has not been earned yet.",
           "subs": ["Bulgarian split squat", "Leg extension"] },
         { "name": "Incline dumbbell press", "scheme": "3 x 8-10", "sets": 3,
-          "cue": "Bench at 30 degrees. 60 for 10 across at Hard earns the jump to 65.",
+          "cue": "30 per hand for 10 across at Hard earns the step. Go to 35 per hand, bench at 30 degrees.",
           "subs": ["Machine incline press", "Dumbbell bench press"] },
         { "name": "Single-arm cable row", "scheme": "3 x 10-12/side", "sets": 3,
-          "cue": "One arm at a time, single handle. Let the shoulder blade travel forward, then pull. Write the number down this week.",
+          "cue": "One arm at a time, single handle. Let the shoulder blade travel forward, then pull. The load has never been recorded, so record it.",
           "subs": ["Machine row", "Chest-supported row"] },
-        { "name": "Face pull", "scheme": "3 x 15", "sets": 3,
-          "cue": "Rope at eye height, pull to the eyebrows, elbows high. If you lean back to move it, it is too heavy. Start at 20.",
-          "subs": ["Reverse pec deck", "Rear delt dumbbell fly"] },
-        { "name": "Standing calf raise", "scheme": "3 x 12-15", "sets": 3,
-          "cue": "Full stretch at the bottom, pause at the top. No bouncing. Record the load this time.",
-          "subs": ["Seated calf raise", "Leg press calf raise"] }
+        { "name": "Reverse pec deck", "scheme": "3 x 12-15", "sets": 3,
+          "cue": "Takes the rear-delt slot from the face pull. Elbows soft, light enough that nothing leans back.",
+          "subs": ["Rear delt dumbbell fly", "Face pull"] }
       ]
     }
   ],
@@ -78,23 +85,23 @@
     {
       "key": "P",
       "title": "Hips & Posture",
-      "focus": "Direct work on the lordosis: lengthen the hip flexors, get the glutes doing their job, brace without arching.",
+      "focus": "Direct work on the lordosis: lengthen the hip flexors, get the glutes doing their job, brace without arching. The dead bug fell apart on 09-16, and this is why.",
       "when": "Any off day. 12 minutes. The one that actually moves the lordosis.",
       "exercises": [
         { "name": "Couch stretch", "scheme": "2 x 45s/side", "sets": 2,
           "cue": "Squeeze the back glute to tuck the pelvis. That tuck is the stretch.", "subs": [] },
         { "name": "Glute bridge", "scheme": "3 x 15", "sets": 3,
           "cue": "Stop at a straight line. Do not arch past it.", "subs": ["Hip thrust"] },
-        { "name": "Bird dog", "scheme": "3 x 8/side", "sets": 3,
-          "cue": "Hips stay square. Slow beats far.", "subs": ["Dead bug"] },
-        { "name": "Pallof press", "scheme": "2 x 10/side", "sets": 2,
-          "cue": "Resist the twist. Nothing rotates.", "subs": ["Side plank"] }
+        { "name": "Dead bug", "scheme": "3 x 8/side", "sets": 3,
+          "cue": "Fewer reps than last time on purpose. If the low back lifts, keep your heels sliding on the floor instead of hovering.", "subs": ["Bird dog", "Pallof press"] },
+        { "name": "Bird dog", "scheme": "2 x 8/side", "sets": 2,
+          "cue": "Hips square, slow beats far.", "subs": ["Dead bug"] }
       ]
     },
     {
       "key": "S",
-      "title": "Arms & Shoulders",
-      "focus": "Low-stakes volume for arms and side delts. Nothing here taxes recovery, so skip it guilt-free.",
+      "title": "Arms, Shoulders & Calves",
+      "focus": "Low-stakes volume for arms, side delts and calves. Nothing here taxes recovery, so skip it guilt-free.",
       "when": "Saturday flex day. 20 minutes if you have the energy, skip it if you do not.",
       "exercises": [
         { "name": "Cable lateral raise", "scheme": "3 x 12-15", "sets": 3,
@@ -103,8 +110,8 @@
           "cue": "Elbows at your sides. No swinging from the hips.", "subs": ["Cable curl", "Hammer curl"] },
         { "name": "Hammer curl", "scheme": "3 x 10-12", "sets": 3,
           "cue": "Neutral grip the whole way. Hits the brachialis.", "subs": ["Dumbbell curl", "Cable curl"] },
-        { "name": "Overhead dumbbell extension", "scheme": "3 x 12", "sets": 3,
-          "cue": "Ribs down, elbows in. Do not arch to get under the weight.", "subs": ["Triceps pushdown"] }
+        { "name": "Standing calf raise", "scheme": "3 x 12-15", "sets": 3,
+          "cue": "Moved off Friday to keep that day short. Full stretch at the bottom, pause at the top, and record the load.", "subs": ["Seated calf raise", "Leg press calf raise"] }
       ]
     }
   ]
