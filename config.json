@@ -21,8 +21,8 @@
     "protein_g": 165,
     "weight_gain_lb_per_week": 0.35,
     "provisional": true,
-    "calibrate_on": "2026-09-28",
-    "note": "Provisional. Derived from Mifflin-St Jeor at 170 lb / 74 in with a 1.6 activity multiplier, plus a ~250 kcal surplus. With intake logging paused these function as a directional reference, not something to hit precisely. The weekly review reads the weight trend and gives a direction, eat more or hold, rather than a number to count to. First real weight readings landed 2026-09-13, so calibration moved out to allow two weeks of trend."
+    "calibrate_on": "2026-10-18",
+    "note": "Provisional. Derived from Mifflin-St Jeor at 170 lb / 74 in with a 1.6 activity multiplier, plus a ~250 kcal surplus. With intake logging paused these function as a directional reference, not something to hit precisely. The weekly review reads the weight trend and gives a direction, eat more or hold, rather than a number to count to. Calibration was dated 2026-09-28 but arrived with zero weight readings in the window: the only two on file are 09-13 and 09-14. Moved to 2026-10-18, which is three more Sundays. It moves again if the trend is still unavailable then, and the requirement is two weigh-ins a week, not daily."
   },
   "streak_rules": {
     "training": {
@@ -42,7 +42,8 @@
     "lift": ["Mon", "Wed", "Fri"],
     "walk": ["Tue", "Thu"],
     "flex": ["Sat"],
-    "rest": ["Sun"]
+    "rest": ["Sun"],
+    "note": "Monday is 0 for 3 since logging started, while Wednesday is 2 for 2 when it happens at all. The 09-27 review flagged that if Monday fails again the day itself is the problem rather than the session length, and the lift days should move. Not changed unilaterally; this is his call."
   },
   "review_cadence": {
     "weekly": "Sunday, automated. Reads the week, writes next week's program and data/reviews/weekly-YYYY-MM-DD.md, then messages a summary. Leads with adherence.",
