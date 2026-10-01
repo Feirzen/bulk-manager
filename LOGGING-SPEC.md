@@ -12,10 +12,12 @@ The contract between Claude and this repo. Read before any write.
 | `data/body/measurements.json` | Claude | Scale weights, InBody scans, tape |
 | `data/health/YYYY-MM-DD.json` | iOS Shortcut | One per day. Never edit |
 | `data/workouts/program.json` | Claude, weekly | Current week's sessions |
-| `data/workouts/log-YYYY-MM.json` | Claude | Completed sessions |
-| `data/preferences/exercises.json` | Claude | Favorited and disliked exercises |
+| `data/workouts/log-YYYY-MM.json` | Workout page Save, or Claude | Completed sessions |
+| `data/preferences/exercises.json` | Workout page Save, or Claude | Favorited and disliked exercises |
 | `data/reviews/weekly-YYYY-MM-DD.md` | Claude, weekly task | Sunday review, narrative |
-| `data/reviews/monthly-YYYY-MM.md` | Claude, monthly task | Month in review |
+| `data/reviews/monthly-YYYY-MM.json` | Claude, monthly task | Month in review, structured. `review.html` renders it |
+| `data/reviews/monthly-YYYY-MM.md` | Claude, monthly task | Same review as prose, for the next review to read |
+| `assets/warmups.js` | Claude, rarely | Warm-up and cool-down options with the why and how |
 | `assets/exercises.js` | Claude, rarely | Form steps, common errors, load increments |
 | `assets/exercise-knowledge.js` | Claude | Targets, where you feel it, substitution notes |
 | `assets/exercise-images.js` | Claude | Demo image ids, plus verification state |
@@ -24,7 +26,7 @@ The contract between Claude and this repo. Read before any write.
 
 **`body_mass_lb: 0` means no reading that day. It never means a real weight.** Zeros are expected and normal on days he did not step on the scale. Skip them entirely when averaging. A zero must never be treated as a data point, or the trend collapses toward zero and every calorie target derived from it is wrong.
 
-The Shortcut fires at 11:55pm and filters on **today**, so each file holds the day named in its filename. The last five minutes of a day are not captured. This does not matter.
+The Shortcut collects **yesterday** and names the file for yesterday, so each file holds one complete day. It runs when an everyday app is opened rather than at a clock time, because iOS locks Health data while the phone is locked: the old 11:55pm automation failed on most nights for exactly that reason. Files before 2026-10 were written by the old version and filter on the day they ran. See `docs/health-shortcut.md`.
 
 ### Weight has two paths, and both count
 
@@ -52,7 +54,7 @@ A two-dumbbell exercise logs the weight of **one** dumbbell. A pair of 30s is `3
 
 This is not cosmetic. `load_step` in `assets/exercises.js` is 5 for dumbbell work, which is one size up on one bell. That arithmetic is only correct if the stored number is per hand; against a combined figure the suggester would propose 65 lb, which is not a weight that exists on the rack. He reported the 2026-09-11 session combined and those entries were halved, with a note on each.
 
-The workout page tags these exercises on the card so the field is never ambiguous. The list lives in the `PER_HAND` set at the top of `workout.html`. Add a new one there when it enters the program.
+The workout page tags every dumbbell exercise on its card so the field is never ambiguous. Any name containing "dumbbell" is tagged automatically. Dumbbell work whose name does not say so (lunges, hammer curl, split squat) goes in `DB_PAIR` at the top of `workout.html`, and exercises that use a single bell (goblet squat, single-arm row) go in `DB_SINGLE`. Add a new one there when it enters the program and its name does not already say dumbbell.
 
 ## Nutrition entry
 
@@ -116,7 +118,7 @@ Today in progress never breaks a streak. If today is a lift day and nothing is l
 
 ## Workout session
 
-Parsed from a pasted `WORKOUT LOG` block.
+Written by the workout page's **Save** button, or parsed from a pasted `WORKOUT LOG` block. Both produce this shape.
 
 ```json
 {
@@ -132,21 +134,24 @@ Parsed from a pasted `WORKOUT LOG` block.
 
 Missing RPE is fine, record `null`. A skipped day is a session with an empty `exercises` array and `"feel": "skipped"`, which keeps the calendar honest without punishing the streak.
 
-An exercise may carry a `note` when it was substituted or run differently than programmed. A session may carry `notes` for the free-text field on the workout page, and `"backfilled": true` when it was reconstructed from memory rather than logged live, so nobody later mistakes an approximation for a measurement.
+An exercise may carry a `note` when it was substituted or run differently than programmed (system context, like "Substituted for Barbell RDL"). It may also carry `my_note`, which is his own words from that exercise's note box on the workout page. Read `my_note` at the weekly review: pain, form trouble, and "felt nothing" all live there. A session may carry `notes` for the general free-text field, and `"backfilled": true` when it was reconstructed from memory rather than logged live, so nobody later mistakes an approximation for a measurement.
+
+A session saved from the page also carries `"source": "workout-page"` and `saved_at`. Saving again the same day replaces the session with the same `date` and `key` rather than adding a second one.
 
 An exercise he performed but recorded no numbers for is stored with an empty `sets` array and a note saying so. Omitting it entirely would read as a skip, and the progression suggester already handles an empty set list by falling back to its no-history message.
 
-### Cardio
+### Warm-up, cool-down, cardio
 
-Warm-up or cool-down conditioning goes in an optional `cardio` array on the session. It is context, not training volume, and never feeds progression or targets.
+Warm-up and cool-down work goes in an optional `cardio` array on the session. It is context, not training volume, and never feeds progression or targets.
 
 ```json
 "cardio": [
-  { "name": "Elliptical", "distance_mi": 0.5, "position": "warm-up" }
+  { "name": "Rower", "minutes": 5, "position": "warm-up", "kind": "cardio" },
+  { "name": "Hip flexor stretch", "minutes": 3, "position": "cool-down", "kind": "mobility" }
 ]
 ```
 
-Use `distance_mi` or `minutes`, whichever he actually reported. `position` is `warm-up`, `cool-down`, or `standalone`.
+Use `distance_mi` or `minutes`, whichever he actually reported. `position` is `warm-up`, `cool-down`, or `standalone`. `kind` is `cardio` for machines and walking, `mobility` for floor work like the anti-arch primer or hip flexor stretch. Older entries have no `kind`; treat them as `cardio`. The options and their explanations live in `assets/warmups.js`. Hip flexor and anti-arch work showing up here is worth noticing at the weekly review, since it serves the lordosis goal.
 
 ### Difficulty scale
 
@@ -162,16 +167,33 @@ The workout page never asks for a bare RPE number. It presents a five-point word
 
 Overall session `feel` is a 1 to 5 slider running rough to easy, stored as one of: `rough`, `tough`, `solid`, `good`, `easy`, or `skipped`.
 
-The pasted block carries both forms so it stays readable and parseable:
+### The pasted block
+
+He pastes this when he wants feedback. If the second line reads `STATUS: already saved to the repo from the workout page`, the session is already in the log: **do not write it again**, just review it. A block with no STATUS line was not saved, so log it as usual.
+
+It carries both difficulty forms so it stays readable and parseable:
 
 ```
 WORKOUT LOG
 2026-09-07 · Full Body A · overall: solid
 
+Warm-up: Rower 5 min
+
 Leg press
   185 x 9 @ hard (RPE 8)
   185 x 8 @ very hard (RPE 9)
+
+Lat pulldown (Substituted for Seated cable row)
+  100 x 10 @ hard (RPE 8)
+
+Cool-down: Hip flexor stretch 3 min
+
+Notes:
+Leg press: Right knee clicked on the last set
+General: Gym was packed
 ```
+
+In the `Notes:` section, a line labeled with an exercise name is that exercise's `my_note`. The `General:` line is the session `notes`.
 
 A weight of `bw` means bodyweight. Store `weight_lb: null`. Note that `bw` also appears when he simply did not record the load on a machine exercise, which is not bodyweight at all: if the movement cannot be done unloaded, store `null` and add a note saying the weight was not recorded, rather than implying he did it with no resistance.
 
@@ -271,18 +293,46 @@ Three things the page does on its own that the spec depends on.
 
 **Any session is openable.** The week view can launch any session including the optional add-ins, not only the one whose day it is. This is what makes an add-in usable on an off day.
 
-**Ratings persist.** A rating in `data/preferences/exercises.json` renders as already selected. A local tap overrides it; tapping a lit button clears it and stores an explicit zero, which is what the `~` in the copied block carries.
+**Ratings persist.** A rating in `data/preferences/exercises.json` renders as already selected. A local tap overrides it; tapping a lit button clears it and stores an explicit zero, which is what the `~` in the copied block carries. Save writes changed ratings to the preferences file, after which the repo is the source of truth on every device.
 
-None of these writes to the repo. The site is static and public, so there is nothing to post to without shipping a credential.
+**Save writes to the repo.** Each device holds a fine-grained GitHub token, pasted once into the collapsible "Saving from this device" section at the bottom of the dashboard and kept in that browser's storage only. It is never committed. The token is scoped to this repo with Contents read and write and nothing else. `assets/github.js` does the writing.
+
+One Save is one commit containing the month's workout log, `data/state.json`, and the preferences file when a rating changed. It reads the branch head, builds on it, and retries on top of the newer head if anything else committed in between, so a Claude review or the health Shortcut landing at the same moment is never overwritten.
+
+The page recomputes only the training fields of `state.json` (`streak_days` as the training streak, `sessions_this_week`, `sessions_target`, `last_session_date`, `days_since_lift`, `next_lift_day`, `date`, `updated_at`) and carries every other field over unchanged, zeroing today's intake only when the date has rolled over. That is the one sanctioned exception to "recomputed in full, never patched": the page cannot compute the weight trend or nutrition totals, and does not try.
 
 ## Reviews
 
-`data/reviews/` holds narrative output from the two scheduled tasks. Weekly files are named for the Sunday they cover and stay under 400 words. Monthly files carry the same content as the month-in-review email. Each review reads the previous one, which is the only reason the tasks can notice a trend rather than restating a snapshot.
+`data/reviews/` holds output from the two scheduled tasks. Weekly files are named for the Sunday they cover and stay under 400 words. Each review reads the previous one, which is the only reason the tasks can notice a trend rather than restating a snapshot.
+
+The monthly review is two files and a short email. `monthly-YYYY-MM.json` is the structured version that `review.html?m=YYYY-MM` renders; `monthly-YYYY-MM.md` is the same content as prose for next month's run to read. The email is a 30-second teaser that links to the page. The page draws the lift-day calendar and weight chart itself from the raw data, so the JSON carries only the words and the numbers that need judgment.
+
+```json
+{
+  "month": "2026-09",
+  "generated_at": "2026-10-02T08:05:00Z",
+  "headline": { "value": "3", "label": "sessions logged", "line": "One sentence on what the month was." },
+  "tiles": [
+    { "label": "Lift days hit", "value": "3 of 13", "sub": "23%" },
+    { "label": "Weight", "value": "168.2", "sub": "+0.4 lb, 6 weigh-ins" },
+    { "label": "Best lift", "value": "+10 lb", "sub": "Lat pulldown" },
+    { "label": "Watch sync", "value": "24 of 30", "sub": "days captured" }
+  ],
+  "wins": ["Specific, with real numbers. **Bold** works."],
+  "fix": "One sentence. The single thing that most limited the month.",
+  "focus": "One concrete direction for next month.",
+  "lifts": [{ "name": "Lat pulldown", "from": "90 x 10", "to": "100 x 12", "change": "+10 lb" }],
+  "sections": [{ "title": "Lift detail", "body": "Paragraphs separated by a blank line." }],
+  "gaps": ["Short phrases naming missing data"]
+}
+```
+
+Exactly four tiles, at most two wins. `change` starts with `+` or `-` when it is a direction, which the page colors. `sections` hold the detail that does not belong in the email; they render collapsed.
 
 ## Write rules
 
 1. Nutrition writes touch the month file and `state.json` in the **same commit** via `push_files`. Never one without the other.
-2. A session write updates the month log and `state.json` together, and `data/preferences/exercises.json` too when the block carried a `RATINGS` line.
+2. A session write updates the month log and `state.json` together, and `data/preferences/exercises.json` too when the block carried a `RATINGS` line. Before writing a pasted session, check the log for one with the same date and key: if it is there with `"source": "workout-page"`, it was already saved, so review it and write nothing.
 3. Read before write. The contents API needs the current blob SHA for updates.
 4. Never write to `data/health/`. That is the Shortcut's.
 5. Never ask permission to write. Logging is the system's purpose.

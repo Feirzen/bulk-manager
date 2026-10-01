@@ -232,6 +232,71 @@
   }
   .startbtn:active{background:var(--track)}
   .startbtn.wip{border-style:dashed}
+
+  /* ---- per-exercise note ---- */
+  .notetog{
+    display:flex;align-items:center;gap:7px;width:100%;margin-top:13px;padding:9px 11px;
+    border:1px solid var(--rule);border-radius:8px;background:none;cursor:pointer;
+    font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--ink-3);text-align:left;
+  }
+  .notetog .peek{
+    flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+    font-family:'IBM Plex Sans',sans-serif;font-size:12px;letter-spacing:0;
+    text-transform:none;color:var(--ink-2);
+  }
+  .notetog .arrow{margin-left:auto;flex:none}
+  .notetog.has{color:var(--signal);border-color:var(--signal)}
+  .exnote{
+    width:100%;margin-top:8px;padding:10px;border:1px solid var(--rule);border-radius:8px;
+    background:var(--card);color:var(--ink);font-family:inherit;font-size:14px;
+    line-height:1.45;min-height:70px;resize:vertical;
+  }
+  .exnote:focus{outline:2px solid var(--signal);outline-offset:-1px;border-color:var(--signal)}
+
+  /* ---- warm-up / cool-down ---- */
+  details.wc{padding:0}
+  details.wc > summary{
+    list-style:none;cursor:pointer;padding:14px 16px;display:flex;align-items:center;gap:10px;
+  }
+  details.wc > summary::-webkit-details-marker{display:none}
+  details.wc > summary .picked{flex:1;min-width:0;font-size:12.5px;color:var(--ink-2);text-align:right;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  details.wc > summary .picked b{color:var(--signal);font-weight:600}
+  details.wc > summary .arrow{color:var(--ink-3);font-size:11px;flex:none}
+  details.wc[open] > summary .arrow{transform:rotate(180deg)}
+  .wcbody{padding:0 16px 16px}
+  .goal{font-size:12px;color:var(--ink-2);line-height:1.5;margin:0 0 12px}
+  .chips{display:flex;flex-wrap:wrap;gap:7px}
+  .chips button{
+    padding:8px 11px;border:1px solid var(--rule);border-radius:20px;background:var(--card);
+    color:var(--ink-2);font-family:inherit;font-size:12.5px;cursor:pointer;
+  }
+  .chips button.mob{border-style:dashed}
+  .chips button.on{background:var(--signal);border-color:var(--signal);color:var(--paper);font-weight:600}
+  .wcpick{margin-top:12px;padding:11px 12px;border-radius:8px;background:var(--track);font-size:12.5px;line-height:1.5}
+  .wcpick + .wcpick{margin-top:8px}
+  .wcpick .top{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+  .wcpick .top b{flex:1;font-size:13.5px}
+  .wcpick input{
+    width:62px;padding:8px 4px;border:1px solid var(--rule);border-radius:7px;background:var(--card);
+    color:var(--ink);font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:600;text-align:center;
+  }
+  .wcpick input:focus{outline:2px solid var(--signal);outline-offset:-1px}
+  .wcpick .unit{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-3)}
+  .wcpick p{margin:0 0 5px;color:var(--ink-2)}
+  .wcpick p:last-child{margin:0}
+  .wcpick p i{font-style:normal;font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--ink-3);margin-right:5px}
+
+  /* ---- save + copy ---- */
+  button.action.ghost{background:none;color:var(--ink);border:1px solid var(--rule);margin-top:9px;font-weight:500}
+  button.action.saving{opacity:.6}
+  button.action.dirty{background:var(--signal);color:var(--paper)}
+  .saveerr{margin-top:10px;padding:10px 12px;border-radius:8px;border:1px solid var(--over);
+    color:var(--ink);font-size:12.5px;line-height:1.45}
+  .saveerr a{color:var(--signal)}
+  .pastnote{display:block;font-size:11.5px;color:var(--ink-2);margin-top:3px}
 </style>
 </head>
 <body>
@@ -252,7 +317,15 @@
   <section class="view on" id="v-today">
     <div id="banner"></div>
     <p class="focus" id="focus" style="display:none"></p>
+    <details class="card wc" id="warmcard">
+      <summary><span class="eyebrow">Warm-up</span><span class="picked" id="warmpicked">Pick one</span><span class="arrow">&#9660;</span></summary>
+      <div class="wcbody" id="warmbody"></div>
+    </details>
     <div id="session"></div>
+    <details class="card wc" id="coolcard">
+      <summary><span class="eyebrow">Cool-down</span><span class="picked" id="coolpicked">Optional</span><span class="arrow">&#9660;</span></summary>
+      <div class="wcbody" id="coolbody"></div>
+    </details>
 
     <div class="card" id="feelcard">
       <div class="eyebrow">Overall difficulty</div>
@@ -264,13 +337,15 @@
     </div>
 
     <div class="card" id="notecard">
-      <div class="eyebrow">Notes, optional</div>
-      <textarea id="notes" placeholder="Left knee cranky on lunges. Gym was packed, subbed the leg press."></textarea>
+      <div class="eyebrow">General notes, optional</div>
+      <textarea id="notes" placeholder="Gym was packed. Slept badly. Anything not about one exercise."></textarea>
     </div>
 
-    <button class="action" id="copy">Copy workout results</button>
+    <button class="action" id="save">Save workout</button>
+    <div id="saveerr"></div>
+    <button class="action ghost" id="copy">Copy for Claude</button>
     <p class="saved" id="savedmsg"></p>
-    <p class="hint">Paste into Claude in the bulk project. Claude logs it and uses it to set next week.</p>
+    <p class="hint" id="savehint">Save writes it straight to your log. Copy is for when you want Claude's take on the session.</p>
   </section>
 
   <section class="view" id="v-week"><div id="weeklist"></div></section>
@@ -281,12 +356,15 @@
   <a href="index.html">Today</a>
   <a href="index.html#log">Log</a>
   <a href="workout.html" class="on">Workout</a>
+  <a href="review.html">Review</a>
 </nav>
 
 <script src="assets/data.js"></script>
 <script src="assets/exercises.js"></script>
 <script src="assets/exercise-images.js"></script>
 <script src="assets/exercise-knowledge.js"></script>
+<script src="assets/warmups.js"></script>
+<script src="assets/github.js"></script>
 <script>
 // Difficulty scale. Index 0-4 maps to RPE 6-10 so the stored shape stays
 // compatible with LOGGING-SPEC and with anything already logged.
@@ -297,14 +375,28 @@ const diffToRpe = i => i + 6;
 
 const KNOW = (typeof EX_KNOW !== 'undefined') ? EX_KNOW : {};
 
-// Held one in each hand, so the logged number is per hand, not the pair.
-// A lunge logged as 30 means two 30s. Keeps load_step honest: the next jump
-// up is one 5 lb dumbbell, not a 5 lb change spread across both.
-const PER_HAND = new Set([
-  'Dumbbell bench press', 'Incline dumbbell press', 'Overhead dumbbell press',
-  'Dumbbell curl', 'Hammer curl', 'Walking lunge', 'Bulgarian split squat',
-  'Rear delt dumbbell fly', 'Dumbbell lateral raise', 'Farmer carry'
+// Dumbbell work logs one bell, never the pair. A lunge logged as 30 means two
+// 30s. Keeps load_step honest: the next jump up is one 5 lb dumbbell, not a
+// 5 lb change spread across both. Anything with "dumbbell" in its name is
+// caught automatically, so a new dumbbell exercise gets the tag without
+// anyone remembering to add it. The two lists below cover the names that
+// do not say dumbbell, and the ones that only use a single bell.
+const DB_PAIR = new Set([
+  'Hammer curl', 'Walking lunge', 'Bulgarian split squat', 'Farmer carry',
+  'Chest-supported row', 'Reverse lunge', 'Step-up', 'Shrug'
 ]);
+const DB_SINGLE = new Set([
+  'Goblet squat', 'Single-arm dumbbell row', 'Overhead dumbbell extension'
+]);
+function dumbbellKind(name) {
+  if (DB_SINGLE.has(name)) return 'single';
+  if (DB_PAIR.has(name) || /dumbbell/i.test(name)) return 'pair';
+  return null;
+}
+const DB_LABEL = {
+  pair: 'Dumbbells: log the weight of one, not the pair',
+  single: 'One dumbbell: log its weight'
+};
 
 // ---------- timed exercises ----------
 // A plank is measured in seconds. Asking for a weight and a rep count on one
@@ -339,6 +431,12 @@ let OPEN        = [];      // per-exercise: detail panel expanded
 let FEEL        = 3;
 let RATINGS     = {};      // name -> 1 | -1 | 0, this device
 let ON_FILE     = {};      // name -> 'favorite' | 'disliked', from the repo
+let EXNOTES     = [];      // per-exercise: note text
+let NOTEOPEN    = [];      // per-exercise: note box expanded
+let WARM        = {};      // warm-up name -> minutes string
+let COOL        = {};      // cool-down name -> minutes string
+let SAVED_SIG   = null;    // fingerprint of what was last saved to the repo
+let SAVED_AT    = null;
 
 const esc = s => String(s == null ? '' : s)
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -383,10 +481,22 @@ function saveWip(quiet) {
     localStorage.setItem(wipKey(), JSON.stringify({
       v: VALUES, p: PICK, f: FEEL,
       n: notesEl ? notesEl.value : '',
+      x: EXNOTES, wu: WARM, cd: COOL, sg: SAVED_SIG, sa: SAVED_AT,
       t: Date.now()
     }));
     if (!quiet) flashSaved();
   } catch (e) { /* private mode or storage full. Logging still works. */ }
+  paintSaveBtn();
+}
+
+// Anything typed at all: a set, a note, a warm-up. An empty slot is noise.
+function wipTouched(d) {
+  if (!d) return false;
+  const sets = Array.isArray(d.v) && d.v.some(sets => (sets || []).some(s =>
+    s && (s.w || s.r || s.t || s.d != null)));
+  const notes = Array.isArray(d.x) && d.x.some(n => n && n.trim());
+  const wc = Object.keys(d.wu || {}).length || Object.keys(d.cd || {}).length;
+  return !!(sets || notes || wc || (d.n && d.n.trim()));
 }
 
 function loadWip() {
@@ -395,11 +505,13 @@ function loadWip() {
     if (!raw) return false;
     const d = JSON.parse(raw);
     if (!d || !Array.isArray(d.v) || d.v.length !== VALUES.length) return false;
-    // Only restore if something was actually entered. An empty slot is noise.
-    const touched = d.v.some(sets => (sets || []).some(s =>
-      s && (s.w || s.r || s.t || s.d != null)));
+    const touched = wipTouched(d);
     VALUES = d.v;
     if (Array.isArray(d.p) && d.p.length === PICK.length) PICK = d.p;
+    if (Array.isArray(d.x) && d.x.length === EXNOTES.length) EXNOTES = d.x.map(n => n || '');
+    if (d.wu && typeof d.wu === 'object') WARM = d.wu;
+    if (d.cd && typeof d.cd === 'object') COOL = d.cd;
+    if (d.sg) { SAVED_SIG = d.sg; SAVED_AT = d.sa || null; }
     if (typeof d.f === 'number') FEEL = d.f;
     const notesEl = document.getElementById('notes');
     if (notesEl && d.n) notesEl.value = d.n;
@@ -430,8 +542,7 @@ function wipExists(key) {
     const raw = localStorage.getItem(WIP_PREFIX + isoDate(new Date()) + '.' + key);
     if (!raw) return false;
     const d = JSON.parse(raw);
-    return !!(d && Array.isArray(d.v) && d.v.some(sets => (sets || []).some(s =>
-      s && (s.w || s.r || s.t || s.d != null))));
+    return wipTouched(d);
   } catch (e) { return false; }
 }
 
@@ -607,6 +718,16 @@ function vsHtml(i, name) {
   </div>`;
 }
 
+// Collapsed by default so it costs one line per card. Shows the start of the
+// note when closed, so you can see which exercises already have one.
+function noteHtml(i, name) {
+  const txt = EXNOTES[i] || '';
+  const has = !!txt.trim();
+  const peek = has ? `<span class="peek">${esc(txt.trim())}</span>` : '<span class="peek" style="color:var(--ink-3)">Add a note</span>';
+  return `<button class="notetog${has ? ' has' : ''}" data-notetog="${i}">&#9998; Note ${NOTEOPEN[i] ? '' : peek}<span class="arrow">${NOTEOPEN[i] ? '&#9650;' : '&#9660;'}</span></button>
+    ${NOTEOPEN[i] ? `<textarea class="exnote" data-exnote="${i}" placeholder="How ${esc(name)} felt, what to change next time">${esc(txt)}</textarea>` : ''}`;
+}
+
 function exCard(i) {
   const base  = SESSION.exercises[i];
   const name  = currentName(i);
@@ -694,10 +815,11 @@ function exCard(i) {
       <button class="caret${OPEN[i] ? ' open' : ''}" data-caret="${i}" aria-label="Form, targets and common errors">${OPEN[i] ? '&#9650;' : '&#9660;'}</button>
     </div>
     <div class="cue">${esc(base.cue)}</div>
-    ${PER_HAND.has(name) ? '<span class="perhand">Log the weight of one dumbbell, not the pair</span>' : ''}
+    ${!timed && dumbbellKind(name) ? `<span class="perhand">${DB_LABEL[dumbbellKind(name)]}</span>` : ''}
     ${detail}
     ${sugHtml}
     <div class="sets">${setsHtml}</div>
+    ${noteHtml(i, name)}
     ${rateHtml}
     ${alts ? `<span class="swaplabel">Swap for</span><div class="swaps">${alts}</div>` : ''}
   </div>`;
@@ -764,6 +886,22 @@ function wire() {
     RATINGS[name] = (effRating(name) === v) ? 0 : v;
     saveRatings();
     repaint(i, false);
+    paintSaveBtn();
+  });
+
+  document.querySelectorAll('[data-notetog]').forEach(b => b.onclick = () => {
+    const i = +b.dataset.notetog;
+    NOTEOPEN[i] = !NOTEOPEN[i];
+    repaint(i, false);
+    if (NOTEOPEN[i]) {
+      const ta = document.querySelector(`[data-exnote="${i}"]`);
+      if (ta) ta.focus();
+    }
+  });
+
+  document.querySelectorAll('[data-exnote]').forEach(ta => ta.oninput = () => {
+    EXNOTES[+ta.dataset.exnote] = ta.value;
+    saveWip();
   });
 }
 
@@ -783,37 +921,157 @@ function paintFeel() {
   document.getElementById('feelnow').textContent = w[0].toUpperCase() + w.slice(1);
 }
 
+// ---------- warm-up + cool-down ----------
+// Tap an option to pick it and see why it helps. Tap again to drop it.
+// Minutes default to the suggestion, and whatever is in the box is logged.
+function wcSummary(sel) {
+  const names = Object.keys(sel);
+  if (!names.length) return null;
+  return names.map(n => `<b>${esc(n)}</b>${sel[n] ? ' ' + esc(sel[n]) + ' min' : ''}`).join(', ');
+}
+
+function renderWC(which) {
+  const list = which === 'warm' ? WARMUPS : COOLDOWNS;
+  const sel  = which === 'warm' ? WARM : COOL;
+  const goal = which === 'warm' ? WARM_GOAL : COOL_GOAL;
+
+  const chips = list.map(o => `<button data-wc="${which}" data-n="${esc(o.name)}" class="${o.kind === 'mobility' ? 'mob' : ''}${sel[o.name] != null ? ' on' : ''}">${esc(o.name)}</button>`).join('');
+
+  const picks = list.filter(o => sel[o.name] != null).map(o => `<div class="wcpick">
+      <div class="top"><b>${esc(o.name)}</b>
+        <input inputmode="numeric" value="${esc(sel[o.name])}" data-wcmin="${which}" data-n="${esc(o.name)}" aria-label="Minutes">
+        <span class="unit">min</span></div>
+      <p><i>Why</i>${esc(o.why)}</p>
+      <p><i>How</i>${esc(o.how)}</p>
+    </div>`).join('');
+
+  document.getElementById(which + 'body').innerHTML =
+    `<p class="goal">${esc(goal)}</p>
+     <div class="chips">${chips}</div>
+     ${picks}
+     <p class="goal" style="margin:10px 0 0;font-size:11px">Dashed ones are floor work, no machine needed.</p>`;
+
+  const sum = wcSummary(sel);
+  document.getElementById(which + 'picked').innerHTML =
+    sum || (which === 'warm' ? 'Pick one' : 'Optional');
+
+  document.querySelectorAll(`[data-wc="${which}"]`).forEach(b => b.onclick = () => {
+    const n = b.dataset.n;
+    const o = list.find(x => x.name === n);
+    if (sel[n] != null) delete sel[n];
+    else sel[n] = String(o.mins);
+    renderWC(which);
+    saveWip();
+  });
+  document.querySelectorAll(`[data-wcmin="${which}"]`).forEach(inp => inp.oninput = () => {
+    sel[inp.dataset.n] = inp.value.replace(/[^\d.]/g, '');
+    const s = wcSummary(sel);
+    document.getElementById(which + 'picked').innerHTML = s || '';
+    saveWip();
+  });
+}
+
+function wcEntries(sel, position, list) {
+  return Object.keys(sel).map(n => {
+    const o = list.find(x => x.name === n) || {};
+    const m = parseFloat(sel[n]);
+    return { name: n, minutes: isFinite(m) ? m : null, position, kind: o.kind || 'cardio' };
+  });
+}
+
+/* ============================================================
+   THE SESSION AS DATA
+   One builder feeds both Save and Copy, so the repo and the
+   pasted block can never disagree about what happened.
+   ============================================================ */
+const num = v => { const n = parseFloat(String(v).replace(',', '.')); return isFinite(n) ? n : null; };
+
+function buildSession() {
+  const exercises = [];
+  SESSION.exercises.forEach((base, i) => {
+    const name  = currentName(i);
+    const timed = currentTimed(i);
+    const sets = VALUES[i].map(v => {
+      const rpe = v.d != null ? diffToRpe(v.d) : null;
+      if (timed) {
+        const t = num(v.t);
+        return t == null ? null : { duration_s: t, rpe };
+      }
+      if (!v.w && !v.r) return null;
+      const r = num(v.r);
+      return { weight_lb: num(v.w), reps: r == null ? null : Math.round(r), rpe };
+    }).filter(Boolean);
+
+    const mine = (EXNOTES[i] || '').trim();
+    if (!sets.length && !mine) return;
+
+    const bits = [];
+    if (PICK[i] !== 0) bits.push(`Substituted for ${base.name}`);
+    if (!sets.length) bits.push('Done, no numbers recorded');
+    const ex = { name };
+    const note = bits.join('. ');
+    if (note) ex.note = note;
+    if (mine) ex.my_note = mine;
+    ex.sets = sets;
+    exercises.push(ex);
+  });
+
+  const cardio = wcEntries(WARM, 'warm-up', WARMUPS).concat(wcEntries(COOL, 'cool-down', COOLDOWNS));
+  const notes = document.getElementById('notes').value.trim();
+
+  const s = { date: isoDate(new Date()), title: SESSION.title };
+  if (SESSION_KEY && SESSION_KEY !== 'x') s.key = SESSION_KEY;
+  s.feel = OVERALL[FEEL - 1];
+  s.exercises = exercises;
+  if (cardio.length) s.cardio = cardio;
+  if (notes) s.notes = notes;
+  return s;
+}
+
+// Ratings that differ from what the repo already holds. Re-sending
+// "favorite" every session would be noise. A 0 clears one.
+function pendingRatings() {
+  const mark = { 1: 'favorite', '-1': 'disliked', 0: null };
+  return Object.keys(RATINGS).filter(n => (ON_FILE[n] || null) !== mark[RATINGS[n]]);
+}
+
+const sigOf = s => JSON.stringify(s) + '|' + pendingRatings().map(n => n + RATINGS[n]).join(',');
+
 // ---------- copy out ----------
 // A timed set writes "45s @ hard (RPE 8)". A loaded set keeps the existing
 // "185 x 8 @ hard (RPE 8)" shape, so old blocks still parse the same way.
 document.getElementById('copy').onclick = async () => {
-  let out = `WORKOUT LOG\n${isoDate(new Date())} · ${SESSION.title} · overall: ${OVERALL[FEEL - 1]}\n\n`;
+  const s = buildSession();
+  let out = `WORKOUT LOG\n${s.date} · ${s.title} · overall: ${s.feel}\n`;
+  if (SAVED_SIG && SAVED_SIG === sigOf(s)) out += 'STATUS: already saved to the repo from the workout page. Review only, do not log again.\n';
+  out += '\n';
 
-  SESSION.exercises.forEach((base, i) => {
-    const timed = currentTimed(i);
-    const rows = VALUES[i].map(v => {
-      const d = v.d != null ? ` @ ${DIFF_WORD[v.d]} (RPE ${diffToRpe(v.d)})` : '';
-      if (timed) {
-        if (!v.t) return null;
-        return `  ${v.t}s${d}`;
-      }
-      if (!v.w && !v.r) return null;
-      return `  ${v.w || 'bw'} x ${v.r || '?'}${d}`;
-    }).filter(Boolean);
-    if (rows.length) out += `${currentName(i)}\n${rows.join('\n')}\n\n`;
+  const warm = (s.cardio || []).filter(c => c.position === 'warm-up');
+  const cool = (s.cardio || []).filter(c => c.position === 'cool-down');
+  const wcLine = list => list.map(c => `${c.name}${c.minutes != null ? ' ' + c.minutes + ' min' : ''}`).join(', ');
+  if (warm.length) out += `Warm-up: ${wcLine(warm)}\n\n`;
+
+  s.exercises.forEach(e => {
+    const rows = e.sets.map(x => {
+      const d = x.rpe != null ? ` @ ${DIFF_WORD[x.rpe - 6]} (RPE ${x.rpe})` : '';
+      if (x.duration_s != null) return `  ${x.duration_s}s${d}`;
+      return `  ${x.weight_lb != null ? x.weight_lb : 'bw'} x ${x.reps != null ? x.reps : '?'}${d}`;
+    });
+    out += `${e.name}${e.note ? ` (${e.note})` : ''}\n${rows.join('\n')}${rows.length ? '\n' : ''}\n`;
   });
 
-  // Only ratings that differ from what the repo already knows. Re-sending
-  // "favorite" every session would be noise. A tilde clears one.
-  const mark = { 1: 'favorite', '-1': 'disliked', 0: null };
-  const sending = Object.keys(RATINGS).filter(n => (ON_FILE[n] || null) !== mark[RATINGS[n]]);
+  if (cool.length) out += `Cool-down: ${wcLine(cool)}\n\n`;
+
+  const sending = pendingRatings();
   if (sending.length) {
     const sign = v => (v === 1 ? '+' : v === -1 ? '-' : '~');
     out += `RATINGS: ${sending.map(n => sign(RATINGS[n]) + n).join(', ')}\n\n`;
   }
 
-  const notes = document.getElementById('notes').value.trim();
-  if (notes) out += `Notes: ${notes}\n`;
+  // One notes section, labeled by exercise, general notes last.
+  const labeled = s.exercises.filter(e => e.my_note).map(e => `${e.name}: ${e.my_note}`);
+  if (s.notes) labeled.push(`General: ${s.notes}`);
+  if (labeled.length) out += `Notes:\n${labeled.join('\n')}\n`;
 
   const btn = document.getElementById('copy');
   const text = out.trim();
@@ -831,7 +1089,181 @@ document.getElementById('copy').onclick = async () => {
     ta.select();
     btn.textContent = 'Copy the text below';
   }
-  setTimeout(() => { btn.textContent = 'Copy workout results'; btn.classList.remove('done'); }, 6000);
+  setTimeout(() => { btn.textContent = 'Copy for Claude'; btn.classList.remove('done'); }, 6000);
+};
+
+/* ============================================================
+   SAVE TO THE REPO
+   One commit: the month's workout log, state.json for the widget,
+   and the ratings file when a rating changed. Saving again the
+   same day replaces that session rather than adding a duplicate,
+   so fixing a typo after the fact is just another tap.
+   ============================================================ */
+const timeStr = t => new Date(t).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+
+function paintSaveBtn() {
+  const btn = document.getElementById('save');
+  if (!btn || !SESSION || btn.classList.contains('saving')) return;
+  const sig = sigOf(buildSession());
+  btn.classList.remove('done', 'dirty');
+  if (SAVED_SIG && sig === SAVED_SIG) {
+    btn.textContent = `Saved ✓ ${SAVED_AT ? timeStr(SAVED_AT) : ''}`.trim();
+    btn.classList.add('done');
+  } else if (SAVED_SIG) {
+    btn.textContent = 'Save changes';
+    btn.classList.add('dirty');
+  } else {
+    btn.textContent = 'Save workout';
+  }
+}
+
+// Training fields in state.json, recomputed from the logs every save so the
+// widget's streak and session count are right the moment you finish.
+function trainingState(prev, sessions, config) {
+  const now = new Date();
+  const today = isoDate(now);
+  const names = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const lift = ((config || {}).schedule || {}).lift || ['Mon', 'Wed', 'Fri'];
+  const real = sessions.filter(s => s.feel !== 'skipped' && (s.exercises || []).length);
+  const done = new Set(real.map(s => s.date));
+
+  let streak = 0;
+  const d = new Date(now);
+  for (let i = 0; i < 120; i++) {
+    const iso = isoDate(d);
+    if (lift.includes(names[d.getDay()])) {
+      if (done.has(iso)) streak++;
+      else if (iso !== today) break;   // today in progress never breaks it
+    }
+    d.setDate(d.getDate() - 1);
+  }
+
+  const mon = new Date(now);
+  mon.setDate(mon.getDate() - ((mon.getDay() + 6) % 7));
+  const monIso = isoDate(mon);
+  const thisWeek = real.filter(s => s.date >= monIso && s.date <= today).length;
+
+  const last = [...done].sort().pop() || prev.last_session_date || null;
+  const since = last ? Math.round((new Date(today + 'T12:00') - new Date(last + 'T12:00')) / DAY_MS) : null;
+
+  let next = null;
+  for (let i = 0; i < 8 && !next; i++) {
+    const x = new Date(now);
+    x.setDate(x.getDate() + i);
+    if (lift.includes(names[x.getDay()]) && !(i === 0 && done.has(today))) next = names[x.getDay()];
+  }
+
+  const out = Object.assign({}, prev);
+  if (prev.date !== today) {
+    // Date rolled over with no food logged today, so today's intake is zero.
+    out.calories_consumed = 0; out.protein_consumed_g = 0; out.entries_today = 0;
+  }
+  Object.assign(out, {
+    date: today,
+    updated_at: new Date().toISOString().replace(/\.\d+Z$/, 'Z'),
+    streak_days: streak,
+    sessions_this_week: thisWeek,
+    sessions_target: lift.length,
+    last_session_date: last,
+    days_since_lift: since,
+    next_lift_day: next
+  });
+  return out;
+}
+
+function showSaveErr(msg) {
+  const el = document.getElementById('saveerr');
+  if (!msg) { el.innerHTML = ''; return; }
+  el.innerHTML = `<div class="saveerr">${msg}</div>`;
+}
+
+document.getElementById('save').onclick = async () => {
+  const btn = document.getElementById('save');
+  if (btn.classList.contains('saving')) return;
+  showSaveErr('');
+
+  if (!GH.hasToken()) {
+    showSaveErr('This device has no GitHub key yet. <a href="index.html#key">Add it at the bottom of the dashboard</a>, then come back. Everything you typed stays here.');
+    return;
+  }
+
+  const session = buildSession();
+  if (!session.exercises.length && !(session.cardio || []).length) {
+    showSaveErr('Nothing entered yet. Log at least one set first.');
+    return;
+  }
+
+  const sending = pendingRatings();
+  const sig = sigOf(session);
+  const now = new Date();
+  const prevM = new Date(now); prevM.setDate(1); prevM.setMonth(prevM.getMonth() - 1);
+  const logPath  = `data/workouts/log-${monthKey(now)}.json`;
+  const prevPath = `data/workouts/log-${monthKey(prevM)}.json`;
+  const prefPath = 'data/preferences/exercises.json';
+
+  const stamped = Object.assign({}, session, { source: 'workout-page', saved_at: new Date().toISOString().replace(/\.\d+Z$/, 'Z') });
+  const sameSlot = x => x.date === stamped.date &&
+    (stamped.key ? x.key === stamped.key : (!x.key && x.title === stamped.title));
+
+  btn.classList.add('saving');
+  btn.textContent = 'Saving…';
+
+  try {
+    const msg = `Log ${stamped.date} ${stamped.title}, saved from the workout page`
+      + (sending.length ? `; ratings: ${sending.length}` : '');
+    await GH.commit(msg, [logPath, prevPath, 'data/state.json', prefPath, 'config.json'], cur => {
+      const log = cur[logPath] || { month: monthKey(now), sessions: [] };
+      log.sessions = (log.sessions || []).filter(x => !sameSlot(x));
+      log.sessions.push(stamped);
+      log.sessions.sort((a, b) => String(a.date).localeCompare(String(b.date)));
+
+      const all = (log.sessions || []).concat((cur[prevPath] || {}).sessions || []);
+      const files = {
+        [logPath]: log,
+        'data/state.json': trainingState(cur['data/state.json'] || {}, all, cur['config.json'])
+      };
+
+      if (sending.length) {
+        const prefs = cur[prefPath] || { favorites: [], disliked: [], notes: {} };
+        prefs.favorites = (prefs.favorites || []).filter(n => !sending.includes(n));
+        prefs.disliked  = (prefs.disliked  || []).filter(n => !sending.includes(n));
+        sending.forEach(n => {
+          if (RATINGS[n] === 1) prefs.favorites.push(n);
+          if (RATINGS[n] === -1) prefs.disliked.push(n);
+        });
+        files[prefPath] = prefs;
+      }
+      return files;
+    });
+
+    // The repo now holds these ratings, so it becomes the source of truth on
+    // every device. Local overrides for them are no longer needed.
+    sending.forEach(n => {
+      delete ON_FILE[n];
+      if (RATINGS[n] === 1) ON_FILE[n] = 'favorite';
+      if (RATINGS[n] === -1) ON_FILE[n] = 'disliked';
+      delete RATINGS[n];
+    });
+    saveRatings();
+
+    HISTORY = HISTORY.filter(x => !sameSlot(x)).concat([stamped]);
+    renderPast();
+
+    SAVED_SIG = sigOf(buildSession());
+    SAVED_AT = Date.now();
+    btn.classList.remove('saving');
+    saveWip(true);
+    if (sending.length) renderSession();
+    document.getElementById('savedmsg').textContent = 'In your log. Claude picks it up at the Sunday review.';
+    document.getElementById('savedmsg').style.opacity = '1';
+  } catch (e) {
+    btn.classList.remove('saving');
+    paintSaveBtn();
+    if (!SAVED_SIG) btn.textContent = 'Try saving again';
+    showSaveErr(esc(e.message || 'Something went wrong.') +
+      (e.status === 401 || e.status === -1 || e.status === 403 || e.status === 404
+        ? ' <a href="index.html#key">Fix the key</a>' : ''));
+  }
 };
 
 /* ============================================================
@@ -847,22 +1279,32 @@ function startSession(s, offDay) {
   OPEN   = s.exercises.map(() => false);
   VALUES = s.exercises.map(ex => [...Array(ex.sets)].map(() => ({ w: '', r: '', t: '', d: null })));
   FEEL   = 3;
+  EXNOTES  = s.exercises.map(() => '');
+  NOTEOPEN = s.exercises.map(() => false);
+  WARM = {}; COOL = {};
+  SAVED_SIG = null; SAVED_AT = null;
   document.getElementById('notes').value = '';
+  document.getElementById('savedmsg').textContent = '';
+  showSaveErr('');
 
   const restored = loadWip();
   paintFeel();
+  // A note restored from autosave opens its box, so it's never hidden.
+  NOTEOPEN = EXNOTES.map(n => !!(n && n.trim()));
 
   document.getElementById('title').textContent = s.title;
-  document.getElementById('feelcard').style.display = '';
-  document.getElementById('notecard').style.display = '';
-  document.getElementById('copy').style.display = '';
+  ['feelcard', 'notecard', 'copy', 'save', 'warmcard', 'coolcard', 'savehint']
+    .forEach(id => document.getElementById(id).style.display = '');
+  renderWC('warm');
+  renderWC('cool');
 
   const focusEl = document.getElementById('focus');
   if (s.focus) { focusEl.textContent = s.focus; focusEl.style.display = ''; }
   else focusEl.style.display = 'none';
 
   const bits = [];
-  if (restored) bits.push('Picked up where you left off. Everything you typed is still here.');
+  if (restored && SAVED_SIG) bits.push(`Saved to your log${SAVED_AT ? ' at ' + timeStr(SAVED_AT) : ''}. Change anything and save again to update it.`);
+  else if (restored) bits.push('Picked up where you left off. Everything you typed is still here.');
   else if (offDay) bits.push(`Not a lift day. This is <b>${esc(s.day || 'an add-in')}</b>, opened early.`);
   else if (s.when) bits.push(esc(s.when));
 
@@ -875,6 +1317,7 @@ function startSession(s, offDay) {
 
   renderSession();
   renderWeek(PROG);
+  paintSaveBtn();
   window.scrollTo(0, 0);
 }
 
@@ -933,7 +1376,7 @@ function setSummary(x) {
 function renderPast() {
   const el = document.getElementById('pastlist');
   if (!HISTORY.length) {
-    el.innerHTML = '<div class="card"><div class="empty"><b>No sessions logged yet</b>Finish a workout, copy the results, and paste them to Claude.</div></div>';
+    el.innerHTML = '<div class="card"><div class="empty"><b>No sessions logged yet</b>Finish a workout and tap Save.</div></div>';
     return;
   }
   const sorted = HISTORY.slice().sort((a, b) => String(b.date).localeCompare(String(a.date)));
@@ -944,14 +1387,19 @@ function renderPast() {
     }
     const rows = s.exercises.map(e => {
       const sets = (e.sets || []).map(setSummary).join('   ');
-      return `<div class="plain"><b>${esc(e.name)}</b><u>${esc(sets)}</u></div>`;
+      return `<div class="plain"><b>${esc(e.name)}</b><u>${esc(sets)}</u>${
+        e.my_note ? `<span class="pastnote">&#9998; ${esc(e.my_note)}</span>` : ''}</div>`;
     }).join('');
+    const wc = (s.cardio || []).map(c =>
+      `${c.position === 'cool-down' ? 'Cool-down' : c.position === 'warm-up' ? 'Warm-up' : 'Cardio'}: ${c.name}${
+        c.minutes != null ? ' ' + c.minutes + ' min' : c.distance_mi != null ? ' ' + c.distance_mi + ' mi' : ''}`);
     const vol = s.exercises.reduce((a, e) => a + (e.sets || []).length, 0);
     return `<div class="card">
       <div class="eyebrow"><span>${esc(prettyDate(s.date))}</span></div>
       <h2 style="margin:5px 0 6px;font-size:15px">${esc(s.title || 'Session')}</h2>
       <div class="delta" style="margin-bottom:6px">${vol} sets · felt <b>${esc(s.feel || 'ok')}</b></div>
       ${rows}
+      ${wc.length ? `<div class="delta" style="margin-top:9px">${wc.map(esc).join(' · ')}</div>` : ''}
       ${s.notes ? `<div class="sugg" style="margin-top:10px">${esc(s.notes)}</div>` : ''}
     </div>`;
   }).join('');
@@ -1006,9 +1454,8 @@ function renderPast() {
     document.getElementById('title').textContent = 'No program yet';
     document.getElementById('session').innerHTML =
       '<div class="card"><div class="empty"><b>Nothing scheduled</b>Claude writes the week at the Sunday review.</div></div>';
-    document.getElementById('feelcard').style.display = 'none';
-    document.getElementById('notecard').style.display = 'none';
-    document.getElementById('copy').style.display = 'none';
+    ['feelcard', 'notecard', 'copy', 'save', 'warmcard', 'coolcard', 'savehint']
+      .forEach(id => document.getElementById(id).style.display = 'none');
     renderWeek(prog);
     return;
   }

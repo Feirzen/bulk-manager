@@ -13,6 +13,33 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/app.css">
 <script src="assets/theme.js"></script>
+<style>
+  details.keybox{padding:0;margin-top:22px}
+  details.keybox > summary{list-style:none;cursor:pointer;padding:14px 16px;display:flex;align-items:center;gap:10px}
+  details.keybox > summary::-webkit-details-marker{display:none}
+  details.keybox > summary .st{flex:1;text-align:right;font-size:12px;color:var(--ink-2)}
+  details.keybox > summary .st.ok{color:var(--protein)}
+  details.keybox > summary .arrow{color:var(--ink-3);font-size:11px}
+  details.keybox[open] > summary .arrow{transform:rotate(180deg)}
+  .keybody{padding:0 16px 16px;font-size:12.5px;line-height:1.5;color:var(--ink-2)}
+  .keybody ol{margin:8px 0 12px 18px}
+  .keybody li{margin-bottom:4px}
+  .keybody b{color:var(--ink)}
+  .keybody a{color:var(--signal)}
+  .keybody input{
+    width:100%;padding:11px;border:1px solid var(--rule);border-radius:8px;background:var(--card);
+    color:var(--ink);font-family:'IBM Plex Mono',monospace;font-size:13px;margin:4px 0 9px;
+  }
+  .keybody input:focus{outline:2px solid var(--signal);outline-offset:-1px}
+  .keybtns{display:flex;gap:8px}
+  .keybtns button{
+    flex:1;padding:11px;border-radius:8px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;
+    border:1px solid var(--rule);background:none;color:var(--ink);
+  }
+  .keybtns button.go{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  .keymsg{margin-top:9px;font-size:12px;min-height:16px}
+  .keymsg.ok{color:var(--protein)} .keymsg.bad{color:var(--over)}
+</style>
 </head>
 <body>
 
@@ -79,15 +106,41 @@
   <section class="panel" id="p-log">
     <div id="loglist"></div>
   </section>
+
+  <details class="card keybox" id="key">
+    <summary><span class="eyebrow">Saving from this device</span><span class="st" id="keyst">Not set up</span><span class="arrow">&#9660;</span></summary>
+    <div class="keybody">
+      <p>Paste a GitHub key once per device and the workout page can save straight to your log. The key stays in this browser only. It is never put in the repo.</p>
+      <div id="keyform">
+        <input type="password" id="keyin" placeholder="github_pat_..." autocomplete="off" autocapitalize="off" spellcheck="false">
+        <div class="keybtns">
+          <button class="go" id="keysave">Save key</button>
+          <button id="keyclear">Remove</button>
+        </div>
+        <div class="keymsg" id="keymsg"></div>
+      </div>
+      <p style="margin-top:12px"><b>Making a key, about two minutes:</b></p>
+      <ol>
+        <li>Open <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">GitHub's new token page</a> and sign in.</li>
+        <li><b>Name:</b> anything, like bulk-manager iPhone. <b>Expiration:</b> 1 year.</li>
+        <li><b>Repository access:</b> Only select repositories, then pick <b>bulk-manager</b>.</li>
+        <li><b>Permissions:</b> Repository permissions, find <b>Contents</b>, set it to <b>Read and write</b>. Leave everything else alone.</li>
+        <li>Generate, copy it, paste it above, tap Save key.</li>
+      </ol>
+      <p>That key can only touch this one repo. One key works on every device, or make one per device so you can cancel one without the others. If a phone is ever lost, delete its key on that same GitHub page.</p>
+    </div>
+  </details>
 </div>
 
 <nav>
   <button class="on" data-p="today">Today</button>
   <button data-p="log">Log</button>
   <a href="workout.html">Workout</a>
+  <a href="review.html">Review</a>
 </nav>
 
 <script src="assets/data.js"></script>
+<script src="assets/github.js"></script>
 <script>
 function showTab(name) {
   document.querySelectorAll('nav button').forEach(x => x.classList.toggle('on', x.dataset.p === name));
@@ -337,6 +390,48 @@ function healthRow(h) {
       ${rows}
     </div>`;
   }).join('') : '<div class="card"><div class="empty"><b>No history yet</b>Days appear here as intake and activity come in.</div></div>';
+})();
+
+// ---------- GitHub key for this device ----------
+(function keyPanel() {
+  const box = document.getElementById('key');
+  const st  = document.getElementById('keyst');
+  const msg = document.getElementById('keymsg');
+  const inp = document.getElementById('keyin');
+  const paint = () => {
+    const on = GH.hasToken();
+    st.textContent = on ? 'Ready to save ✓' : 'Not set up';
+    st.classList.toggle('ok', on);
+    inp.placeholder = on ? 'Key saved. Paste to replace.' : 'github_pat_...';
+  };
+  const say = (t, cls) => { msg.textContent = t; msg.className = 'keymsg ' + (cls || ''); };
+  paint();
+
+  if (location.hash === '#key') {
+    box.open = true;
+    setTimeout(() => box.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+  }
+
+  document.getElementById('keysave').onclick = async () => {
+    const t = inp.value.trim();
+    if (!t) { say('Paste the key first.', 'bad'); return; }
+    say('Checking it with GitHub…');
+    try {
+      const r = await GH.test(t);
+      if (!r.canWrite) { say("That key can read the repo but can't write. Set Contents to Read and write.", 'bad'); return; }
+      GH.setToken(t);
+      inp.value = '';
+      paint();
+      say('Works. This device can save now.', 'ok');
+    } catch (e) {
+      say(e.message, 'bad');
+    }
+  };
+  document.getElementById('keyclear').onclick = () => {
+    GH.clearToken();
+    paint();
+    say('Removed from this device.');
+  };
 })();
 </script>
 </body>
