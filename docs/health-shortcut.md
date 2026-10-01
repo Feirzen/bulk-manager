@@ -1,102 +1,93 @@
 # Apple Health to GitHub, one shortcut
 
-This writes yesterday's activity straight to the repo. No Claude in the loop, no usage burned, no taps once the automation is on.
+Writes today's steps, active energy, resting energy and weight to `data/health/YYYY-MM-DD.json`. Runs on its own when you open apps you use anyway. No Claude, no usage.
 
-It works because each day gets its own file. Creating a new file needs no blob SHA, so there is no lookup step before the write.
+## How it works, and why it's built this way
 
-## Why the old version kept failing
+Two Apple limits shape everything:
 
-The first version ran at 11:55pm and read **today**. Two problems:
+1. **Health is unreadable while the phone is locked.** Apple encrypts Health data on lock, so anything that runs on a timer at night usually finds nothing and quits. That's why the old 11:55pm version only landed 4 files in six weeks. Opening an app means the phone is unlocked, so that's the trigger.
+2. **The Health filter only does "today" or "last X days".** No yesterday, and no variables. So this version only ever reads **today**, and rewrites today's file every time it runs. The day's file keeps getting more complete as the day goes on. The last run before bed is the one that sticks.
 
-1. **iPhone locks Health data whenever the phone is locked.** At 11:55pm the phone is usually asleep, so the shortcut can't read anything and quits. It only worked on nights the phone happened to be in use. Result: 4 files in six weeks.
-2. Running it after midnight by hand saved a brand-new, empty day (that's the 9/14 file with 0 steps).
+Running often is fine. A guard at the top makes it skip if it ran in the last hour, so opening 40 apps a day still means about one write per waking hour, not 40. You can pick several apps for the trigger, so you don't need to guess which one you'll open.
 
-The fix: read **yesterday**, and run when you open an app you use every morning. Opening an app means the phone is unlocked, so Health is readable every time, and yesterday is always a finished day no matter when it runs. A guard at the top stops it from running twice in one day.
+The cost: steps after your last phone check of the night don't make it in. That's a few hundred steps, which doesn't matter for anything the system uses.
 
 ## First: the token
 
-If the shortcut already has a working token, skip this. Otherwise:
+If your shortcut already has a working token, reuse it. Otherwise:
 
 1. Open https://github.com/settings/personal-access-tokens/new
-2. Name: `bulk-health-shortcut`. Expiration: 1 year
+2. Name `bulk-health-shortcut`, Expiration 1 year
 3. Repository access: **Only select repositories**, pick `bulk-manager`
 4. Repository permissions: **Contents**, set to **Read and write**
-5. Generate, copy it. It is shown once
+5. Generate and copy it. It's only shown once
 
-## The shortcut
+## Build it
 
-Name it **Sync Health**. Actions in this order. If you're editing the existing one, the new parts are steps 1 to 6 at the top, and every Health filter changes from today to yesterday.
+Easiest is a fresh shortcut named **Sync Health**. Add these in order. "Rename" means long-press the action's output in a later step, or tap the action's name, and give it the name shown.
 
-**1. Adjust Date**
-- Date: `Current Date`, **Subtract** `1` `days`
+### Part 1: the once-an-hour guard
 
-**2. Format Date**
-- Date: Adjusted Date from step 1
-- Date Format: `Custom`, format string `yyyy-MM-dd`
-- Rename the result `Yesterday` (long-press it, Rename)
+**1. Get File from Folder**
+- Folder: **Shortcuts** (the iCloud Drive one)
+- File path: `bulk-last-sync.txt`
+- Tap the arrow, turn **Error If Not Found** off
 
-**3. Get Contents of URL** (this is the "already done today?" check)
-- URL: `https://api.github.com/repos/Feirzen/bulk-manager/contents/data/health/[Yesterday].json`
-- Method: `GET`
-- Headers: the same three as step 16 below
+**2. If** `File` **has any value**
 
-**4. Get Dictionary Value**
-- Get `Value` for key `sha` in Contents of URL
+  **3. Get Dates from Input**, input: `File`
 
-**5. If**
-- Input: Dictionary Value, condition **has any value**
+  **4. Get Time Between Dates**
+  - Get time between `Dates` (from step 3) and `Current Date`, in **Minutes**
 
-**6. Stop This Shortcut** (inside the If), then leave **Otherwise** empty, then **End If**
+  **5. If** `Time Between Dates` **is less than** `60`
 
-If yesterday's file already exists, it stops here quietly. Otherwise it carries on.
+    **6. Stop This Shortcut**
 
-**7. Find Health Samples**
-- Type: `Active Energy`
-- Filter: `Start Date` `is yesterday`
-- Limit off
+  **End If** (from step 5)
+
+**End If** (from step 2)
+
+The first time it ever runs there's no file yet, so it skips the guard and carries on.
+
+### Part 2: read Health
+
+**7. Find Health Samples**: `Active Energy`, Start Date **is today**, Limit off
 
 **8. Calculate Statistics**: `Sum` of step 7. Rename `Active`
 
-**9. Find Health Samples**: `Resting Energy`, `Start Date` `is yesterday`
+**9. Find Health Samples**: `Resting Energy`, **is today**
 
-**10. Calculate Statistics**: `Sum` of step 9. Rename `Resting`
+**10. Calculate Statistics**: `Sum`. Rename `Resting`
 
-**11. Find Health Samples**: `Steps`, `Start Date` `is yesterday`
+**11. Find Health Samples**: `Steps`, **is today**
 
-**12. Calculate Statistics**: `Sum` of step 11. Rename `Steps`
+**12. Calculate Statistics**: `Sum`. Rename `Steps`
 
-**13. Find Health Samples**: `Body Mass`, `Start Date` `is yesterday`, sort `Start Date` `Latest First`, **Limit 1**
+**13. Find Health Samples**: `Body Mass`, **is today**, sort `Start Date` `Latest First`, **Limit 1**
 
-**14. Get Details of Health Sample**: `Value`. Rename `Weight`
+**14. If** `Health Samples` (from 13) **has any value**
+- **Get Details of Health Sample**: `Value`
+- **Otherwise**: **Number** `0`
+- **End If**. Rename the If Result `Weight`
 
-If there's no weigh-in yesterday this comes out blank, which would break the JSON. So:
+A 0 means no weigh-in today. The site and reviews skip zeros, they never count as a weight.
 
-**14b. If** `Weight` **does not have any value**
-- inside the If: **Number** `0`
-- inside **Otherwise**: **Get Variable** `Weight`
-- **End If**. Its output is the If Result. Rename it `WeightOut` and use it below. A 0 means "no reading" and is skipped everywhere.
+### Part 3: dates
 
-**15. Text**
+**15. Format Date**: `Current Date`, Custom, `yyyy-MM-dd`. Rename `Today`
 
-```
-{"date":"[Yesterday]","active_energy_kcal":[Active],"resting_energy_kcal":[Resting],"steps":[Steps],"body_mass_lb":[WeightOut],"source":"shortcut"}
-```
+**16. Format Date**: `Current Date`, **ISO 8601**, include time. Rename `Now`
 
-Each bracketed item is the variable, inserted from the bar above the keyboard. Don't type the brackets.
+### Part 4: check if today's file exists
 
-**15b. Base64 Encode** the Text. Tap the arrow and set **Line Breaks: None**. GitHub rejects wrapped base64
+Rewriting a file GitHub already has needs that file's ID (its "sha"). The first run of the day creates it, every later run updates it.
 
-**15c. Text**
-
-```
-{"message":"Health Sync [Yesterday]","content":"[Base64 Encoded]"}
-```
-
-**16. Get Contents of URL**
-- URL: same as step 3
-- Method: **PUT**
-- Request Body: **File**, the Text from 15c
-- Headers, each a Key and a Text value:
+**17. Get Contents of URL**
+- URL `https://api.github.com/repos/Feirzen/bulk-manager/contents/data/health/[Today].json`
+- Method `GET`
+- Headers (same three every time):
 
 | Key | Text |
 |---|---|
@@ -104,26 +95,59 @@ Each bracketed item is the variable, inserted from the bar above the keyboard. D
 | `Accept` | `application/vnd.github+json` |
 | `User-Agent` | `Shortcuts` |
 
-`Yesterday` in the URL must be the **Format Date** output from step 2, not a raw date. A raw date has spaces and breaks the URL.
+**18. Get Dictionary Value**: `sha` from `Contents of URL`. Rename `Sha`
+
+If the file doesn't exist yet, GitHub answers "Not Found" and `Sha` comes out empty. That's expected.
+
+### Part 5: write it
+
+**19. Text**
+
+```
+{"date":"[Today]","active_energy_kcal":[Active],"resting_energy_kcal":[Resting],"steps":[Steps],"body_mass_lb":[Weight],"synced_at":"[Now]","source":"shortcut"}
+```
+
+Insert each bracketed item from the variable bar. Don't type the brackets.
+
+**20. Base64 Encode** the Text. Tap the arrow, **Line Breaks: None**
+
+**21. If** `Sha` **has any value**
+- **Text**: `{"message":"Health sync [Today]","content":"[Base64 Encoded]","sha":"[Sha]"}`
+- **Otherwise**
+- **Text**: `{"message":"Health sync [Today]","content":"[Base64 Encoded]"}`
+- **End If**
+
+**22. Get Contents of URL**
+- Same URL as step 17
+- Method **PUT**
+- Same three headers
+- Request Body **File**, choose the **If Result** from step 21
+
+**23. Save File**
+- Input: `Now`
+- Tap the arrow: **Ask Where to Save** off, Destination **Shortcuts**, Subpath `bulk-last-sync.txt`, **Overwrite If File Exists** on
+
+Step 23 is last on purpose: if the upload fails, the guard doesn't kick in and it tries again next app open.
 
 ## The automation
 
 Shortcuts app, **Automation** tab:
 
-1. Delete the old **Time of Day** automation
-2. **+**, **App**, choose an app you open every morning (Messages, Mail, Instagram, whatever is reliable), **Is Opened**
+1. Delete the old Time of Day automation
+2. **+**, **App**, pick several apps you open daily (Messages, Safari, Instagram, Claude, whatever). Leave **Is Opened** checked
 3. **Run Immediately**, and turn **Notify When Run** off
-4. Next, pick **Sync Health**
-
-It fires every time that app opens, but steps 3 to 6 make every run after the first one stop instantly, so it writes once a day.
+4. Choose **Sync Health**
 
 ## Test it
 
-Run it manually once. Check `data/health/` for yesterday's file. Run it again: nothing new should appear, because the guard stopped it. If nothing appears the first time, add **Quick Look** after step 16 and run again to see GitHub's error:
+Run it by hand. Check `data/health/` for today's file. Run it again right away: it should stop at the guard and change nothing. To force a second write while testing, delete `bulk-last-sync.txt` from iCloud Drive's Shortcuts folder.
 
-- `401`: the header key is wrong, or the value is missing `Bearer `
-- `404`: path misspelled, or the token can't reach this repo
-- `422`: base64 has line breaks, or the file already exists (meaning the guard isn't wired right)
-- "The network connection was lost": almost always a missing `User-Agent` or spaces in the URL
+If no file appears, add **Quick Look** after step 22 and run again to see GitHub's answer:
+
+- `401`: header key wrong, or the value is missing `Bearer `
+- `404`: URL typo, or the token can't reach this repo
+- `409` or `422` with "sha": the If in step 21 is passing the wrong text, or `Sha` came from the wrong step
+- `422` "content is not valid Base64": Line Breaks isn't set to None
+- "The network connection was lost": missing `User-Agent`, or the date in the URL isn't the Format Date output
 
 Remove Quick Look once it works.

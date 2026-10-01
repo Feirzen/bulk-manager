@@ -10,7 +10,7 @@ The contract between Claude and this repo. Read before any write.
 | `data/state.json` | Claude, every log | Derived. The widget reads only this |
 | `data/nutrition/YYYY-MM.json` | Claude | One file per month |
 | `data/body/measurements.json` | Claude | Scale weights, InBody scans, tape |
-| `data/health/YYYY-MM-DD.json` | iOS Shortcut | One per day. Never edit |
+| `data/health/YYYY-MM-DD.json` | iOS Shortcut | One per day, rewritten through the day. Never edit |
 | `data/workouts/program.json` | Claude, weekly | Current week's sessions |
 | `data/workouts/log-YYYY-MM.json` | Workout page Save, or Claude | Completed sessions |
 | `data/preferences/exercises.json` | Workout page Save, or Claude | Favorited and disliked exercises |
@@ -26,7 +26,7 @@ The contract between Claude and this repo. Read before any write.
 
 **`body_mass_lb: 0` means no reading that day. It never means a real weight.** Zeros are expected and normal on days he did not step on the scale. Skip them entirely when averaging. A zero must never be treated as a data point, or the trend collapses toward zero and every calorie target derived from it is wrong.
 
-The Shortcut collects **yesterday** and names the file for yesterday, so each file holds one complete day. It runs when an everyday app is opened rather than at a clock time, because iOS locks Health data while the phone is locked: the old 11:55pm automation failed on most nights for exactly that reason. Files before 2026-10 were written by the old version and filter on the day they ran. See `docs/health-shortcut.md`.
+The Shortcut reads **today** and runs when he opens everyday apps, at most once an hour, rewriting today's file each time. So a file holds that day's totals as of its `synced_at` timestamp, and the last sync of the night is the one that sticks. It is triggered by app opens rather than a clock time because iOS encrypts Health data while the phone is locked: the old 11:55pm automation failed on most nights for exactly that reason. Steps after his last phone check of the night are missing, which is a few hundred steps and changes nothing. Files without `synced_at` predate this version. See `docs/health-shortcut.md`.
 
 ### Weight has two paths, and both count
 
