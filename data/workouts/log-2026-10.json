@@ -1,0 +1,26 @@
+{
+  "month": "2026-10",
+  "sessions": [
+    {
+      "date": "2026-10-01",
+      "title": "Single-leg & Chest",
+      "key": "C",
+      "feel": "solid",
+      "exercises": [
+        {
+          "name": "Single-arm cable row",
+          "sets": [
+            {
+              "weight_lb": null,
+              "reps": 0,
+              "rpe": null
+            }
+          ]
+        }
+      ],
+      "notes": "Test.",
+      "source": "workout-page",
+      "saved_at": "2026-10-01T14:04:24Z"
+    }
+  ]
+}
