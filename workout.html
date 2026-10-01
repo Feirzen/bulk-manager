@@ -297,6 +297,21 @@
     color:var(--ink);font-size:12.5px;line-height:1.45}
   .saveerr a{color:var(--signal)}
   .pastnote{display:block;font-size:11.5px;color:var(--ink-2);margin-top:3px}
+
+  /* ---- collapsed exercise ---- */
+  .exwrap.shut{padding:13px 16px;cursor:pointer}
+  .exwrap.shut .exname{font-size:15px}
+  .shutsum{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-3);margin-top:3px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .shutsum.done{color:var(--protein)}
+  .shutsum.part{color:var(--signal)}
+  .chev{flex:none;color:var(--ink-3);font-size:11px;align-self:center;padding-left:2px}
+  .exname.tap{cursor:pointer}
+  .collapsebtn{
+    display:block;width:100%;margin-top:14px;padding:11px 0 1px;border:0;border-top:1px solid var(--rule);
+    background:none;color:var(--ink-3);cursor:pointer;font-family:'IBM Plex Mono',monospace;
+    font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;
+  }
 </style>
 </head>
 <body>
@@ -353,10 +368,10 @@
 </div>
 
 <nav>
-  <a href="index.html">Today</a>
-  <a href="index.html#log">Log</a>
+  <a href="index.html">Review</a>
   <a href="workout.html" class="on">Workout</a>
-  <a href="review.html">Review</a>
+  <a href="nutrition.html">Nutrition</a>
+  <a href="nutrition.html#log">Log</a>
 </nav>
 
 <script src="assets/data.js"></script>
@@ -428,6 +443,7 @@ let HISTORY     = [];      // past logged sessions, any month
 let PICK        = [];      // per-exercise: active option in [main, ...subs]
 let VALUES      = [];      // per-exercise, per-set: { w, r, t, d }
 let OPEN        = [];      // per-exercise: detail panel expanded
+let SHUT        = [];      // per-exercise: whole card collapsed to one line
 let FEEL        = 3;
 let RATINGS     = {};      // name -> 1 | -1 | 0, this device
 let ON_FILE     = {};      // name -> 'favorite' | 'disliked', from the repo
@@ -481,7 +497,7 @@ function saveWip(quiet) {
     localStorage.setItem(wipKey(), JSON.stringify({
       v: VALUES, p: PICK, f: FEEL,
       n: notesEl ? notesEl.value : '',
-      x: EXNOTES, wu: WARM, cd: COOL, sg: SAVED_SIG, sa: SAVED_AT,
+      x: EXNOTES, wu: WARM, cd: COOL, sg: SAVED_SIG, sa: SAVED_AT, c: SHUT,
       t: Date.now()
     }));
     if (!quiet) flashSaved();
@@ -509,6 +525,7 @@ function loadWip() {
     VALUES = d.v;
     if (Array.isArray(d.p) && d.p.length === PICK.length) PICK = d.p;
     if (Array.isArray(d.x) && d.x.length === EXNOTES.length) EXNOTES = d.x.map(n => n || '');
+    if (Array.isArray(d.c) && d.c.length === SHUT.length) SHUT = d.c.map(Boolean);
     if (d.wu && typeof d.wu === 'object') WARM = d.wu;
     if (d.cd && typeof d.cd === 'object') COOL = d.cd;
     if (d.sg) { SAVED_SIG = d.sg; SAVED_AT = d.sa || null; }
@@ -728,7 +745,36 @@ function noteHtml(i, name) {
     ${NOTEOPEN[i] ? `<textarea class="exnote" data-exnote="${i}" placeholder="How ${esc(name)} felt, what to change next time">${esc(txt)}</textarea>` : ''}`;
 }
 
+// One line per exercise once you're done with it. Nothing typed is lost:
+// VALUES, notes and the swap all live outside the card and paint straight
+// back when it opens again.
+function shutCard(i) {
+  const base  = SESSION.exercises[i];
+  const name  = currentName(i);
+  const timed = isTimed(name, base.scheme);
+  const sets  = VALUES[i].filter(v => timed ? v.t : (v.w || v.r));
+  const bits  = sets.map(v => timed ? `${v.t}s` : `${v.w || 'bw'}×${v.r || '?'}`);
+  let cls = '', sum;
+  if (!sets.length) sum = 'Not started';
+  else {
+    cls = sets.length >= base.sets ? 'done' : 'part';
+    sum = (cls === 'done' ? '✓ ' : '') + bits.join(' · ');
+  }
+  if ((EXNOTES[i] || '').trim()) sum += '  ✎';
+  return `<div class="card exwrap shut" data-card="${i}" data-expand="${i}">
+    <div class="exhead">
+      <div style="flex:1;min-width:0">
+        <div class="exname">${esc(name)}${PICK[i] !== 0 ? ' <span class="flag">swapped</span>' : ''}</div>
+        <div class="shutsum ${cls}">${esc(sum)}</div>
+      </div>
+      <div class="scheme">${esc(base.scheme)}</div>
+      <span class="chev">&#9660;</span>
+    </div>
+  </div>`;
+}
+
 function exCard(i) {
+  if (SHUT[i]) return shutCard(i);
   const base  = SESSION.exercises[i];
   const name  = currentName(i);
   const timed = isTimed(name, base.scheme);
@@ -809,7 +855,7 @@ function exCard(i) {
   return `<div class="card exwrap" data-card="${i}">
     <div class="exhead">
       <div style="flex:1;min-width:0">
-        <div class="exname">${esc(name)}${PICK[i] !== 0 ? ' <span class="flag">swapped</span>' : ''}</div>
+        <div class="exname tap" data-collapse="${i}">${esc(name)}${PICK[i] !== 0 ? ' <span class="flag">swapped</span>' : ''}</div>
       </div>
       <div class="scheme">${esc(base.scheme)}</div>
       <button class="caret${OPEN[i] ? ' open' : ''}" data-caret="${i}" aria-label="Form, targets and common errors">${OPEN[i] ? '&#9650;' : '&#9660;'}</button>
@@ -822,6 +868,7 @@ function exCard(i) {
     ${noteHtml(i, name)}
     ${rateHtml}
     ${alts ? `<span class="swaplabel">Swap for</span><div class="swaps">${alts}</div>` : ''}
+    <button class="collapsebtn" data-collapse="${i}">&#9650; Done, collapse</button>
   </div>`;
 }
 
@@ -887,6 +934,24 @@ function wire() {
     saveRatings();
     repaint(i, false);
     paintSaveBtn();
+  });
+
+  document.querySelectorAll('[data-collapse]').forEach(b => b.onclick = () => {
+    const i = +b.dataset.collapse;
+    SHUT[i] = true;
+    OPEN[i] = false;
+    saveWip(true);
+    repaint(i, false);
+    // Keep the next exercise in view instead of leaving you mid-page.
+    const card = document.querySelector(`[data-card="${i}"]`);
+    if (card && card.getBoundingClientRect().top < 0) card.scrollIntoView({ block: 'start' });
+  });
+
+  document.querySelectorAll('[data-expand]').forEach(c => c.onclick = () => {
+    const i = +c.dataset.expand;
+    SHUT[i] = false;
+    saveWip(true);
+    repaint(i, false);
   });
 
   document.querySelectorAll('[data-notetog]').forEach(b => b.onclick = () => {
@@ -995,10 +1060,10 @@ function buildSession() {
       const rpe = v.d != null ? diffToRpe(v.d) : null;
       if (timed) {
         const t = num(v.t);
-        return t == null ? null : { duration_s: t, rpe };
+        return !t ? null : { duration_s: t, rpe };
       }
-      if (!v.w && !v.r) return null;
       const r = num(v.r);
+      if (num(v.w) == null && !r) return null;   // blank, or a stray 0
       return { weight_lb: num(v.w), reps: r == null ? null : Math.round(r), rpe };
     }).filter(Boolean);
 
@@ -1183,7 +1248,7 @@ document.getElementById('save').onclick = async () => {
   showSaveErr('');
 
   if (!GH.hasToken()) {
-    showSaveErr('This device has no GitHub key yet. <a href="index.html#key">Add it at the bottom of the dashboard</a>, then come back. Everything you typed stays here.');
+    showSaveErr('This device has no GitHub key yet. <a href="index.html#key">Add it at the bottom of the home page</a>, then come back. Everything you typed stays here.');
     return;
   }
 
@@ -1277,6 +1342,7 @@ function startSession(s, offDay) {
   SESSION_KEY = s.key || s.day || 'x';
   PICK   = s.exercises.map(() => 0);
   OPEN   = s.exercises.map(() => false);
+  SHUT   = s.exercises.map(() => false);
   VALUES = s.exercises.map(ex => [...Array(ex.sets)].map(() => ({ w: '', r: '', t: '', d: null })));
   FEEL   = 3;
   EXNOTES  = s.exercises.map(() => '');

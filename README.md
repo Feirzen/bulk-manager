@@ -2,9 +2,9 @@
 
 Lean bulk tracking. JSON in a repo, a dashboard, a workout page, and a home screen widget.
 
-**Dashboard:** https://feirzen.github.io/bulk-manager/
+**Home (review):** https://feirzen.github.io/bulk-manager/
 **Workout:** https://feirzen.github.io/bulk-manager/workout.html
-**Monthly review:** https://feirzen.github.io/bulk-manager/review.html
+**Nutrition:** https://feirzen.github.io/bulk-manager/nutrition.html
 
 ## How data gets in
 
@@ -16,14 +16,15 @@ Lean bulk tracking. JSON in a repo, a dashboard, a workout page, and a home scre
 | Workout results | Log on the workout page, tap Save. Copy and paste to Claude only when you want feedback |
 | Exercise ratings | Saved with the workout |
 
-Saving from the page needs a GitHub key on each device, pasted once into the collapsible section at the bottom of the dashboard. It lives in that browser only and never enters the repo.
+Saving from the page needs a GitHub key on each device, pasted once into the collapsible section at the bottom of the home page. It lives in that browser only and never enters the repo.
 
 ## Layout
 
 ```
-index.html          Dashboard: Today, Nutrition, Exercise
+index.html          Home: this month live, monthly reviews, GitHub key
+nutrition.html      Calories, protein, weight trend, and the daily Log
 workout.html        Session logger: warm-up, sets, notes, cool-down, Save
-review.html         Month in review, rendered from data/reviews/monthly-*.json
+review.html         Redirect to index.html, kept so old email links work
 assets/             Shared CSS, fetch helper, GitHub writer, exercise data
 widget/widget.js    Scriptable widget
 data/               All state

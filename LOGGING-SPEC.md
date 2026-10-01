@@ -15,7 +15,7 @@ The contract between Claude and this repo. Read before any write.
 | `data/workouts/log-YYYY-MM.json` | Workout page Save, or Claude | Completed sessions |
 | `data/preferences/exercises.json` | Workout page Save, or Claude | Favorited and disliked exercises |
 | `data/reviews/weekly-YYYY-MM-DD.md` | Claude, weekly task | Sunday review, narrative |
-| `data/reviews/monthly-YYYY-MM.json` | Claude, monthly task | Month in review, structured. `review.html` renders it |
+| `data/reviews/monthly-YYYY-MM.json` | Claude, monthly task | Month in review, structured. `index.html` renders it |
 | `data/reviews/monthly-YYYY-MM.md` | Claude, monthly task | Same review as prose, for the next review to read |
 | `assets/warmups.js` | Claude, rarely | Warm-up and cool-down options with the why and how |
 | `assets/exercises.js` | Claude, rarely | Form steps, common errors, load increments |
@@ -98,7 +98,7 @@ Recomputed in full on every nutrition or workout write. Never patched in place.
 
 When the date rolls over, reset the consumed values to zero and recompute the streak against the completed previous day. `sessions_this_week` counts logged sessions since the most recent Monday.
 
-**The dashboard does not trust this file for today's totals.** `index.html` derives calories, protein, streak, and next lift day from the month file and `config.json`, because `state.json` only refreshes when Claude writes and otherwise shows the last logged day forever. `state.json` exists for the Scriptable widget, which cannot do that work itself. Keep writing it, but a stale copy no longer breaks the dashboard.
+**The dashboard does not trust this file for today's totals.** `nutrition.html` derives calories, protein, and next lift day from the month file and `config.json`, because `state.json` only refreshes when Claude writes and otherwise shows the last logged day forever. `state.json` exists for the Scriptable widget, which cannot do that work itself. Keep writing it, but a stale copy no longer breaks the dashboard.
 
 ## Streaks
 
@@ -295,7 +295,7 @@ Three things the page does on its own that the spec depends on.
 
 **Ratings persist.** A rating in `data/preferences/exercises.json` renders as already selected. A local tap overrides it; tapping a lit button clears it and stores an explicit zero, which is what the `~` in the copied block carries. Save writes changed ratings to the preferences file, after which the repo is the source of truth on every device.
 
-**Save writes to the repo.** Each device holds a fine-grained GitHub token, pasted once into the collapsible "Saving from this device" section at the bottom of the dashboard and kept in that browser's storage only. It is never committed. The token is scoped to this repo with Contents read and write and nothing else. `assets/github.js` does the writing.
+**Save writes to the repo.** Each device holds a fine-grained GitHub token, pasted once into the collapsible "Saving from this device" section at the bottom of the home page and kept in that browser's storage only. It is never committed. The token is scoped to this repo with Contents read and write and nothing else. `assets/github.js` does the writing.
 
 One Save is one commit containing the month's workout log, `data/state.json`, and the preferences file when a rating changed. It reads the branch head, builds on it, and retries on top of the newer head if anything else committed in between, so a Claude review or the health Shortcut landing at the same moment is never overwritten.
 
@@ -305,7 +305,7 @@ The page recomputes only the training fields of `state.json` (`streak_days` as t
 
 `data/reviews/` holds output from the two scheduled tasks. Weekly files are named for the Sunday they cover and stay under 400 words. Each review reads the previous one, which is the only reason the tasks can notice a trend rather than restating a snapshot.
 
-The monthly review is two files and a short email. `monthly-YYYY-MM.json` is the structured version that `review.html?m=YYYY-MM` renders; `monthly-YYYY-MM.md` is the same content as prose for next month's run to read. The email is a 30-second teaser that links to the page. The page draws the lift-day calendar and weight chart itself from the raw data, so the JSON carries only the words and the numbers that need judgment.
+The monthly review is two files and a short email. `monthly-YYYY-MM.json` is the structured version that `index.html?m=YYYY-MM` renders; `monthly-YYYY-MM.md` is the same content as prose for next month's run to read. The email is a 30-second teaser that links to the page. The page draws the lift-day calendar and weight chart itself from the raw data, so the JSON carries only the words and the numbers that need judgment.
 
 ```json
 {
