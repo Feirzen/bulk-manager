@@ -1,0 +1,58 @@
+{
+  "month": "2026-09",
+  "generated_at": "2026-10-02T08:07:56Z",
+  "headline": {
+    "value": "3 of 13",
+    "label": "lift days",
+    "line": "Three sessions, all before 09-16, then it went quiet."
+  },
+  "tiles": [
+    { "label": "Lift days hit", "value": "3 of 13", "sub": "23%, none after 09-16" },
+    { "label": "Weight", "value": "168.2", "sub": "2 readings, 18 days stale" },
+    { "label": "Overhead press", "value": "+20 lb", "sub": "e1RM, 09-09 to 09-16" },
+    { "label": "Watch sync", "value": "3 of 30", "sub": "days captured" }
+  ],
+  "wins": [
+    "Overhead press went from collapsing on the machine, 50x6 down to 30x10, to holding 30 per hand twice.",
+    "Both captured non-lift days cleared 10,900 steps: 11,645 on 09-08 and 10,975 on 09-22. The walk habit is the one thing that held."
+  ],
+  "fix": "Nothing was logged after 09-16, so the last six scheduled lift days went by empty.",
+  "focus": "Monday is 0 for 4. Move that session to a day that happens, and weigh in twice a week.",
+  "lifts": [
+    { "name": "Overhead press", "from": "Machine 50 x 6", "to": "Dumbbell 30 x 10 per hand", "change": "+20 lb e1RM" },
+    { "name": "Triceps pushdown", "from": "35 x 10, 10, 10", "to": "35 x 10, 10, 11", "change": "+1 rep" },
+    { "name": "Lat pulldown", "from": "100 x 10 x 3", "to": "80 x 10, 80 x 10, 70 x 10", "change": "-20 lb, sub machine" },
+    { "name": "Barbell RDL", "from": "New on 09-16", "to": "90 x 10, 90 x 6", "change": "cut short, low back" },
+    { "name": "Seated leg curl", "from": "Baseline 09-09", "to": "220 x 10 @ RPE 8", "change": "293 lb e1RM" }
+  ],
+  "sections": [
+    {
+      "title": "Adherence",
+      "body": "Three sessions on 13 scheduled lift days. By day: Monday 0 of 4, Wednesday 2 of 5, Friday 1 of 4. Wednesday is the only day that has ever reliably happened.\n\nThe shape matters more than the rate. Everything landed between 09-09 and 09-16. From 09-18 to 09-30 there are six scheduled lift days and nothing on any of them, and no health file on those days either, so there is no way to tell a missed session from an unlogged one. Training streak ended the month at zero."
+    },
+    {
+      "title": "Lift detail",
+      "body": "Only two exercises got two logged passes all month, and only one of those is a clean comparison. Triceps pushdown sat at 35 for both, 10/10/10 on 09-09 and 10/10/11 on 09-16, which is the bottom of a 12-15 scheme. It has owed a load bump since 09-16.\n\nLat pulldown reads as a 20 lb drop but is not one. The regular machine was taken on 09-16 and the substitute had rotating top handles that put the work in the triceps. He already said he will not use it again, so the 100 x 10 x 3 from 09-09 is the real number.\n\nThe actual progress is the press. On 09-09 the machine press fell apart in real time, 50x6 to 40x5 to 30x10. On 09-16 the dumbbells held 30 per hand for 10 and 10 before dropping to 25x8. Epley on the best set goes 60 to 80 lb.\n\nBarbell RDL entered on 09-16 and left the same day, stopped at set two when the load moved into the low back. That is a bracing problem, not a loading one.\n\nThe 09-11 session was backfilled from memory three days later and it cost real data: single-arm cable row and standing calf raise carry null loads, and face pull has no sets at all. Those reps happened and are gone."
+    },
+    {
+      "title": "Weight",
+      "body": "Two readings for the whole month, 168.6 on 09-13 and 168.2 on 09-14, one day apart. Merging the health files adds nothing, since 09-14 carries the same 168.2 and every other file reads zero.\n\nTwo points one day apart is not a rate and none is published here. It has been 18 days since the last weigh-in. calibrate_on already moved from 09-28 to 10-18 for exactly this reason and will move again if there is still nothing to read. Both readings sit under the 170 lb assumed start in config.json, which is worth noticing and not worth acting on from two points."
+    },
+    {
+      "title": "Recovery and notes",
+      "body": "Low back came up twice in the same session. The RDL loaded into it at 90, and the dead bug lost its anti-lordosis brace by set three. Both point at the same thing, and his own note on 09-16 names it: needs more hip flexor work.\n\nThat work never showed up. No cardio array all month contains a hip flexor stretch or an anti-arch primer. The anti-lordosis work existed only as working sets, Pallof press on 09-09 and dead bug on 09-16, and both got logged as problems rather than progress. A warm-up was logged once in three sessions, elliptical half a mile on 09-09 with a bike cool-down.\n\nFace pull and Pallof press both ended the month filed as disliked. Face pull still has zero numbers on record. Lat pulldown is the only favorite, and it stayed in the Monday opener slot all month as the reason to show up."
+    },
+    {
+      "title": "Watch sync",
+      "body": "3 of 30 days have a health file: 09-08, 09-14, 09-22. The 09-14 file carries zero steps and zero active energy with only a weight attached, so two days are actually usable. 09-08 read 11,645 steps and 514 kcal active, 09-22 read 10,975 and 369.\n\nSecond month running this is the top fixable item in the repo. Three weekly reviews in a row said so. With the sync down, bodyweight only arrives when he types it in, which is why there are two readings instead of eight."
+    }
+  ],
+  "gaps": [
+    "No sessions logged 09-18 through 09-30",
+    "Two weigh-ins all month, no trend possible",
+    "27 of 30 days missing a health file",
+    "No InBody scan on file, never uploaded",
+    "No nutrition data, logging paused since 09-04",
+    "No loads recorded for cable row, calf raise or face pull on 09-11"
+  ]
+}
