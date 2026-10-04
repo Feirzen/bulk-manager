@@ -29,21 +29,39 @@
       "active": true,
       "unit": "scheduled_lift_day",
       "condition": "a logged session on a scheduled lift day",
-      "scheduled_days": ["Mon", "Wed", "Fri"],
-      "note": "Counts consecutive scheduled lift days with a logged session. Missing one resets. Optional add-ins and Saturday flex work neither break it nor count toward it, so an extra session is always free. Counting by week was rejected: a week-based streak breaks on one missed Friday and then reads as total failure, which is the opposite of useful."
+      "scheduled_days": [
+        "Tue",
+        "Wed",
+        "Fri"
+      ],
+      "note": "Counts consecutive scheduled lift days with a logged session. Missing one resets. Scheduled days moved Mon/Wed/Fri to Tue/Wed/Fri on 2026-10-04; see schedule.note. Optional add-ins and Saturday flex work neither break it nor count toward it, so an extra session is always free. Counting by week was rejected: a week-based streak breaks on one missed Friday and then reads as total failure, which is the opposite of useful."
     },
     "nutrition": {
       "active": false,
-      "conditions": ["logged_at_least_one_meal", "protein_target_met"],
+      "conditions": [
+        "logged_at_least_one_meal",
+        "protein_target_met"
+      ],
       "note": "Dormant while nutrition logging is paused, deliberately not deleted. Calories are not a condition because photo estimates are too noisy to gate a streak on. Resumes working the moment a food photo arrives."
     }
   },
   "schedule": {
-    "lift": ["Mon", "Wed", "Fri"],
-    "walk": ["Tue", "Thu"],
-    "flex": ["Sat"],
-    "rest": ["Sun"],
-    "note": "Monday is 0 for 3 since logging started, while Wednesday is 2 for 2 when it happens at all. The 09-27 review flagged that if Monday fails again the day itself is the problem rather than the session length, and the lift days should move. Not changed unilaterally; this is his call."
+    "lift": [
+      "Tue",
+      "Wed",
+      "Fri"
+    ],
+    "walk": [
+      "Tue",
+      "Thu"
+    ],
+    "flex": [
+      "Sat"
+    ],
+    "rest": [
+      "Sun"
+    ],
+    "note": "Lift days moved Mon to Tue on 2026-10-04. Monday went 0 for 5 from 2026-09-01, never once logged, while Wednesday is 2 for 5 and Friday 1 for 4. The 09-27 review set the condition: if Monday failed again the day itself was the problem rather than the session length, and the days should move. It failed again, so session A now sits on Tuesday, stacked onto the walk that reliably happens. The two highest-step days on file, 09-08 and 09-22, are both Tuesdays. Wednesday and Friday are untouched because they are the only days with any history. Reversible on request."
   },
   "review_cadence": {
     "weekly": "Sunday, automated. Reads the week, writes next week's program and data/reviews/weekly-YYYY-MM-DD.md, then messages a summary. Leads with adherence.",
