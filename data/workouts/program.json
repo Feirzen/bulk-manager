@@ -1,8 +1,8 @@
 {
-  "week_of": "2026-10-12",
-  "generated_at": "2026-10-11T09:00:00-06:00",
+  "week_of": "2026-10-19",
+  "generated_at": "2026-10-18T09:00:00-06:00",
   "rotation": "Same three sessions fixed to Tue / Wed / Fri so load progression stays readable week to week.",
-  "note": "Fourth 0 of 3 week. Nothing logged since 09-16, twenty-five days. Last week's lever was the day, Monday to Tuesday, and it got one week with almost no data behind it: no health file exists for Tue 10-06 or Fri 10-09 at all, so a session that happened and went unlogged is indistinguishable from a skip. The schedule holds for that reason, not because it is working yet. The lever this week is the floor. Each session now names one anchor lift, and that lift alone counts as the session: open the page, log one exercise, done, streak intact. Everything after the anchor is a bonus, not a requirement. Exercise selection is otherwise unchanged except that Seated cable row comes off Wednesday, which drops the longest day from four working lifts to three. It had been programmed four weeks running with zero history, and Wednesday needed to be the shortest it has ever been rather than the longest. The horizontal pull moves to Friday's single-arm cable row. Lat pulldown, the one favorited lift, stays where it does the most good: the anchor of the easiest session in the week. Loads carry forward unchanged for the fourth time, because nothing was logged to progress against. Straight sets, no supersets. A day that genuinely did not happen is worth logging as a skip, empty exercises and feel 'skipped', so the calendar stops guessing.",
+  "note": "Fifth 0 of 3 week. Nothing logged since 09-16, thirty-two days. Three levers have now been pulled and none of them moved anything: shorter sessions, Monday to Tuesday, then one anchor lift per day. That is enough evidence to say the program was never the constraint, so this week changes as little as possible and only in the direction of less. Seven working lifts across three days, the smallest week programmed yet. Hip thrust comes off Wednesday after five weeks of being programmed and never run; glute bridge takes the slot, which is the same movement off the floor with no bench to find and no barbell to load. Walking lunge drops off Friday to a substitution under leg press, so Friday is two lifts. The anchors are unchanged: lat pulldown Tuesday, overhead press Wednesday, incline press Friday, and the anchor alone still counts as the session. The success condition for this week is one logged session, not three. Loads carry forward for the fifth time because nothing was logged to progress against. Straight sets, no supersets. A day that did not happen is worth logging as a skip, empty exercises and feel 'skipped', so the calendar stops guessing.",
   "progression": {
     "rule": "Double progression driven by the average RPE of the logged sets, matching the suggester already running in workout.html.",
     "table": [
@@ -14,7 +14,7 @@
       "Dumbbell loads are per hand, so one load_step of 5 is one size up on one bell.",
       "Any of the above is overridden when the session note reports pain or a form breakdown. Load does not advance on a pattern he cannot yet brace."
     ],
-    "note": "Fourth week with nothing to progress against, so every load carries forward. Prescriptions remain keyed to the last session each exercise actually appeared in: 09-16 for the Wednesday lifts, 09-11 for the Friday lifts, 09-09 for the lat pulldown. The 09-16 lat pulldown numbers are ignored on purpose, because that was the rotating-handle substitute machine he will not use again. Three steps are still owed and still unearned until a session lands: incline dumbbell press to 35 per hand, triceps pushdown 12 reps across at 35, walking lunge three full sets at 30 per hand. workout.html does not know the rep-range ceiling, so its on-page suggestion can read 'chase a rep' where the program names a heavier load. The program's named load wins."
+    "note": "Fifth week with nothing to progress against, so every load carries forward. Prescriptions remain keyed to the last session each exercise actually appeared in: 09-16 for the Wednesday lifts, 09-11 for the Friday lifts, 09-09 for the lat pulldown. The 09-16 lat pulldown numbers are ignored on purpose, because that was the rotating-handle substitute machine he will not use again. Three steps are still owed and still unearned until a session lands: incline dumbbell press to 35 per hand, triceps pushdown 12 reps across at 35, walking lunge three full sets at 30 per hand. workout.html does not know the rep-range ceiling, so its on-page suggestion can read 'chase a rep' where the program names a heavier load. The program's named load wins."
   },
   "sessions": [
     {
@@ -38,10 +38,11 @@
           "name": "Leg press",
           "scheme": "3 x 8-10",
           "sets": 3,
-          "cue": "Bonus. Still no history after four weeks of carrying it. Pick a load you can finish ten clean reps with and write the number down. Stop before your hips curl off the pad.",
+          "cue": "Bonus, and the only leg work left in the week. Still no history after five weeks of carrying it. Pick a load you can finish ten clean reps with and write the number down. Stop before your hips curl off the pad.",
           "subs": [
             "Hack squat",
-            "Goblet squat"
+            "Goblet squat",
+            "Walking lunge"
           ]
         }
       ]
@@ -49,29 +50,28 @@
     {
       "day": "Wed",
       "key": "B",
-      "title": "Press, Hinge & Brace",
-      "focus": "Anchor is the overhead press, the only lift in the week with a clean recent number. Hip thrust and bird dog are the glute and anti-lordosis work behind it. Three lifts, the shortest Wednesday yet.",
+      "title": "Press, Glutes & Brace",
+      "focus": "Anchor is the overhead press, the only lift in the week with a clean recent number. Glute bridge and bird dog behind it are floor work, no setup, both anti-lordosis.",
       "supersets": [],
       "exercises": [
         {
           "name": "Overhead dumbbell press",
           "scheme": "3 x 8-10",
           "sets": 3,
-          "cue": "The anchor, and it leads now instead of following the hinge. 30 per hand, same as 09-16, where the third set dropped to 25 at RPE 9. Three clean sets at 30 is the whole job. Per hand, not the pair.",
+          "cue": "The anchor. 30 per hand, same as 09-16, where the third set dropped to 25 at RPE 9. Three clean sets at 30 is the whole job. Per hand, not the pair.",
           "subs": [
             "Machine shoulder press",
             "Landmine press"
           ]
         },
         {
-          "name": "Hip thrust",
-          "scheme": "3 x 10",
+          "name": "Glute bridge",
+          "scheme": "3 x 15",
           "sets": 3,
-          "cue": "Programmed four weeks running and never run. Stop at a straight line from knee to shoulder, ribs down. Record the load so this slot finally has a history.",
+          "cue": "Replaces the hip thrust, which was programmed five weeks and never run. Same movement off the floor, nothing to set up. Stop at a straight line from knee to shoulder, ribs down, do not arch past it.",
           "subs": [
-            "Glute bridge",
-            "Seated leg curl",
-            "Barbell RDL"
+            "Hip thrust",
+            "Seated leg curl"
           ]
         },
         {
@@ -89,35 +89,25 @@
     {
       "day": "Fri",
       "key": "C",
-      "title": "Chest, Single-leg & Row",
-      "focus": "Anchor is the incline press, which is owed a load step from 09-11. Lunge and row after it if the day has room. About twenty minutes full out.",
+      "title": "Chest & Row",
+      "focus": "Anchor is the incline press, which is owed a load step from 09-11. One row after it and the day is done. Fifteen minutes full out.",
       "supersets": [],
       "exercises": [
         {
           "name": "Incline dumbbell press",
           "scheme": "3 x 8-10",
           "sets": 3,
-          "cue": "The anchor, and it leads the day now. 30 per hand for 10 across at Hard on 09-11 earned the step and it is still owed four weeks later. Go to 35 per hand, bench at 30 degrees.",
+          "cue": "The anchor. 30 per hand for 10 across at Hard on 09-11 earned the step and it is still owed five weeks later. Go to 35 per hand, bench at 30 degrees.",
           "subs": [
             "Machine incline press",
             "Dumbbell bench press"
           ]
         },
         {
-          "name": "Walking lunge",
-          "scheme": "3 x 10/leg",
-          "sets": 3,
-          "cue": "30 per hand on all three sets. On 09-11 set one was 20, so the load step still has not been earned. Per hand.",
-          "subs": [
-            "Bulgarian split squat",
-            "Leg extension"
-          ]
-        },
-        {
           "name": "Single-arm cable row",
           "scheme": "3 x 10-12/side",
           "sets": 3,
-          "cue": "The week's only horizontal pull now that Wednesday dropped the cable row. One arm at a time, single handle. You ran it two-handed on 09-11 and the load went unrecorded. Let the shoulder blade travel forward, then pull, and write the number down.",
+          "cue": "The week's only horizontal pull. One arm at a time, single handle. You ran it two-handed on 09-11 and the load went unrecorded. Let the shoulder blade travel forward, then pull, and write the number down.",
           "subs": [
             "Machine row",
             "Chest-supported row"
@@ -131,7 +121,7 @@
       "key": "P",
       "title": "Hips & Posture",
       "focus": "Direct work on the lordosis: lengthen the hip flexors, get the glutes doing their job, brace without arching. The dead bug lost its brace on 09-16, and this is why.",
-      "when": "Any off day, Monday included now that it is free. 10 minutes. The one that actually moves the lordosis.",
+      "when": "Any off day, Monday included. 10 minutes, no equipment, doable at home. The one that actually moves the lordosis.",
       "exercises": [
         {
           "name": "Couch stretch",

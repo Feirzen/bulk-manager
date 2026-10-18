@@ -21,8 +21,8 @@
     "protein_g": 165,
     "weight_gain_lb_per_week": 0.35,
     "provisional": true,
-    "calibrate_on": "2026-10-18",
-    "note": "Provisional. Derived from Mifflin-St Jeor at 170 lb / 74 in with a 1.6 activity multiplier, plus a ~250 kcal surplus. With intake logging paused these function as a directional reference, not something to hit precisely. The weekly review reads the weight trend and gives a direction, eat more or hold, rather than a number to count to. Calibration was dated 2026-09-28 but arrived with zero weight readings in the window: the only two on file are 09-13 and 09-14. Moved to 2026-10-18, which is three more Sundays. It moves again if the trend is still unavailable then, and the requirement is two weigh-ins a week, not daily."
+    "calibrate_on": "2026-11-08",
+    "note": "Provisional. Derived from Mifflin-St Jeor at 170 lb / 74 in with a 1.6 activity multiplier, plus a ~250 kcal surplus. With intake logging paused these function as a directional reference, not something to hit precisely. The weekly review reads the weight trend and gives a direction, eat more or hold, rather than a number to count to. Calibration has now slipped twice, from 09-28 to 10-18 to 11-08, every time for the same reason: zero weight readings in the window. The only two on file are 09-13 and 09-14. It will keep sliding until two weigh-ins land in a single week, which is the whole requirement. It is not a daily weigh-in and it never was."
   },
   "streak_rules": {
     "training": {
@@ -61,7 +61,7 @@
     "rest": [
       "Sun"
     ],
-    "note": "Lift days moved Mon to Tue on 2026-10-04. Monday went 0 for 5 from 2026-09-01, never once logged, while Wednesday is 2 for 5 and Friday 1 for 4. The 09-27 review set the condition: if Monday failed again the day itself was the problem rather than the session length, and the days should move. It failed again, so session A now sits on Tuesday, stacked onto the walk that reliably happens. The two highest-step days on file, 09-08 and 09-22, are both Tuesdays. Wednesday and Friday are untouched because they are the only days with any history. Reversible on request."
+    "note": "Lift days moved Mon to Tue on 2026-10-04. Monday went 0 for 5 from 2026-09-01, never once logged, while Wednesday is 2 for 5 and Friday 1 for 4. The 09-27 review set the condition: if Monday failed again the day itself was the problem rather than the session length, and the days should move. It failed again, so session A now sits on Tuesday, stacked onto the walk that reliably happens. The two highest-step days on file, 09-08 and 09-22, are both Tuesdays. Wednesday and Friday are untouched because they are the only days with any history. The move has now had two weeks and produced nothing, but the days stay put rather than churning a third time, because the 10-18 review concluded the schedule is not what is limiting this. Reversible on request."
   },
   "review_cadence": {
     "weekly": "Sunday, automated. Reads the week, writes next week's program and data/reviews/weekly-YYYY-MM-DD.md, then messages a summary. Leads with adherence.",
