@@ -26,7 +26,8 @@ const EX_KNOW = {
     feel: 'Front of the thighs, and the glutes at the bottom of each rep. Nothing at all in your low back.',
     vs: {
       'Goblet squat': { v: 'close', n: 'Same knee-dominant pattern, but you hold the load in front, so your trunk and upper back work to stay upright. Lighter absolute load. Better carryover to real life, harder to load heavy.' },
-      'Hack squat': { v: 'like', n: 'Nearly identical stimulus with a slightly deeper knee bend and more quad bias. Free swap.' }
+      'Hack squat': { v: 'like', n: 'Nearly identical stimulus with a slightly deeper knee bend and more quad bias. Free swap.' },
+      'Walking lunge': { v: 'close', n: 'Same quads and glutes, one leg at a time and standing up, so balance and hip stability join in and the load drops a long way. Takes a lane rather than a machine. Use it when the leg press is occupied or you want the single-leg work back in the week.' }
     }
   },
   'Goblet squat': {
@@ -296,7 +297,8 @@ const EX_KNOW = {
     targets: { primary: ['Gluteus maximus'], secondary: ['Hamstrings', 'Core'] },
     feel: 'Glutes at the top. Stop at a straight line from knee to shoulder. Arching past it defeats the purpose.',
     vs: {
-      'Hip thrust': { v: 'like', n: 'Loaded version of the same movement with a longer range. Straight upgrade once bodyweight gets easy.' }
+      'Hip thrust': { v: 'like', n: 'Loaded version of the same movement with a longer range. Straight upgrade once bodyweight gets easy.' },
+      'Seated leg curl': { v: 'diff', n: 'Bends the knee instead of extending the hip, so it trains hamstrings and leaves the glutes alone. Decent leg work, but it does nothing for the hip extension this slot exists to train.' }
     }
   },
   'Bird dog': {
