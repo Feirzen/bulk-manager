@@ -118,7 +118,8 @@ function buildThemeButton() {
       `<button data-t="${k}"${k === currentTheme() ? ' class="sel"' : ''}>
          <span class="swat" style="background:${t.swatch}"></span>${t.label}
          ${k === 'gecko' && k === currentTheme() ? '<span style="margin-left:auto;font-size:11px;opacity:.65">reroll</span>' : ''}
-       </button>`).join('');
+       </button>`).join('')
+      + (window.Kit ? `<button data-flag style="border-top:1px solid rgba(128,128,128,.25)"><span class="swat" style="background:none;display:flex;align-items:center;justify-content:center">⚑</span>Raise a flag</button>` : '');
 
     document.body.appendChild(scrim);
     document.body.appendChild(menu);
@@ -126,6 +127,7 @@ function buildThemeButton() {
     menu.style.top = (r.bottom + 8) + 'px';
 
     menu.querySelectorAll('button').forEach(b => b.onclick = () => {
+      if (b.hasAttribute('data-flag')) { closeMenu(); if (window.Kit) Kit.flag.menu(); return; }
       const t = b.dataset.t;
       applyTheme(t, t === 'gecko' && t === currentTheme());
       closeMenu();
