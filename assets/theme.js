@@ -1,8 +1,9 @@
 // Theme switching. Four options: dark, light, sepia, gecko.
 // Everything renders from CSS custom properties, so switching is one
-// attribute on <html>. Gecko is generated fresh each time it is picked and
-// writes the same variables inline, overriding whatever the sheet set.
-// Included by every page. Auto-injects its own button into <header>.
+// attribute on <html>. Gecko writes the same variables inline, overriding
+// whatever the sheet set. Included by every page.
+// The settings gear beside the date is the shared kit's gear (Feirzen/flag-hub
+// kit/kit.js): it rolls out Look and Flag. Bulk Manager still paints its own looks.
 
 const THEMES = {
   dark:  { label: 'Dark',  swatch: '#0F0F13' },
@@ -14,6 +15,12 @@ const THEMES = {
 const THEME_VARS = ['paper', 'card', 'ink', 'ink-2', 'ink-3', 'rule', 'track', 'signal', 'protein', 'burn', 'over', 'navbg'];
 const THEME_KEY  = 'bulk-theme';
 const GECKO_KEY  = 'bulk-gecko';
+const TONE_KEY   = 'bulk-gecko-tone';   // any | light | dark
+const LOCK_KEY   = 'bulk-gecko-lock';   // '1' keeps the saved palette, '0' rolls new colors each page
+const lsGet = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+const geckoTone = () => ['light', 'dark'].includes(lsGet(TONE_KEY)) ? lsGet(TONE_KEY) : 'any';
+const geckoLocked = () => lsGet(LOCK_KEY) !== '0';   // locked unless turned off: the palette stays put, like it always has
 
 function currentTheme() {
   try { return THEMES[localStorage.getItem(THEME_KEY)] ? localStorage.getItem(THEME_KEY) : 'dark'; }
@@ -22,12 +29,12 @@ function currentTheme() {
 
 // One random hue drives the whole palette, with the accent pushed roughly
 // opposite it so it still reads as an accent. Occasionally rolls light.
-function makeGecko() {
+function makeGecko(tone = geckoTone()) {   // tone: any, light only, or dark only
   const h    = Math.floor(Math.random() * 360);
   const acc  = (h + 120 + Math.floor(Math.random() * 110)) % 360;
   const H    = (x, s, l, a) => `hsl(${x} ${s}% ${l}%${a ? ' / ' + a + '%' : ''})`;
 
-  if (Math.random() < 0.3) {
+  if (tone === 'light' || (tone !== 'dark' && Math.random() < 0.3)) {
     return {
       paper: H(h, 32, 95), card: H(h, 42, 99), track: H(h, 26, 91),
       rule: H(h, 22, 83), ink: H(h, 38, 11), 'ink-2': H(h, 18, 33),
@@ -68,7 +75,7 @@ function applyTheme(name, reroll) {
 
   if (t === 'gecko') {
     let vars = null;
-    if (!reroll) {
+    if (!reroll && geckoLocked()) {
       try { vars = JSON.parse(localStorage.getItem(GECKO_KEY) || 'null'); } catch (e) {}
     }
     if (!vars) {
@@ -85,14 +92,20 @@ function applyTheme(name, reroll) {
 // Apply before paint so there is no flash of the wrong theme.
 applyTheme(currentTheme(), false);
 
-function buildThemeButton() {
+const GEAR_SVG = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>';
+
+// The gear has to exist before the kit (a deferred script) looks for it, so it's
+// built when parsing finishes ('interactive'), which is before deferred scripts run.
+function buildGear() {
   const header = document.querySelector('header');
   if (!header || document.querySelector('.themebtn')) return;
 
   const btn = document.createElement('button');
-  btn.className = 'themebtn';
-  btn.setAttribute('aria-label', 'Change theme');
-  btn.innerHTML = '<span class="dot"></span>';
+  btn.className = 'themebtn gear';
+  btn.id = 'bmGear';
+  btn.setAttribute('aria-label', 'Settings');
+  btn.title = 'Settings';
+  btn.innerHTML = GEAR_SVG;
 
   // Sits beside the date, whatever the page header layout is.
   const anchor = header.querySelector('.date');
@@ -104,43 +117,23 @@ function buildThemeButton() {
   } else {
     header.appendChild(btn);
   }
-
-  btn.onclick = () => {
-    if (document.querySelector('.thememenu')) return closeMenu();
-
-    const scrim = document.createElement('div');
-    scrim.className = 'themescrim';
-    scrim.onclick = closeMenu;
-
-    const menu = document.createElement('div');
-    menu.className = 'thememenu';
-    menu.innerHTML = Object.entries(THEMES).map(([k, t]) =>
-      `<button data-t="${k}"${k === currentTheme() ? ' class="sel"' : ''}>
-         <span class="swat" style="background:${t.swatch}"></span>${t.label}
-         ${k === 'gecko' && k === currentTheme() ? '<span style="margin-left:auto;font-size:11px;opacity:.65">reroll</span>' : ''}
-       </button>`).join('')
-      + (window.Kit ? `<button data-flag style="border-top:1px solid rgba(128,128,128,.25)"><span class="swat" style="background:none;display:flex;align-items:center;justify-content:center">⚑</span>Raise a flag</button>` : '');
-
-    document.body.appendChild(scrim);
-    document.body.appendChild(menu);
-    const r = btn.getBoundingClientRect();
-    menu.style.top = (r.bottom + 8) + 'px';
-
-    menu.querySelectorAll('button').forEach(b => b.onclick = () => {
-      if (b.hasAttribute('data-flag')) { closeMenu(); if (window.Kit) Kit.flag.menu(); return; }
-      const t = b.dataset.t;
-      applyTheme(t, t === 'gecko' && t === currentTheme());
-      closeMenu();
-    });
-  };
-
-  function closeMenu() {
-    document.querySelectorAll('.thememenu,.themescrim').forEach(x => x.remove());
-  }
 }
 
+const KIT_TO_BM = { light: 'light', dark: 'dark', sepia: 'sepia', chameleon: 'gecko' };
+window.KitConfig = {
+  gear: '#bmGear',
+  look: {
+    labels: { chameleon: 'Gecko' },
+    get: () => ({ theme: currentTheme() === 'gecko' ? 'chameleon' : currentTheme(), tone: geckoTone(), locked: currentTheme() === 'gecko' && geckoLocked() }),
+    set: t => applyTheme(KIT_TO_BM[t] || 'dark', false),
+    tone: t => { lsSet(TONE_KEY, t); applyTheme('gecko', true); },
+    lock: on => lsSet(LOCK_KEY, on ? '1' : '0'),
+    reroll: () => applyTheme('gecko', true),
+  },
+};
+
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', buildThemeButton);
+  document.addEventListener('readystatechange', buildGear, { once: true });
 } else {
-  buildThemeButton();
+  buildGear();
 }

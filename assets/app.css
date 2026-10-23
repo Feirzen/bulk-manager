@@ -107,29 +107,17 @@ header .date{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--in
   padding:0;
 }
 .themebtn:active{transform:scale(.93)}
-.themebtn .dot{
-  width:15px;height:15px;border-radius:50%;
-  background:conic-gradient(#F87171,#FBBF24,#34D399,#38BDF8,#A78BFA,#F87171);
-  display:block;
+.themebtn.gear{color:var(--ink-2)}
+.themebtn.gear svg{transition:transform .55s cubic-bezier(.175,.885,.32,1.275)}
+
+/* the shared kit (gear tray, Look panel, flags) reads these names */
+:root{
+  --bg:var(--paper);--surface:var(--card);--surface2:var(--track);
+  --border:var(--rule);--border2:var(--ink-3);--text:var(--ink);
+  --dim:var(--ink-2);--muted:var(--ink-3);--accent:var(--signal);
+  --ok:var(--protein);--bad:var(--over);--star:var(--burn);
 }
-.thememenu{
-  position:fixed;top:0;right:12px;z-index:70;
-  background:var(--card);border:1px solid var(--rule);
-  border-radius:12px;padding:6px;min-width:180px;
-  box-shadow:0 12px 34px rgba(0,0,0,.35);
-}
-.thememenu button{
-  display:flex;align-items:center;gap:10px;width:100%;
-  background:none;border:0;color:var(--ink);cursor:pointer;
-  padding:10px 12px;border-radius:8px;font-size:14px;text-align:left;
-  font-family:inherit;
-}
-.thememenu button.sel{color:var(--signal);font-weight:600}
-.thememenu .swat{
-  width:17px;height:17px;border-radius:50%;flex:none;
-  border:1px solid var(--rule);
-}
-.themescrim{position:fixed;inset:0;z-index:69;background:transparent}
+
 
 .gauge-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:12px}
 .gauge-big{font-size:40px;line-height:1;letter-spacing:-.02em}
