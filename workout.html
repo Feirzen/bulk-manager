@@ -40,6 +40,7 @@
     font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;
     color:var(--ink-2);cursor:pointer;
   }
+  .banner b{color:var(--ink);font-weight:600}
 
   /* ---- exercise card ---- */
   .exwrap{transition:opacity .18s ease, transform .18s ease}
@@ -1371,11 +1372,14 @@ function startSession(s, offDay) {
   const bits = [];
   if (restored && SAVED_SIG) bits.push(`Saved to your log${SAVED_AT ? ' at ' + timeStr(SAVED_AT) : ''}. Change anything and save again to update it.`);
   else if (restored) bits.push('Picked up where you left off. Everything you typed is still here.');
-  else if (offDay) bits.push(`Not a lift day. This is <b>${esc(s.day || 'an add-in')}</b>, opened early.`);
+  else if (offDay) {
+    const full = { Mon: 'Monday', Tue: 'Tuesday', Wed: 'Wednesday', Thu: 'Thursday', Fri: 'Friday', Sat: 'Saturday', Sun: 'Sunday' }[s.day];
+    bits.push(full ? `Rest day today. This is <b>${full}'s</b> session, opened early.` : 'Rest day today. This is an add-in session, opened early.');
+  }
   else if (s.when) bits.push(esc(s.when));
 
   document.getElementById('banner').innerHTML = bits.length
-    ? `<div class="banner">${bits.join(' ')}${restored ? '<button id="clearwip">Start over</button>' : ''}</div>`
+    ? `<div class="banner"><span>${bits.join(' ')}</span>${restored ? '<button id="clearwip">Start over</button>' : ''}</div>`
     : '';
 
   const clr = document.getElementById('clearwip');
