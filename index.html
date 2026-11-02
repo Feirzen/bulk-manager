@@ -54,6 +54,9 @@
   .cal .d.hit{opacity:1;background:var(--signal);color:var(--paper);font-weight:600;border:0}
   .cal .d.extra{opacity:1;background:none;border:1.5px solid var(--signal);color:var(--signal)}
   .cal .d.future{opacity:.25}
+  .cal .d.plan{opacity:.55;background:none;border:1.5px dotted var(--ink-3)}
+  .cal .d.today{opacity:1;box-shadow:0 0 0 2px var(--paper),0 0 0 3.5px var(--signal);color:var(--ink);font-weight:600}
+  .cal .d.today.lift{border:1.5px dashed var(--signal);color:var(--signal)}
   .legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px;font-family:'IBM Plex Mono',monospace;
     font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
   .legend i{display:inline-block;width:10px;height:10px;border-radius:3px;vertical-align:-1px;margin-right:5px}
@@ -216,19 +219,25 @@ function calendar(m, sessions, liftDays) {
 
   let cells = ['M', 'T', 'W', 'T', 'F', 'S', 'S'].map(d => `<div class="dn">${d}</div>`).join('');
   cells += '<div></div>'.repeat(lead);
-  let hit = 0, sched = 0;
+  let hit = 0, sched = 0, ahead = 0;
   for (let d = 1; d <= days; d++) {
     const date = new Date(y, mo - 1, d);
     const iso = isoDate(date);
     const isLift = liftDays.includes(names[date.getDay()]);
     const did = done.has(iso);
     let cls = 'd';
-    if (iso > today) cls += ' future';
+    if (iso > today) { cls += isLift ? ' plan' : ' future'; if (isLift) ahead++; }
     else if (isLift && did) { cls += ' hit'; hit++; sched++; }
+    else if (isLift && iso === today) { cls += ' lift'; ahead++; }   // today is still open, not missed
     else if (isLift) { cls += ' lift'; sched++; }
     else if (did) cls += ' extra';
-    cells += `<div class="${cls}">${d}</div>`;
+    if (iso === today) cls += ' today';
+    cells += `<div class="${cls}"${iso === today ? ' aria-current="date"' : ''}>${d}</div>`;
   }
+  const isNow = m === today.slice(0, 7);
+  const tally = isNow
+    ? `<b>${hit} of ${sched}</b> lift days so far${ahead ? `, <b>${ahead}</b> still ahead` : ''}.`
+    : `<b>${hit} of ${sched}</b> scheduled lift days.`;
   return `<div class="card">
     <h2 style="margin-bottom:8px">Lift days</h2>
     <div class="cal">${cells}</div>
@@ -236,8 +245,9 @@ function calendar(m, sessions, liftDays) {
       <span><i style="background:${css('--signal')}"></i>Hit</span>
       <span><i style="border:1.5px dashed ${css('--ink-3')}"></i>Missed</span>
       <span><i style="border:1.5px solid ${css('--signal')}"></i>Extra day</span>
+      ${isNow ? `<span><i style="border:1.5px dotted ${css('--ink-3')}"></i>Coming up</span>` : ''}
     </div>
-    <div class="delta" style="margin-top:9px"><b>${hit} of ${sched}</b> scheduled lift days.</div>
+    <div class="delta" style="margin-top:9px">${tally}</div>
   </div>`;
 }
 
