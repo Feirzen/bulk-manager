@@ -127,6 +127,17 @@
   }
   .sugg b{color:var(--ink)}
   .sugg.cold{border-left-color:var(--ink-3)}
+  /* One tap copies last session's numbers into the empty sets. Saves nothing. */
+  .samebtn{
+    display:inline-block;margin-top:8px;padding:6px 11px;border-radius:7px;
+    border:1px solid var(--rule);background:transparent;color:var(--ink);
+    font:500 11px 'IBM Plex Mono',monospace;letter-spacing:.04em;cursor:pointer;
+    transition:background .2s ease,transform .15s ease;
+  }
+  .samebtn:active{background:var(--track);transform:scale(.98)}
+  .set input.justfilled{animation:fillglow .9s ease-out}
+  @keyframes fillglow{from{box-shadow:0 0 0 2px var(--signal)}to{box-shadow:0 0 0 2px transparent}}
+  @media (prefers-reduced-motion:reduce){.set input.justfilled{animation:none}}
 
   /* ---- set logging ---- */
   .sets{margin-top:13px;display:flex;flex-direction:column;gap:12px}
@@ -707,6 +718,19 @@ function trendPoints(name, timed) {
   });
   return pts.sort((a, b) => a.date.localeCompare(b.date));
 }
+// Last logged sets for this lift, newest session first. Used by the
+// "Same as last time" button, which only fills boxes on this screen.
+function lastSets(name, timed) {
+  const past = HISTORY
+    .filter(s => (s.exercises || []).some(e => e.name === name))
+    .sort((a, b) => String(b.date).localeCompare(String(a.date)));
+  if (!past.length) return [];
+  const ex = past[0].exercises.find(e => e.name === name);
+  return (ex.sets || []).filter(st => st && (timed
+    ? typeof st.duration_s === 'number'
+    : (st.weight_lb != null || st.reps != null)));
+}
+
 function sparkHtml(name, timed) {
   const pts = trendPoints(name, timed);
   if (pts.length < 2) return '';
@@ -853,7 +877,8 @@ function exCard(i) {
     : 'No history yet. Pick a weight you could stop two reps short of, and log how it felt.';
 
   const sugHtml = sug
-    ? `<div class="sugg"><b>${prettyDate(sug.date)}:</b> ${esc(sug.last)}<br>${sug.advice}</div>`
+    ? `<div class="sugg"><b>${prettyDate(sug.date)}:</b> ${esc(sug.last)}<br>${sug.advice}${
+        lastSets(name, timed).length ? `<br><button class="samebtn" data-same="${i}">&#8635; Same as last time</button>` : ''}</div>`
     : `<div class="sugg cold">${coldMsg}</div>`;
 
   const setsHtml = [...Array(base.sets)].map((_, j) => {
@@ -963,6 +988,28 @@ function wire() {
     PICK[i] = +b.dataset.opt;
     saveWip(true);
     repaint(i, true);
+  });
+
+  // Fills only the sets that are still blank, so nothing you typed is lost.
+  document.querySelectorAll('[data-same]').forEach(b => b.onclick = () => {
+    const i = +b.dataset.same;
+    const timed = currentTimed(i);
+    const last = lastSets(currentName(i), timed);
+    if (!last.length) return;
+    VALUES[i].forEach((v, j) => {
+      const src = last[Math.min(j, last.length - 1)];
+      if (timed) {
+        if (!String(v.t || '').trim()) v.t = String(src.duration_s);
+      } else if (!String(v.w || '').trim() && !String(v.r || '').trim()) {
+        v.w = src.weight_lb != null ? String(src.weight_lb) : '';
+        v.r = src.reps != null ? String(src.reps) : '';
+      }
+    });
+    saveWip();
+    repaint(i, false);
+    document.querySelectorAll(`[data-card="${i}"] .set input`).forEach(x => {
+      if (x.value) x.classList.add('justfilled');
+    });
   });
 
   document.querySelectorAll('.set input').forEach(inp => inp.oninput = () => {
