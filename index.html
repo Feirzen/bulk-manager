@@ -127,6 +127,8 @@
   }
   .keybtns button.go{background:var(--ink);color:var(--paper);border-color:var(--ink)}
   .keymsg{margin-top:9px;font-size:12px;min-height:16px}
+  /* Quiet note when the Health Sync shortcut has gone quiet. Gray, no alarm. */
+  .syncline{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-3);margin:10px 2px 0;letter-spacing:.02em}
   .keymsg.ok{color:var(--protein)} .keymsg.bad{color:var(--over)}
 </style>
 </head>
@@ -144,6 +146,7 @@
       <button id="next" aria-label="Next month">&#9654;</button>
     </div>
   </header>
+  <p class="syncline" id="syncline" hidden></p>
   <div id="out"><div class="card"><div class="empty"><b>Loading</b></div></div></div>
 
   <details class="card keybox" id="key">
@@ -459,6 +462,32 @@ if (!/^\d{4}-\d{2}$/.test(CUR) || CUR > monthKey(new Date())) CUR = monthKey(new
 document.getElementById('prev').onclick = () => { CUR = shiftMonth(CUR, -1); render(CUR); };
 document.getElementById('next').onclick = () => { CUR = shiftMonth(CUR, 1); render(CUR); };
 render(CUR);
+
+// ---------- Health Sync last ran ----------
+// Read-only. Looks back 3 weeks for the newest daily health file and shows a
+// gray line only when the newest one is more than 2 days old.
+(async function syncLine() {
+  const el = document.getElementById('syncline');
+  const days = recentDates(21);
+  const files = await Promise.all(days.map(d => load(`data/health/${d}.json`)));
+  let last = null;
+  files.forEach((h, i) => {
+    if (!h) return;
+    const d = (h.synced_at || h.date || days[i]).slice(0, 10);
+    if (!last || d > last) last = d;
+  });
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  if (last) {
+    const [y, m, d] = last.split('-').map(Number);
+    const gap = Math.round((today - new Date(y, m - 1, d)) / 864e5);
+    if (gap <= 2) return;
+    el.textContent = 'Health Sync last ran ' + new Date(y, m - 1, d)
+      .toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+  } else {
+    el.textContent = 'Health Sync hasn\u2019t run in over 3 weeks';
+  }
+  el.hidden = false;
+})();
 
 // ---------- GitHub key for this device ----------
 (function keyPanel() {
