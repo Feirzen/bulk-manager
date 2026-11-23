@@ -47,6 +47,12 @@
   .exwrap.swapping{opacity:0;transform:translateY(8px)}
   .exhead{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
   .exname{font-size:16px;font-weight:600;line-height:1.25}
+  /* tiny 8-week trend line beside each lift: read only, neutral colors, never red */
+  .spark{flex:none;display:block;width:64px;height:20px;margin-top:2px;opacity:0;animation:sparkin .6s ease-out .1s forwards}
+  .spark polyline{fill:none;stroke:var(--ink-3);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+  .spark circle{fill:var(--signal)}
+  @keyframes sparkin{to{opacity:1}}
+  @media (prefers-reduced-motion:reduce){.spark{animation:none;opacity:1}}
   .scheme{
     font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;
     color:var(--signal);white-space:nowrap;letter-spacing:-.01em;
@@ -441,6 +447,7 @@ let PROG        = {};      // the whole program file
 let SESSION     = null;    // { title, exercises: [...] }
 let SESSION_KEY = null;    // A / B / C / P / S. Keys the autosave slot
 let HISTORY     = [];      // past logged sessions, any month
+let TREND       = [];      // logged sessions from the last 8 weeks, for the trend lines
 let PICK        = [];      // per-exercise: active option in [main, ...subs]
 let VALUES      = [];      // per-exercise, per-set: { w, r, t, d }
 let OPEN        = [];      // per-exercise: detail panel expanded
@@ -676,6 +683,47 @@ function suggestion(name, timed) {
   return { date: sess.date, last, advice, target };
 }
 
+// ---------- 8-week trend line ----------
+// One point per logged session over the last 8 weeks: best estimated max for
+// weighted lifts, best reps for bodyweight, longest hold for timed ones. Read
+// only, drawn from the logs. Needs two sessions to say anything, so it stays
+// hidden until then. Flat stretches just look flat.
+const TREND_DAYS = 56;
+function trendPoints(name, timed) {
+  const pts = [];
+  TREND.forEach(sess => {
+    const ex = (sess.exercises || []).find(e => e.name === name);
+    if (!ex) return;
+    let best = null;
+    (ex.sets || []).forEach(st => {
+      if (!st) return;
+      let v = null;
+      if (timed) v = typeof st.duration_s === 'number' ? st.duration_s : null;
+      else if (typeof st.weight_lb === 'number' && st.weight_lb > 0 && typeof st.reps === 'number' && st.reps > 0) v = st.weight_lb * (1 + st.reps / 30);
+      else if (typeof st.reps === 'number') v = st.reps;
+      if (v != null && (best == null || v > best)) best = v;
+    });
+    if (best != null) pts.push({ date: String(sess.date), v: best });
+  });
+  return pts.sort((a, b) => a.date.localeCompare(b.date));
+}
+function sparkHtml(name, timed) {
+  const pts = trendPoints(name, timed);
+  if (pts.length < 2) return '';
+  const W = 64, H = 20, P = 3;
+  const lo = Math.min(...pts.map(p => p.v)), hi = Math.max(...pts.map(p => p.v));
+  const span = hi - lo || 1;
+  const xy = pts.map((p, k) => [
+    P + (k / (pts.length - 1)) * (W - 2 * P),
+    hi === lo ? H / 2 : H - P - ((p.v - lo) / span) * (H - 2 * P)
+  ]);
+  const last = xy[xy.length - 1];
+  const tip = `${pts.length} sessions in the last 8 weeks`;
+  return `<svg class="spark" viewBox="0 0 ${W} ${H}" role="img" aria-label="${tip}"><title>${tip}</title>
+    <polyline points="${xy.map(q => q[0].toFixed(1) + ',' + q[1].toFixed(1)).join(' ')}"/>
+    <circle cx="${last[0].toFixed(1)}" cy="${last[1].toFixed(1)}" r="2.2"/></svg>`;
+}
+
 // ---------- exercise card ----------
 function options(i) {
   const base = SESSION.exercises[i];
@@ -768,6 +816,7 @@ function shutCard(i) {
         <div class="exname">${esc(name)}${PICK[i] !== 0 ? ' <span class="flag">swapped</span>' : ''}</div>
         <div class="shutsum ${cls}">${esc(sum)}</div>
       </div>
+      ${sparkHtml(name, timed)}
       <div class="scheme">${esc(base.scheme)}</div>
       <span class="chev">&#9660;</span>
     </div>
@@ -858,6 +907,7 @@ function exCard(i) {
       <div style="flex:1;min-width:0">
         <div class="exname tap" data-collapse="${i}">${esc(name)}${PICK[i] !== 0 ? ' <span class="flag">swapped</span>' : ''}</div>
       </div>
+      ${sparkHtml(name, timed)}
       <div class="scheme">${esc(base.scheme)}</div>
       <button class="caret${OPEN[i] ? ' open' : ''}" data-caret="${i}" aria-label="Form, targets and common errors">${OPEN[i] ? '&#9650;' : '&#9660;'}</button>
     </div>
@@ -1491,6 +1541,13 @@ function renderPast() {
     load(`data/workouts/log-${monthKey(prevMonth)}.json`, { sessions: [] }),
     load('data/preferences/exercises.json', { favorites: [], disliked: [] })
   ]);
+  // The trend lines reach back 8 weeks, which can touch a third month.
+  const back = new Date(now.getTime() - TREND_DAYS * DAY_MS);
+  const older = monthKey(back) < monthKey(prevMonth)
+    ? await load(`data/workouts/log-${monthKey(back)}.json`, { sessions: [] }) : { sessions: [] };
+  const cutoff = isoDate(back);
+  TREND = [].concat(thisM.sessions || [], lastM.sessions || [], older.sessions || [])
+    .filter(x => x && x.feel !== 'skipped' && String(x.date) >= cutoff);
 
   PROG    = prog;
   HISTORY = [].concat(thisM.sessions || [], lastM.sessions || []);
